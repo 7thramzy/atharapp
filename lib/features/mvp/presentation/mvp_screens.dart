@@ -68,7 +68,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
         title: Text(_t(context, 'مصدر النص والترخيص', 'Text source and license')),
         content: SingleChildScrollView(
           child: SelectableText(
-            '${manifest['source']}\n${manifest['edition']} — ${manifest['version']}\n$sourceUrl\n\n$licenseNotice',
+            '$${manifest['source']}\n${manifest['edition']} — ${manifest['version']}\n$sourceUrl\n\n$licenseNotice',
             textDirection: TextDirection.ltr,
           ),
         ),
@@ -127,7 +127,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                       dense: true,
                       leading: const Icon(Icons.verified_outlined),
                       title: Text(_t(context, 'النص العثماني — مشروع تنزيل', 'Uthmani text — Tanzil Project')),
-                      subtitle: Text('${_sourceManifest!['edition']} · ${_sourceManifest!['version']}'),
+                      subtitle: Text('$${_sourceManifest!['edition']} · $${_sourceManifest!['version']}'),
                       trailing: const Icon(Icons.open_in_new),
                       onTap: _showSourceInfo,
                     ),

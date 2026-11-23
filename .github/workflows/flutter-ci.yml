@@ -26,6 +26,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
       - name: Download and fingerprint official source
         run: python tooling/content/quran/download_source.py
       - name: Build and validate deterministic offline import JSON
@@ -46,6 +55,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
       - name: Download official Quran dataset for build
         uses: actions/download-artifact@v4
         with:
@@ -120,10 +138,19 @@ jobs:
   android-build:
     name: Android debug build
     runs-on: ubuntu-latest
-    needs: quality
+    needs: [quality, acquire-quran-source]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -155,10 +182,19 @@ jobs:
   ios-build:
     name: iOS simulator build
     runs-on: macos-latest
-    needs: quality
+    needs: [quality, acquire-quran-source]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -182,11 +218,20 @@ jobs:
   windows-build:
     name: Windows release and installer
     runs-on: windows-2022
-    needs: quality
+    needs: [quality, acquire-quran-source]
     timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
