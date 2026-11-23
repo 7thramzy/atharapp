@@ -5,7 +5,8 @@ import 'package:athaar/core/database/app_database.dart';
 import 'package:athaar/core/database/database_providers.dart';
 import 'package:athaar/core/design_system/theme_mode_controller.dart';
 import 'package:athaar/core/localization/locale_controller.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
