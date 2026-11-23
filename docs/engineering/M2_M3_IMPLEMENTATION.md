@@ -3,6 +3,7 @@
 ## M2 — Quran reader foundation
 - Added Drift v2 tables for immutable Quran reference text, source manifest, bookmarks, and private verse notes.
 - Added an atomic JSON import contract requiring 114 surahs, matching verse totals, unique/non-empty ayahs, source metadata, license notice, and a 64-character SHA-256 manifest value.
+- The manifest SHA-256 covers the ordered `surahs` and `ayahs` JSON payload only, excluding the manifest itself to avoid a circular checksum. This internal import-payload hash is separate from the independently recorded SHA-256 of the exact Tanzil download.
 - Added surah navigation, verse display, search, bookmark, note, and last-reading persistence UI.
 - The application deliberately ships no Quran text payload until the exact Tanzil Uthmani v1.1 download, its checksum, and the required notice are checked and recorded. The reader displays a clear import-pending state rather than fabricated content.
 - Search uses a separate normalized field; canonical Uthmani text is never rewritten.
