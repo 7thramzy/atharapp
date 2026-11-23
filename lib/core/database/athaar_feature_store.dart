@@ -133,7 +133,7 @@ class AthaarFeatureStore {
     const categoryId = 'personal';
     await db.customStatement(
       'INSERT OR IGNORE INTO adhkar_categories(id, name_ar, name_en) VALUES(?, ?, ?)',
-      [Variable.withString(categoryId), const Variable.withString('أذكاري'), const Variable.withString('My adhkar')],
+      [Variable.withString(categoryId), Variable.withString('أذكاري'), Variable.withString('My adhkar')],
     );
     await db.customStatement(
       'INSERT INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 0, ?)',
@@ -251,30 +251,30 @@ class AthaarFeatureStore {
       final surah = surahs[index];
       if (surah['surahNumber'] != index + 1 ||
           surah['ayahCount'] != canonicalAyahCounts[index]) {
-        throw FormatException('Unexpected surah order or ayah count at ' + (index + 1).toString());
+        throw FormatException('Unexpected surah order or ayah count at ${index + 1}.');
       }
     }
     final expectedAyahs = canonicalAyahCounts.fold<int>(0, (sum, count) => sum + count);
     if (ayahs.length != expectedAyahs) {
-      throw FormatException('The imported Quran must contain exactly ' + expectedAyahs.toString() + ' ayahs.');
+      throw FormatException('The imported Quran must contain exactly $expectedAyahs ayahs.');
     }
     final seen = <String>{};
     final nextAyahBySurah = <int, int>{};
     for (final ayah in ayahs) {
       final surahNumber = ayah['surahNumber'] as int;
       final ayahNumber = ayah['ayahNumber'] as int;
-      final key = surahNumber.toString() + ':' + ayahNumber.toString();
+      final key = '$surahNumber:$ayahNumber';
       final expectedNext = (nextAyahBySurah[surahNumber] ?? 0) + 1;
       if (surahNumber < 1 || surahNumber > 114 ||
           ayahNumber != expectedNext || !seen.add(key) ||
           (ayah['textUthmani'] as String? ?? '').isEmpty) {
-        throw FormatException('Duplicate, missing, unordered, or empty ayah: ' + key);
+        throw FormatException('Duplicate, missing, unordered, or empty ayah: $key');
       }
       nextAyahBySurah[surahNumber] = ayahNumber;
     }
     for (var surahNumber = 1; surahNumber <= 114; surahNumber++) {
       if (nextAyahBySurah[surahNumber] != canonicalAyahCounts[surahNumber - 1]) {
-        throw FormatException('Incomplete ayah sequence for surah ' + surahNumber.toString());
+        throw FormatException('Incomplete ayah sequence for surah $surahNumber');
       }
     }
     await db.transaction(() async {
