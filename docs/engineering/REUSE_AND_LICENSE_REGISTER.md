@@ -1,52 +1,41 @@
-# Reuse and License Register
+# Reuse and license register
 
-This register is mandatory whenever code or assets are copied, adapted, or bundled into Athaar.
+The canonical content rights register is [docs/CONTENT_SOURCES.md](../CONTENT_SOURCES.md). This file preserves the code-reuse decisions for upstream starter repositories.
 
-## Current upstream references
+## Code repositories
 
-| Source | Code license | Permitted plan | Required handling |
-|---|---|---|---|
-| [Quran Offline Mobile](https://github.com/hndrwn-dk/quran-offline-mobile) | MIT (copyright Hendrawan, 2025) | Selective code adaptation | Preserve the MIT copyright and permission notice for copied/substantial portions; record exact commit and file paths |
-| [Flutter Boilerplate](https://github.com/aazirani/flutter_boilerplate) | MIT (copyright Amin Azirani, 2026) | Architectural patterns and selective code adaptation | Preserve the MIT notice for copied/substantial portions; record exact commit and file paths |
-| [Sanad](https://github.com/harounRhim/sanad) | AGPL-3.0 | Research reference only | Do not copy or link its code into the app without a separate licensing decision |
-
-## Important separation: code vs. content
-
-A source repository's MIT license does not automatically license the data or assets mentioned in its README.
-
-The Quran Offline Mobile documentation names multiple independent sources:
-
-| Asset/content | Named source in upstream documentation | Athaar rule |
+| Source | Code license | Athaar decision |
 |---|---|---|
-| Uthmani Quran text and translations | Quran Foundation / Quran.com Content API | Review current content/API and redistribution terms before bundling |
-| Tafsir and surah information | Quranic Universal Library (QUL) / Tarteel | Review QUL terms and each underlying work's permissions |
-| Transliteration and Mushaf QPC V2 resources | QUL | Do not copy until explicit terms are documented |
-| Recitation audio | EveryAyah | Review provider terms, attribution, caching and redistribution rules |
-| Uthmanic/KFGQPC fonts | King Fahd Complex | Review font-specific usage and redistribution terms |
-| Scheherazade New | SIL | Verify the exact font file and include its OFL notice where required |
-| Surah-name font | QUL | Review its separate terms |
-| Icons and illustrations | Asset credits in upstream repository | Do not copy without checking the icon-specific source/terms |
+| [Quran Offline Mobile](https://github.com/hndrwn-dk/quran-offline-mobile) | MIT, copyright Hendrawan (2025) | Selective source-code adaptation only. Preserve notice and record exact upstream commit/files. |
+| [Flutter Boilerplate](https://github.com/aazirani/flutter_boilerplate) | MIT, copyright Amin Azirani (2026) | Architectural reference and selective source-code adaptation. Preserve notice for copied/substantial portions. |
+| [Sanad](https://github.com/harounRhim/sanad) | AGPL-3.0 | Research reference only. Do not copy or link its code into Athaar without a separate licensing decision. |
+| [Quranic Universal Library software](https://github.com/TarteelAI/quranic-universal-library) | MIT for the QUL software repository | The software license does not grant a blanket license to every dataset/resource managed by QUL. |
 
-The upstream DATA_SOURCES.md and assets/README.md are useful provenance references, not blanket redistribution grants.
+## Content is not code
 
-## Athaar reuse workflow
+Every Quran text, translation, tafsir, Mushaf layout, font, recitation, icon, and image requires an independent resource-level record. The MIT license of a source application never overrides the rights of third-party content it references.
 
-For every reused item, record:
+Current decisions:
 
-- Item name and purpose.
-- Type: source code, font, icon, dataset, audio, translation, or documentation.
-- Original repository/provider and exact URL.
-- Commit, release, or dataset version.
-- SPDX license identifier or the provider's terms URL.
-- Copyright/attribution text required.
-- Modifications made.
-- Athaar file paths where it is used.
-- Date and reviewer of the license check.
+- Tanzil Uthmani v1.1 may be bundled verbatim with the complete source notice and link; text modification is not allowed.
+- Quran Foundation API content is not approved as a static build-time dataset; its developer terms impose storage/sync and redistribution restrictions.
+- QUL is a resource discovery/download catalogue. Verify each exact resource record and intended use.
+- Cairo UI font is OFL 1.1; ship its license notice.
+- KFGQPC official digital Mushaf/font assets are a preferred source for app use, subject to exact asset/version and rights notice recording.
+- Tafsir and translations are not yet approved as datasets.
+- AlQuran Cloud/Islamic Network recitations are a conditional stream-only candidate; no audio bundle in the MVP and reciter-level rights must be recorded.
+- EveryAyah is blocked until recording-specific distribution rights are documented.
 
-No binary font, Quran dataset, tafsir database, audio file, or icon pack from an upstream project is approved for copying by this audit.
+## Reuse workflow
 
-## Repository licensing decision
+For every copied source-code portion, record:
 
-Athaar's own project license has not been selected. Do not add an MIT or other blanket license to the whole Athaar repository until the owner chooses the intended distribution and commercial/open-source model.
+- Original repository and exact commit.
+- Exact upstream file paths.
+- License identifier and copyright notice.
+- Changes made and Athaar paths receiving the code.
+- Test results and reviewer.
 
-For any MIT source that is actually incorporated, retain the required notice in THIRD_PARTY_NOTICES.md and include the upstream MIT license text. This does not change the license of Athaar's own original code.
+For every content asset, record the full resource metadata specified in docs/CONTENT_SOURCES.md, including the source file hash and attribution. Unknown or withdrawn rights mean the asset is blocked.
+
+Athaar's own repository-wide license has not been selected. Do not add a blanket license until the owner decides the intended distribution model.
