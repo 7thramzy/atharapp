@@ -140,7 +140,7 @@ jobs:
 
   finalize-generated-sources:
     name: Commit generated platform and formatted source
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/agent/')
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/agent/') || github.ref == 'refs/heads/main')
     needs:
       - quality
       - android-build
