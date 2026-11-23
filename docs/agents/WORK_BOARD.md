@@ -5,12 +5,12 @@
 
 ## Active work
 
-| ID | GitHub issue | Workstream | Status | Owner | Reserved paths | Dependencies |
+| ID | GitHub issue | Workstream | Status | Owner | Branch / reserved paths | Dependencies |
 |---|---|---|---|---|---|---|
-| M1 | [#1 Application shell](https://github.com/7thramzy/atharapp/issues/1) | Flutter shell, Arabic RTL, design tokens, Riverpod, Drift bootstrap, CI | READY | Unclaimed | Shared paths listed in issue; one implementation owner | None |
+| M1 | [#1 Application shell](https://github.com/7thramzy/atharapp/issues/1) | Flutter shell, Arabic RTL, design tokens, Riverpod, Drift bootstrap, CI | ACTIVE | Integration lead | agent/integration/1-flutter-shell; app bootstrap, pubspec, localization, router, Drift root, CI, tests | None |
 | SRC-A | [#2 Quran text and Mushaf fonts](https://github.com/7thramzy/atharapp/issues/2) | Rights dossier for Tanzil and official Mushaf/UI fonts | READY | Unclaimed | docs/content-reviews/quran-text.md; docs/content-reviews/mushaf-fonts.md | None |
 | SRC-B | [#3 Tafsir and translations](https://github.com/7thramzy/atharapp/issues/3) | Exact-resource licenses for tafsir and translations | READY | Unclaimed | docs/content-reviews/tafsir-translations.md | None |
-| SRC-C | [#4 Recitations and audio](https://github.com/7thramzy/atharapp/issues/4) | Provider and reciter-level rights for streaming/download/offline use | READY | Unclaimed | docs/content-reviews/recitations.md | None |
+| SRC-C | [#4 Recitations and audio](https://github.com/7thramzy/atharapp/issues/4) | Provider and per-reciter rights for streaming/download/offline use | READY | Unclaimed | docs/content-reviews/recitations.md | None |
 
 ## Planned after M1
 

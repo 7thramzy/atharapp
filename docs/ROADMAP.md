@@ -2,26 +2,34 @@
 
 ## M0 — Repository foundation and source policy
 
-**Status: DOCUMENTATION COMPLETE**
+**Status: COMPLETE**
 
 - Independent repository created.
 - Starter repositories inspected; selective reuse chosen over a full fork.
 - Flutter, Riverpod, Drift, GoRouter, and deferred backend integration recorded.
-- Local domain model, roadmap, security and agent workflow established.
-- Source-level rights registry created; no unapproved media copied.
+- Local domain model, roadmap, security, content policy, and agent workflow established.
+- Source-level content rights register created; no unapproved media copied.
 
 ## M1 — Flutter application shell
 
-**Status: READY — GitHub issue #1**
+**Status: IN PROGRESS — branch agent/integration/1-flutter-shell, issue #1**
 
-- Create Flutter Android/iOS app structure.
-- Add Riverpod, GoRouter, Drift, and code generation.
-- Set Arabic default locale and RTL.
-- Add Cairo UI font with OFL notice and separate Quran font integration boundary.
-- Add Athaar design tokens and warm cream/dark slate themes.
-- Add initial Drift schema, migration strategy, and persistence tests.
-- Add Codespaces Dev Container and GitHub Actions checks.
-- Do not connect Supabase or any other backend.
+Implemented in the branch, pending generated-code, CI, and build verification:
+- Flutter 3.50.0 application shell with Arabic-first Material 3.
+- Riverpod state, GoRouter navigation, and generated Arabic/English localization.
+- Athaar petrol/emerald light/dark theme tokens.
+- Drift schema v1 for settings, reading position, and app metadata.
+- SQLite persistence tests and basic widget test.
+- Codespaces Dev Container and Android/iOS native project bootstrap script.
+- GitHub Actions quality, Android debug, and unsigned iOS build jobs.
+
+Remaining M1 gates:
+- Resolve and commit pubspec.lock.
+- Generate and review Android/iOS platform folders and .metadata.
+- Run code generation, format, analysis, all tests, Android debug build, and unsigned iOS build in CI.
+- Integrate exact Cairo OFL font file and notice when its asset is ready.
+- Confirm provisional package/bundle identifier before first store-bound build.
+- Merge only after CI is green and PR review is complete.
 
 ## Parallel source review
 
@@ -31,7 +39,7 @@
 - #3: exact tafsir and translation resource rights.
 - #4: recitation provider and per-reciter audio rights.
 
-The research issues may proceed in parallel with M1. No content binaries may be bundled until the coordinator updates docs/CONTENT_SOURCES.md based on the completed dossiers.
+Research tasks may proceed in parallel with M1. No content binaries may be bundled until the coordinator updates docs/CONTENT_SOURCES.md based on completed dossiers.
 
 ## M2 — Quran reader and verified content
 

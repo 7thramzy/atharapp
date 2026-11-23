@@ -1,0 +1,42 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+coverage/
+*.freezed.dart
+*.g.dart
+
+# IDEs
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Platform-specific generated/local files
+android/local.properties
+android/key.properties
+android/.gradle/
+android/captures/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/.last_build_id
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+
+# Signing / secrets
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*.p8
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
