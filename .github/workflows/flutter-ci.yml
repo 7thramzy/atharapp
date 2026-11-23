@@ -28,7 +28,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Download and fingerprint official source
         run: python tooling/content/quran/download_source.py
-      - name: Upload verbatim source and provenance manifest
+      - name: Build and validate deterministic offline import JSON
+        run: python tooling/content/quran/build_dataset.py
+      - name: Upload verbatim source, metadata, and import payload
         uses: actions/upload-artifact@v4
         with:
           name: athaar-tanzil-uthmani-v1.1-source
