@@ -55,9 +55,9 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
     }
   }
 
-
   Future<void> _showSourceInfo() async {
-    final manifest = _sourceManifest ??
+    final manifest =
+        _sourceManifest ??
         await ref.read(athaarFeatureStoreProvider).quranManifest;
     if (!mounted || manifest == null) return;
     final sourceUrl = manifest['source_url'] as String? ?? 'https://tanzil.net';
@@ -65,7 +65,9 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_t(context, 'مصدر النص والترخيص', 'Text source and license')),
+        title: Text(
+          _t(context, 'مصدر النص والترخيص', 'Text source and license'),
+        ),
         content: SingleChildScrollView(
           child: SelectableText(
             '${manifest['source']}\n${manifest['edition']} — ${manifest['version']}\n$sourceUrl\n\n$licenseNotice',
@@ -73,7 +75,10 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(_t(context, 'إغلاق', 'Close'))),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(_t(context, 'إغلاق', 'Close')),
+          ),
         ],
       ),
     );
@@ -94,7 +99,11 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
         title: Text(_t(context, 'القرآن الكريم', 'The Quran')),
         actions: [
           IconButton(
-            tooltip: _t(context, 'مصدر النص والترخيص', 'Text source and license'),
+            tooltip: _t(
+              context,
+              'مصدر النص والترخيص',
+              'Text source and license',
+            ),
             icon: const Icon(Icons.info_outline),
             onPressed: _showSourceInfo,
           ),
@@ -126,8 +135,16 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                     child: ListTile(
                       dense: true,
                       leading: const Icon(Icons.verified_outlined),
-                      title: Text(_t(context, 'النص العثماني — مشروع تنزيل', 'Uthmani text — Tanzil Project')),
-                      subtitle: Text('${_sourceManifest!['edition']} · ${_sourceManifest!['version']}'),
+                      title: Text(
+                        _t(
+                          context,
+                          'النص العثماني — مشروع تنزيل',
+                          'Uthmani text — Tanzil Project',
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${_sourceManifest!['edition']} · ${_sourceManifest!['version']}',
+                      ),
                       trailing: const Icon(Icons.open_in_new),
                       onTap: _showSourceInfo,
                     ),

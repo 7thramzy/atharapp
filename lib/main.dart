@@ -57,7 +57,8 @@ Future<void> _ensureBundledQuran(AppDatabase database) async {
   final storedSurahCount = await store.surahCount;
   final storedAyahCount = await store.ayahCount;
   if (storedManifest?['sha256'] == expectedSha &&
-      storedSurahCount == 114 && storedAyahCount == 6236) {
+      storedSurahCount == 114 &&
+      storedAyahCount == 6236) {
     return;
   }
   await store.importQuranJson(sourceJson);

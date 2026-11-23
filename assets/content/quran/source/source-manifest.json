@@ -1,0 +1,26 @@
+{
+  "source": "Tanzil Project",
+  "source_url": "https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=txt-2&agree=true&marks=true&sajdah=true&rub=true",
+  "metadata_source_url": "https://tanzil.net/res/text/metadata/quran-data.xml",
+  "metadata_filename": "quran-data.xml",
+  "metadata_byte_count": 77234,
+  "metadata_sha256": "8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a",
+  "metadata_content_type": "text/xml",
+  "requested_url": "https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=txt-2&agree=true&marks=true&sajdah=true&rub=true",
+  "edition": "Uthmani",
+  "version": "1.1",
+  "retrieved_at_utc": "2026-11-23T23:32:49.060981+00:00",
+  "content_type": "application/octet-stream; charset=utf-8",
+  "filename": "quran-uthmani-v1.1.txt",
+  "byte_count": 1384612,
+  "sha256": "4b91f9e6e8ac645d039e4ed85b3be492e795232a31cd22d668ac58238722e26f",
+  "download_options": {
+    "pause_marks": true,
+    "sajdah_signs": true,
+    "rub_el_hizb_signs": true,
+    "tatweel_below_superscript_alefs": false,
+    "sequential_tanweens": false
+  },
+  "license_notice_preserved": true,
+  "raw_file_line_count": 6266
+}
