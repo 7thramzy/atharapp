@@ -8,16 +8,6 @@ import 'package:athaar/core/database/database_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 
-/// Computes the deterministic checksum for the ordered Quran import payload.
-/// The manifest is intentionally excluded so it can contain this checksum.
-String calculateQuranPayloadSha256(Map<String, dynamic> decoded) {
-  final payload = <String, dynamic>{
-    'surahs': decoded['surahs'],
-    'ayahs': decoded['ayahs'],
-  };
-  return sha256.convert(utf8.encode(jsonEncode(payload))).toString();
-}
-
 final athaarFeatureStoreProvider = Provider<AthaarFeatureStore>(
   (ref) => AthaarFeatureStore(ref.watch(appDatabaseProvider)),
 );
@@ -354,7 +344,7 @@ class AthaarFeatureStore {
         throw FormatException('Missing required source manifest field: $key');
       }
     }
-    final actualSha = calculateQuranPayloadSha256(decoded);
+    final actualSha = sha256.convert(utf8.encode(sourceJson)).toString();
     if (actualSha.toLowerCase() != sha.toLowerCase()) {
       throw FormatException(
         'The Quran JSON SHA-256 does not match its manifest.',
