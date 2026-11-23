@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
+  group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   FLUTTER_VERSION: "3.50.0"
-  ATHAAR_VERSION: "0.1.0"
+  ATHAAR_VERSION: "0.2.0"
 
 jobs:
   acquire-quran-source:
@@ -40,11 +40,21 @@ jobs:
 
   quality:
     name: Format, analyze and test
+    needs: acquire-quran-source
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download official Quran dataset for build
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage bundled Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2

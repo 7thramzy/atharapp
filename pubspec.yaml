@@ -1,7 +1,7 @@
 name: athaar
 description: An offline-first Islamic learning and community application.
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: ">=3.14.0 <4.0.0"
@@ -38,3 +38,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/content/quran/tanzil-uthmani-v1.1.json

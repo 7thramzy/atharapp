@@ -57,12 +57,19 @@ class AthaarFeatureStore {
     final row = rows.first;
     return {
       'source': row.read<String>('source'),
+      'source_url': row.read<String>('source_url'),
       'edition': row.read<String>('edition'),
       'version': row.read<String>('version'),
       'sha256': row.read<String>('sha256'),
+      'license_notice': row.read<String>('license_notice'),
       'ayah_count': row.read<int>('ayah_count'),
     };
   }
+
+  Future<int> get ayahCount async =>
+      (await db.customSelect('SELECT COUNT(*) AS c FROM quran_ayahs').get())
+          .first
+          .read<int>('c');
 
   Future<int> get surahCount async =>
       (await db.customSelect('SELECT COUNT(*) AS c FROM quran_surahs').get())

@@ -17,6 +17,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
   final _search = TextEditingController();
   List<Map<String, Object?>> _results = [];
   List<Map<String, Object?>> _surahs = [];
+  Map<String, Object?>? _sourceManifest;
   bool _loading = true;
   String? _error;
 
@@ -36,9 +37,11 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
     try {
       final store = ref.read(athaarFeatureStoreProvider);
       final rows = await store.listSurahs();
+      final sourceManifest = await store.quranManifest;
       if (mounted) {
         setState(() {
           _surahs = rows;
+          _sourceManifest = sourceManifest;
           _loading = false;
         });
       }
@@ -52,6 +55,30 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
     }
   }
 
+
+  Future<void> _showSourceInfo() async {
+    final manifest = _sourceManifest ??
+        await ref.read(athaarFeatureStoreProvider).quranManifest;
+    if (!mounted || manifest == null) return;
+    final sourceUrl = manifest['source_url'] as String? ?? 'https://tanzil.net';
+    final licenseNotice = manifest['license_notice'] as String? ?? '';
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(_t(context, 'مصدر النص والترخيص', 'Text source and license')),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            '${manifest['source']}\n${manifest['edition']} — ${manifest['version']}\n$sourceUrl\n\n$licenseNotice',
+            textDirection: TextDirection.ltr,
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(_t(context, 'إغلاق', 'Close'))),
+        ],
+      ),
+    );
+  }
+
   Future<void> _find(String value) async {
     final rows = await ref.read(athaarFeatureStoreProvider).searchAyahs(value);
     if (mounted) {
@@ -63,7 +90,16 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
   Widget build(BuildContext context) {
     final store = ref.read(athaarFeatureStoreProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(_t(context, 'القرآن الكريم', 'The Quran'))),
+      appBar: AppBar(
+        title: Text(_t(context, 'القرآن الكريم', 'The Quran')),
+        actions: [
+          IconButton(
+            tooltip: _t(context, 'مصدر النص والترخيص', 'Text source and license'),
+            icon: const Icon(Icons.info_outline),
+            onPressed: _showSourceInfo,
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -84,7 +120,19 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                     border: const OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                if (_sourceManifest != null)
+                  Card(
+                    child: ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.verified_outlined),
+                      title: Text(_t(context, 'النص العثماني — مشروع تنزيل', 'Uthmani text — Tanzil Project')),
+                      subtitle: Text('${_sourceManifest!['edition']} · ${_sourceManifest!['version']}'),
+                      trailing: const Icon(Icons.open_in_new),
+                      onTap: _showSourceInfo,
+                    ),
+                  ),
+                const SizedBox(height: 8),
                 if (_surahs.isEmpty)
                   Card(
                     child: Padding(
