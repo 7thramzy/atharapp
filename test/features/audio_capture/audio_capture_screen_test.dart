@@ -40,8 +40,9 @@ void main() {
       expect(find.text('تسجيل صوتي محلي'), findsOneWidget);
     });
 
-    testWidgets('shows accessible record, playback, and delete controls',
-        (tester) async {
+    testWidgets('shows accessible record, playback, and delete controls', (
+      tester,
+    ) async {
       gateway.playCompleter = Completer<void>();
       await tester.pumpWidget(_testApp(gateway));
       await tester.pumpAndSettle();
@@ -86,8 +87,9 @@ void main() {
       expect(gateway.deletedPaths, [FakeAudioCaptureGateway.recordingPath]);
     });
 
-    testWidgets('explains microphone denial without starting a recording',
-        (tester) async {
+    testWidgets('explains microphone denial without starting a recording', (
+      tester,
+    ) async {
       gateway.permissionGranted = false;
       await tester.pumpWidget(_testApp(gateway));
       await tester.pumpAndSettle();

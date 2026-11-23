@@ -234,8 +234,9 @@ class PluginAudioCaptureGateway implements AudioCaptureGateway {
   }
 }
 
-final audioCaptureGatewayProvider =
-    Provider.autoDispose<AudioCaptureGateway>((ref) {
+final audioCaptureGatewayProvider = Provider.autoDispose<AudioCaptureGateway>((
+  ref,
+) {
   final gateway = PluginAudioCaptureGateway();
   ref.onDispose(() => unawaited(gateway.dispose()));
   return gateway;

@@ -30,7 +30,10 @@ void main() {
 
   test('memorization session updates every ayah atomically', () async {
     await store.recordMemorizationSession(
-      surah: 1, startAyah: 1, endAyah: 3, outcome: 'stable',
+      surah: 1,
+      startAyah: 1,
+      endAyah: 3,
+      outcome: 'stable',
     );
     final summary = await store.memorizationSummary();
     expect(summary['stable'], 3);
@@ -38,7 +41,10 @@ void main() {
 
   test('personal impact is derived from saved local activity', () async {
     await store.recordMemorizationSession(
-      surah: 2, startAyah: 1, endAyah: 2, outcome: 'learning',
+      surah: 2,
+      startAyah: 1,
+      endAyah: 2,
+      outcome: 'learning',
     );
     final impact = await store.personalImpactSummary();
     expect(impact['sessions'], 1);

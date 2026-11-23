@@ -9,8 +9,7 @@ class AudioCaptureScreen extends ConsumerStatefulWidget {
   const AudioCaptureScreen({super.key});
 
   @override
-  ConsumerState<AudioCaptureScreen> createState() =>
-      _AudioCaptureScreenState();
+  ConsumerState<AudioCaptureScreen> createState() => _AudioCaptureScreenState();
 }
 
 class _AudioCaptureScreenState extends ConsumerState<AudioCaptureScreen>
@@ -61,7 +60,10 @@ class _AudioCaptureScreenState extends ConsumerState<AudioCaptureScreen>
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.phonelink_lock_rounded, color: colors.primary),
+                        Icon(
+                          Icons.phonelink_lock_rounded,
+                          color: colors.primary,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -176,22 +178,46 @@ class _StatusPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final (icon, label, color) = switch (state.status) {
-      AudioCaptureStatus.preparing =>
-        (Icons.hourglass_empty_rounded, l10n.audioPreparing, colors.onSurfaceVariant),
-      AudioCaptureStatus.idle =>
-        (Icons.mic_none_rounded, l10n.audioReadyToRecord, colors.onSurfaceVariant),
-      AudioCaptureStatus.requestingPermission =>
-        (Icons.mic_none_rounded, l10n.audioRequestingPermission, colors.primary),
-      AudioCaptureStatus.recording =>
-        (Icons.fiber_manual_record_rounded, l10n.audioRecordingIndicator, colors.error),
-      AudioCaptureStatus.stopping =>
-        (Icons.hourglass_empty_rounded, l10n.audioStopping, colors.primary),
-      AudioCaptureStatus.recorded =>
-        (Icons.graphic_eq_rounded, l10n.audioRecordingReady, colors.primary),
-      AudioCaptureStatus.playing =>
-        (Icons.volume_up_rounded, l10n.audioPlaying, colors.primary),
-      AudioCaptureStatus.deleting =>
-        (Icons.delete_outline_rounded, l10n.audioDeleting, colors.primary),
+      AudioCaptureStatus.preparing => (
+        Icons.hourglass_empty_rounded,
+        l10n.audioPreparing,
+        colors.onSurfaceVariant,
+      ),
+      AudioCaptureStatus.idle => (
+        Icons.mic_none_rounded,
+        l10n.audioReadyToRecord,
+        colors.onSurfaceVariant,
+      ),
+      AudioCaptureStatus.requestingPermission => (
+        Icons.mic_none_rounded,
+        l10n.audioRequestingPermission,
+        colors.primary,
+      ),
+      AudioCaptureStatus.recording => (
+        Icons.fiber_manual_record_rounded,
+        l10n.audioRecordingIndicator,
+        colors.error,
+      ),
+      AudioCaptureStatus.stopping => (
+        Icons.hourglass_empty_rounded,
+        l10n.audioStopping,
+        colors.primary,
+      ),
+      AudioCaptureStatus.recorded => (
+        Icons.graphic_eq_rounded,
+        l10n.audioRecordingReady,
+        colors.primary,
+      ),
+      AudioCaptureStatus.playing => (
+        Icons.volume_up_rounded,
+        l10n.audioPlaying,
+        colors.primary,
+      ),
+      AudioCaptureStatus.deleting => (
+        Icons.delete_outline_rounded,
+        l10n.audioDeleting,
+        colors.primary,
+      ),
     };
 
     return Semantics(
@@ -210,9 +236,8 @@ class _StatusPanel extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ],

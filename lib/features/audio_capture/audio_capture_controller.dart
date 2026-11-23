@@ -24,11 +24,7 @@ enum AudioCaptureError {
 }
 
 class AudioCaptureState {
-  const AudioCaptureState({
-    required this.status,
-    this.filePath,
-    this.error,
-  });
+  const AudioCaptureState({required this.status, this.filePath, this.error});
 
   final AudioCaptureStatus status;
   final String? filePath;
@@ -41,10 +37,10 @@ class AudioCaptureState {
       status == AudioCaptureStatus.deleting;
 }
 
-final audioCaptureControllerProvider = NotifierProvider.autoDispose<
-  AudioCaptureController,
-  AudioCaptureState
->(AudioCaptureController.new);
+final audioCaptureControllerProvider =
+    NotifierProvider.autoDispose<AudioCaptureController, AudioCaptureState>(
+      AudioCaptureController.new,
+    );
 
 class AudioCaptureController extends Notifier<AudioCaptureState> {
   late AudioCaptureGateway _gateway;

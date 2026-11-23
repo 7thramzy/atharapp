@@ -86,53 +86,59 @@ void main() {
       expect(container.read(audioCaptureControllerProvider).filePath, isNull);
     });
 
-    test('reports playback failure without losing the temporary recording',
-        () async {
-      gateway.playFailure = true;
-      await controller.prepare();
-      await controller.start();
-      await controller.stop();
-      await controller.play();
+    test(
+      'reports playback failure without losing the temporary recording',
+      () async {
+        gateway.playFailure = true;
+        await controller.prepare();
+        await controller.start();
+        await controller.stop();
+        await controller.play();
 
-      final state = container.read(audioCaptureControllerProvider);
-      expect(state.status, AudioCaptureStatus.recorded);
-      expect(state.error, AudioCaptureError.playbackFailed);
-      expect(state.filePath, FakeAudioCaptureGateway.recordingPath);
-    });
+        final state = container.read(audioCaptureControllerProvider);
+        expect(state.status, AudioCaptureStatus.recorded);
+        expect(state.error, AudioCaptureError.playbackFailed);
+        expect(state.filePath, FakeAudioCaptureGateway.recordingPath);
+      },
+    );
 
-    test('does not start if the app leaves foreground during permission',
-        () async {
-      final permission = Completer<bool>();
-      gateway.permissionCompleter = permission;
-      await controller.prepare();
+    test(
+      'does not start if the app leaves foreground during permission',
+      () async {
+        final permission = Completer<bool>();
+        gateway.permissionCompleter = permission;
+        await controller.prepare();
 
-      final starting = controller.start();
-      await Future<void>.delayed(Duration.zero);
-      controller.setForeground(false);
-      controller.setForeground(true);
-      permission.complete(true);
-      await starting;
+        final starting = controller.start();
+        await Future<void>.delayed(Duration.zero);
+        controller.setForeground(false);
+        controller.setForeground(true);
+        permission.complete(true);
+        await starting;
 
-      expect(gateway.startCalls, 0);
-      expect(
-        container.read(audioCaptureControllerProvider).status,
-        AudioCaptureStatus.idle,
-      );
-    });
+        expect(gateway.startCalls, 0);
+        expect(
+          container.read(audioCaptureControllerProvider).status,
+          AudioCaptureStatus.idle,
+        );
+      },
+    );
 
-    test('disposing the provider cancels and deletes an active recording',
-        () async {
-      await controller.prepare();
-      await controller.start();
+    test(
+      'disposing the provider cancels and deletes an active recording',
+      () async {
+        await controller.prepare();
+        await controller.start();
 
-      container.dispose();
-      containerDisposed = true;
-      await Future<void>.delayed(Duration.zero);
+        container.dispose();
+        containerDisposed = true;
+        await Future<void>.delayed(Duration.zero);
 
-      expect(gateway.disposeCalls, 1);
-      expect(gateway.cancelCalls, 1);
-      expect(gateway.deletedPaths, [FakeAudioCaptureGateway.recordingPath]);
-    });
+        expect(gateway.disposeCalls, 1);
+        expect(gateway.cancelCalls, 1);
+        expect(gateway.deletedPaths, [FakeAudioCaptureGateway.recordingPath]);
+      },
+    );
   });
 }
 

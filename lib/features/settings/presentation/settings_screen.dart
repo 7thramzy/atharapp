@@ -30,33 +30,27 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           Text(
             l10n.language,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
           SegmentedButton<String>(
             segments: [
-              ButtonSegment<String>(
-                value: 'ar',
-                label: Text(l10n.arabic),
-              ),
-              ButtonSegment<String>(
-                value: 'en',
-                label: Text(l10n.english),
-              ),
+              ButtonSegment<String>(value: 'ar', label: Text(l10n.arabic)),
+              ButtonSegment<String>(value: 'en', label: Text(l10n.english)),
             ],
             selected: {locale.languageCode},
             onSelectionChanged: (selection) {
-              ref.read(localeProvider.notifier).setLocale(Locale(selection.first));
+              ref
+                  .read(localeProvider.notifier)
+                  .setLocale(Locale(selection.first));
             },
           ),
           const SizedBox(height: 28),
           Text(
             l10n.appearance,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
           SegmentedButton<ThemeMode>(
@@ -79,7 +73,9 @@ class SettingsScreen extends ConsumerWidget {
             ],
             selected: {themeMode},
             onSelectionChanged: (selection) {
-              ref.read(themeModeProvider.notifier).setThemeMode(selection.first);
+              ref
+                  .read(themeModeProvider.notifier)
+                  .setThemeMode(selection.first);
             },
           ),
           const SizedBox(height: 28),
@@ -102,9 +98,9 @@ class SettingsScreen extends ConsumerWidget {
                   child: Text(
                     l10n.localPrivacy,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          height: 1.55,
-                          color: colors.onSurfaceVariant,
-                        ),
+                      height: 1.55,
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],
