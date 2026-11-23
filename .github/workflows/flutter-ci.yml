@@ -5,16 +5,13 @@ on:
     branches:
       - main
       - "agent/**"
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 env:
