@@ -37,23 +37,23 @@ void main() {
         child: const AthaarApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('مرحباً بك في أثَر'), findsOneWidget);
 
     await tester.tap(find.byTooltip('الإعدادات'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('المظهر'), findsOneWidget);
 
     await tester.tap(find.text('English'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Welcome to Athaar'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
 
     await tester.tap(find.text('Dark'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Appearance'), findsOneWidget);
   });
