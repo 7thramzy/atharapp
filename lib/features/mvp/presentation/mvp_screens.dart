@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:athaar/core/database/athaar_feature_store.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 String _t(BuildContext context, String ar, String en) =>
@@ -21,7 +23,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   @override
@@ -34,15 +36,15 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
     try {
       final store = ref.read(athaarFeatureStoreProvider);
       final rows = await store.listSurahs();
-      if (mounted) setState(() { _surahs = rows; _loading = false; });
+      if (mounted) { setState(() { _surahs = rows; _loading = false; }); }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted) { setState(() { _error = e.toString(); _loading = false; }); }
     }
   }
 
   Future<void> _find(String value) async {
     final rows = await ref.read(athaarFeatureStoreProvider).searchAyahs(value);
-    if (mounted) setState(() => _results = rows);
+    if (mounted) { setState(() => _results = rows); }
   }
 
   @override
@@ -98,7 +100,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                             final n = s['number'] as int;
                             await store.saveReadingPosition(n, 1);
                             final verses = await store.getSurahAyahs(n);
-                            if (!context.mounted) return;
+                            if (!context.mounted) { return; }
                             Navigator.of(context).push(MaterialPageRoute<void>(
                               builder: (_) => _SurahReaderScreen(surah: s, verses: verses),
                             ));
@@ -192,10 +194,10 @@ class AdhkarScreen extends ConsumerStatefulWidget {
 class _AdhkarScreenState extends ConsumerState<AdhkarScreen> {
   List<Map<String, Object?>> _items = [];
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); unawaited(_load()); }
   Future<void> _load() async {
     final rows = await ref.read(athaarFeatureStoreProvider).listAdhkar();
-    if (mounted) setState(() => _items = rows);
+    if (mounted) { setState(() => _items = rows); }
   }
 
   Future<void> _add() async {
@@ -217,7 +219,7 @@ class _AdhkarScreenState extends ConsumerState<AdhkarScreen> {
         ],
       ),
     );
-    if (result == null) return;
+    if (result == null) { return; }
     await ref.read(athaarFeatureStoreProvider).createAdhkarItem(
       textArabic: result[0], targetCount: int.tryParse(result[1]) ?? 0, sourceReference: result[2],
     );
@@ -269,10 +271,10 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
   String _status = 'learning';
   Map<String, int> _summary = {};
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); unawaited(_load()); }
   Future<void> _load() async {
     final data = await ref.read(athaarFeatureStoreProvider).memorizationSummary();
-    if (mounted) setState(() => _summary = data);
+    if (mounted) { setState(() => _summary = data); }
   }
   @override
   void dispose() { _surah.dispose(); _start.dispose(); _end.dispose(); super.dispose(); }
@@ -288,7 +290,7 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
       TextField(controller: _end, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: _t(context, 'إلى الآية', 'To ayah'))),
       const SizedBox(height: 12),
       DropdownButtonFormField<String>(
-        value: _status,
+        initialValue: _status,
         items: [
           DropdownMenuItem(value: 'learning', child: Text(_t(context, 'قيد الحفظ', 'Learning'))),
           DropdownMenuItem(value: 'needs_revision', child: Text(_t(context, 'يحتاج مراجعة', 'Needs revision'))),
@@ -332,7 +334,7 @@ class PersonalImpactScreen extends ConsumerWidget {
     body: FutureBuilder<Map<String, int>>(
       future: ref.read(athaarFeatureStoreProvider).personalImpactSummary(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData) { return const Center(child: CircularProgressIndicator()); }
         final values = snapshot.data!;
         final labels = {
           'bookmarks': _t(context, 'مواضع محفوظة', 'Bookmarks'),

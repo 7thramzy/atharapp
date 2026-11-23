@@ -33,7 +33,7 @@ class AthaarFeatureStore {
 
   Future<Map<String, Object?>?> get quranManifest async {
     final rows = await db.customSelect('SELECT * FROM quran_content_manifest WHERE id = 1').get();
-    if (rows.isEmpty) return null;
+    if (rows.isEmpty) { return null; }
     final row = rows.first;
     return {
       'source': row.read<String>('source'),
@@ -59,7 +59,7 @@ class AthaarFeatureStore {
 
   Future<List<Map<String, Object?>>> searchAyahs(String query) async {
     final trimmed = query.trim();
-    if (trimmed.isEmpty) return [];
+    if (trimmed.isEmpty) { return []; }
     final rows = await db.customSelect(
       '''SELECT a.surah_number, a.ayah_number, a.text_uthmani, s.name_arabic
          FROM quran_ayahs a JOIN quran_surahs s USING(surah_number)
@@ -133,11 +133,11 @@ class AthaarFeatureStore {
     const categoryId = 'personal';
     await db.customStatement(
       'INSERT OR IGNORE INTO adhkar_categories(id, name_ar, name_en) VALUES(?, ?, ?)',
-      [const Variable.withString(categoryId), const Variable.withString('أذكاري'), const Variable.withString('My adhkar')],
+      [Variable.withString(categoryId), const Variable.withString('أذكاري'), const Variable.withString('My adhkar')],
     );
     await db.customStatement(
       'INSERT INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 0, ?)',
-      [Variable.withString(_id()), const Variable.withString(categoryId), Variable.withString(textArabic.trim()), Variable.withInt(targetCount), Variable.withString(sourceReference.trim()), Variable.withString(_now)],
+      [Variable.withString(_id()), Variable.withString(categoryId), Variable.withString(textArabic.trim()), Variable.withInt(targetCount), Variable.withString(sourceReference.trim()), Variable.withString(_now)],
     );
   }
 
@@ -173,7 +173,7 @@ class AthaarFeatureStore {
 
   Future<void> setMemorizationStatus(int surah, int ayah, String status) async {
     const allowed = ['not_started', 'learning', 'needs_revision', 'stable'];
-    if (!allowed.contains(status)) throw ArgumentError.value(status, 'status');
+    if (!allowed.contains(status)) { throw ArgumentError.value(status, 'status'); }
     await db.customStatement(
       '''INSERT INTO memorization_progress(surah_number, ayah_number, status, updated_at) VALUES(?, ?, ?, ?)
          ON CONFLICT(surah_number, ayah_number) DO UPDATE SET status = excluded.status, updated_at = excluded.updated_at''',
@@ -185,8 +185,8 @@ class AthaarFeatureStore {
     required int surah, required int startAyah, required int endAyah,
     required String outcome, String notes = '',
   }) async {
-    if (startAyah < 1 || endAyah < startAyah) throw ArgumentError('Invalid ayah range.');
-    if (!['learning', 'needs_revision', 'stable'].contains(outcome)) throw ArgumentError.value(outcome, 'outcome');
+    if (startAyah < 1 || endAyah < startAyah) { throw ArgumentError('Invalid ayah range.'); }
+    if (!['learning', 'needs_revision', 'stable'].contains(outcome)) { throw ArgumentError.value(outcome, 'outcome'); }
     await db.transaction(() async {
       for (var ayah = startAyah; ayah <= endAyah; ayah++) {
         await setMemorizationStatus(surah, ayah, outcome);
