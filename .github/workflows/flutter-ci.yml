@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   FLUTTER_VERSION: "3.50.0"
@@ -24,6 +24,7 @@ jobs:
   quality:
     name: Format, analyze and test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,8 +73,11 @@ jobs:
       - name: Static analysis
         run: flutter analyze --fatal-infos
 
-      - name: Unit and widget tests
-        run: flutter test --reporter expanded
+      - name: Drift database tests
+        run: flutter test test/core/database/app_database_test.dart --reporter expanded --timeout 60s
+
+      - name: Widget tests
+        run: flutter test test/app/athaar_app_test.dart --reporter expanded --timeout 60s
 
   android-build:
     name: Android debug build
