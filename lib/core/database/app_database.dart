@@ -71,17 +71,20 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
 
-      await into(readingPositions).insertOnConflictDoNothing(
-        const ReadingPositionsCompanion(
-          id: Value(1),
-          surahNumber: Value(1),
-          ayahNumber: Value(1),
-          readingMode: Value('surah'),
-        ),
-      );
+      final existingPosition = await getReadingPosition();
+      if (existingPosition == null) {
+        await into(readingPositions).insert(
+          const ReadingPositionsCompanion(
+            id: Value(1),
+            surahNumber: Value(1),
+            ayahNumber: Value(1),
+            readingMode: Value('surah'),
+          ),
+        );
+      }
 
       await into(appMetadata).insertOnConflictUpdate(
-        const AppMetadataCompanion.insert(
+        AppMetadataCompanion.insert(
           key: 'schema_version',
           value: '1',
         ),

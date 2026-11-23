@@ -2,7 +2,7 @@ import 'package:athaar/core/design_system/athaar_colors.dart';
 import 'package:athaar/core/design_system/theme_mode_controller.dart';
 import 'package:athaar/core/localization/locale_controller.dart';
 import 'package:athaar/l10n/generated/app_localizations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +11,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
     final colors = Theme.of(context).colorScheme;

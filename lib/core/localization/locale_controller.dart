@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:athaar/core/database/repository_providers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final localeProvider = NotifierProvider<LocaleController, Locale>(LocaleController.new);

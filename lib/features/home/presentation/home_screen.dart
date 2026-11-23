@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:athaar/core/design_system/athaar_colors.dart';
 import 'package:athaar/l10n/generated/app_localizations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(

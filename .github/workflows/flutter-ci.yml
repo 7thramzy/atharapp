@@ -67,6 +67,7 @@ jobs:
             .metadata
           if-no-files-found: error
           retention-days: 1
+          include-hidden-files: true
 
       - name: Static analysis
         run: flutter analyze --fatal-infos

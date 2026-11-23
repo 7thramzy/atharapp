@@ -1,5 +1,5 @@
 import 'package:athaar/core/design_system/athaar_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 abstract final class AthaarTheme {
   static ThemeData get light {

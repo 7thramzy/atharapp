@@ -3,7 +3,7 @@ import 'package:athaar/core/design_system/athaar_theme.dart';
 import 'package:athaar/core/design_system/theme_mode_controller.dart';
 import 'package:athaar/core/localization/locale_controller.dart';
 import 'package:athaar/l10n/generated/app_localizations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AthaarApp extends ConsumerWidget {
