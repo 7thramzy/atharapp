@@ -61,6 +61,10 @@ jobs:
           path: |
             lib/
             test/
+            pubspec.lock
+            android/
+            ios/
+            .metadata
           if-no-files-found: error
           retention-days: 1
 
