@@ -16,6 +16,7 @@ concurrency:
 
 env:
   FLUTTER_VERSION: "3.50.0"
+  ATHAAR_VERSION: "0.1.0"
 
 jobs:
   quality:
@@ -41,6 +42,9 @@ jobs:
       - name: Generate native mobile project folders
         run: bash tooling/bootstrap_mobile_platforms.sh
 
+      - name: Generate Windows desktop project folder
+        run: flutter create --no-pub --project-name athaar --platforms=windows .
+
       - name: Resolve dependencies
         run: flutter pub get
 
@@ -62,6 +66,7 @@ jobs:
             pubspec.lock
             android/
             ios/
+            windows/
             .metadata
           if-no-files-found: error
           retention-days: 1
@@ -138,6 +143,91 @@ jobs:
       - name: Build iOS without signing
         run: flutter build ios --debug --no-codesign
 
+  windows-build:
+    name: Windows release and installer
+    runs-on: windows-2022
+    needs: quality
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Generate Windows desktop project folder
+        run: flutter create --no-pub --project-name athaar --platforms=windows .
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Prepare Microsoft Visual C++ runtime
+        shell: pwsh
+        run: |
+          $supportDir = Join-Path $PWD "build/windows/installer-support"
+          New-Item -ItemType Directory -Force -Path $supportDir | Out-Null
+          $redist = Join-Path $supportDir "vc_redist.x64.exe"
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile $redist
+          if (!(Test-Path $redist) -or (Get-Item $redist).Length -lt 1000000) {
+            throw "Microsoft Visual C++ Redistributable download is missing or incomplete."
+          }
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - name: Package Windows installer and portable build
+        shell: pwsh
+        run: |
+          $releaseDir = (Resolve-Path "build/windows/x64/runner/Release").Path
+          $installerDir = Join-Path $PWD "build/windows/installer"
+          $redistPath = (Resolve-Path "build/windows/installer-support/vc_redist.x64.exe").Path
+          New-Item -ItemType Directory -Force -Path $installerDir | Out-Null
+
+          $env:ATHAAR_BUILD_DIR = $releaseDir
+          $env:ATHAAR_INSTALLER_DIR = $installerDir
+          $env:ATHAAR_VC_REDIST = $redistPath
+
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path $iscc)) {
+            $iscc = (Get-Command iscc.exe -ErrorAction Stop).Source
+          }
+
+          & $iscc "/DAppVersion=${{ env.ATHAAR_VERSION }}" "tooling/windows/Athaar.iss"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup failed with exit code $LASTEXITCODE."
+          }
+
+          $exe = Join-Path $releaseDir "athaar.exe"
+          if (!(Test-Path $exe)) {
+            throw "Expected app executable was not found: $exe"
+          }
+
+          Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath (Join-Path $installerDir "Athaar-Windows-Portable-${{ env.ATHAAR_VERSION }}.zip") -CompressionLevel Optimal -Force
+
+          if (!(Test-Path (Join-Path $installerDir "Athaar-Setup-${{ env.ATHAAR_VERSION }}.exe"))) {
+            throw "Windows installer was not created."
+          }
+
+      - name: Upload Windows installer and portable bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-windows-installers
+          path: |
+            build/windows/installer/Athaar-Setup-${{ env.ATHAAR_VERSION }}.exe
+            build/windows/installer/Athaar-Windows-Portable-${{ env.ATHAAR_VERSION }}.zip
+          if-no-files-found: error
+          retention-days: 14
+
   finalize-generated-sources:
     name: Commit generated platform and formatted source
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/agent/') || github.ref == 'refs/heads/main')
@@ -145,6 +235,7 @@ jobs:
       - quality
       - android-build
       - ios-build
+      - windows-build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -170,7 +261,7 @@ jobs:
           test -f .athaar-ci-artifact/pubspec.lock
           cp .athaar-ci-artifact/pubspec.lock pubspec.lock
 
-          for directory in lib test android ios; do
+          for directory in lib test android ios windows; do
             if [[ -d ".athaar-ci-artifact/${directory}" ]]; then
               mkdir -p "${directory}"
               cp -a ".athaar-ci-artifact/${directory}/." "${directory}/"
@@ -185,8 +276,9 @@ jobs:
           rm -f ios/Flutter/Generated.xcconfig
           rm -f ios/Flutter/flutter_export_environment.sh
           rm -rf ios/Flutter/ephemeral
+          rm -rf windows/flutter/ephemeral
 
-          git add pubspec.lock .metadata lib test android ios
+          git add pubspec.lock .metadata lib test android ios windows
           if git diff --cached --quiet; then
             echo "No generated or formatted files need committing."
             exit 0
@@ -194,7 +286,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: commit formatted source and generated mobile projects"
+          git commit -m "chore: commit formatted source and generated platform projects"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
           curl --fail-with-body --silent --show-error --retry 3 \
@@ -203,4 +295,4 @@ jobs:
             -H "Authorization: Bearer ${GITHUB_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/flutter-ci.yml/dispatches" \
-            -d "{\"ref\":\"${GITHUB_REF_NAME}\"}"
+            -d "{\\"ref\\":\\"${GITHUB_REF_NAME}\\"}"
