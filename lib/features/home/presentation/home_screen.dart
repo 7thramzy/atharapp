@@ -91,6 +91,7 @@ class HomeScreen extends StatelessWidget {
                 OutlinedButton.icon(onPressed: () => context.push<void>('/adhkar'), icon: const Icon(Icons.auto_awesome_rounded), label: Text(l10n.adhkarTitle)),
                 OutlinedButton.icon(onPressed: () => context.push<void>('/memorization'), icon: const Icon(Icons.school_rounded), label: Text(l10n.memorizationTitle)),
                 OutlinedButton.icon(onPressed: () => context.push<void>('/impact'), icon: const Icon(Icons.insights_rounded), label: Text('أثري الشخصي')),
+                OutlinedButton.icon(onPressed: () => context.push<void>('/audio-capture'), icon: const Icon(Icons.mic_none_rounded), label: Text(l10n.audioCaptureEntry)),
               ],
             ),
             const SizedBox(height: 20),

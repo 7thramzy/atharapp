@@ -76,6 +76,9 @@ jobs:
       - name: Widget tests
         run: flutter test test/app/athaar_app_test.dart --reporter expanded --timeout 60s
 
+      - name: Audio capture feature tests
+        run: flutter test test/features/audio_capture --reporter expanded --timeout 60s
+
   android-build:
     name: Android debug build
     runs-on: ubuntu-latest
