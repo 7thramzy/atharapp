@@ -226,87 +226,97 @@ class AthaarFeatureStore {
     final surahs = (decoded['surahs'] as List).cast<Map<String, dynamic>>();
     final ayahs = (decoded['ayahs'] as List).cast<Map<String, dynamic>>();
     final sha = (manifest['sha256'] as String?) ?? '';
-    if (surahs.length != 114 || !RegExp(r'^[a-fA-F0-9]{64}
-    await db.transaction(() async {
-      await db.customStatement('DELETE FROM quran_ayahs');
-      await db.customStatement('DELETE FROM quran_surahs');
-      for (final s in surahs) {
-        await db.customStatement(
-          'INSERT INTO quran_surahs(surah_number, name_arabic, name_transliteration, ayah_count) VALUES(?, ?, ?, ?)',
-          [Variable.withInt(s['surahNumber'] as int), Variable.withString(s['nameArabic'] as String), Variable.withString(s['nameTransliteration'] as String), Variable.withInt(s['ayahCount'] as int)],
-        );
-      }
-      for (final a in ayahs) {
-        await db.customStatement(
-          'INSERT INTO quran_ayahs(surah_number, ayah_number, text_uthmani, normalized_text, juz_number, page_number) VALUES(?, ?, ?, ?, ?, ?)',
-          [Variable.withInt(a['surahNumber'] as int), Variable.withInt(a['ayahNumber'] as int), Variable.withString(a['textUthmani'] as String), Variable.withString((a['normalizedText'] as String?) ?? a['textUthmani'] as String), Variable.withInt(a['juzNumber'] as int? ?? 1), Variable.withInt(a['pageNumber'] as int? ?? 1)],
-        );
-      }
-      await db.customStatement(
-        '''INSERT OR REPLACE INTO quran_content_manifest(id, source, source_url, edition, version, sha256, license_notice, imported_at, surah_count, ayah_count)
-           VALUES(1, ?, ?, ?, ?, ?, ?, ?, 114, ?)''',
-        [Variable.withString(manifest['source'] as String), Variable.withString(manifest['sourceUrl'] as String), Variable.withString(manifest['edition'] as String), Variable.withString(manifest['version'] as String), Variable.withString(sha.toLowerCase()), Variable.withString(manifest['licenseNotice'] as String), Variable.withString(_now), Variable.withInt(ayahs.length)],
-      );
-    });
-  }
-}
-).hasMatch(sha)) {
+    if (surahs.length != 114 || !RegExp(r'^[a-fA-F0-9]{64}$').hasMatch(sha)) {
       throw FormatException('The source manifest or 114-surah structure is invalid.');
+    }
+    for (final key in ['source', 'sourceUrl', 'edition', 'version', 'licenseNotice']) {
+      if ((manifest[key] as String?)?.trim().isNotEmpty != true) {
+        throw FormatException('Missing required source manifest field: $key');
+      }
     }
     final actualSha = sha256.convert(utf8.encode(sourceJson)).toString();
     if (actualSha.toLowerCase() != sha.toLowerCase()) {
       throw FormatException('The Quran JSON SHA-256 does not match its manifest.');
     }
     const canonicalAyahCounts = [
-      7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,
-      112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,
-      89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,
-      12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,
-      30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6
+      7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128,
+      111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30,
+      73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29, 18,
+      45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11, 18, 12, 12,
+      30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36,
+      25, 22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19, 5, 8, 8, 11, 11,
+      8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4, 5, 6
     ];
     for (var index = 0; index < 114; index++) {
       final surah = surahs[index];
       if (surah['surahNumber'] != index + 1 ||
           surah['ayahCount'] != canonicalAyahCounts[index]) {
-        throw FormatException('Unexpected surah order or ayah count at \${index + 1}.');
+        throw FormatException('Unexpected surah order or ayah count at ' + (index + 1).toString());
       }
     }
     final expectedAyahs = canonicalAyahCounts.fold<int>(0, (sum, count) => sum + count);
     if (ayahs.length != expectedAyahs) {
-      throw FormatException('The imported Quran must contain exactly $expectedAyahs ayahs.');
+      throw FormatException('The imported Quran must contain exactly ' + expectedAyahs.toString() + ' ayahs.');
     }
     final seen = <String>{};
     final nextAyahBySurah = <int, int>{};
     for (final ayah in ayahs) {
       final surahNumber = ayah['surahNumber'] as int;
       final ayahNumber = ayah['ayahNumber'] as int;
-      final key = '$surahNumber:$ayahNumber';
+      final key = surahNumber.toString() + ':' + ayahNumber.toString();
       final expectedNext = (nextAyahBySurah[surahNumber] ?? 0) + 1;
-      if (ayahNumber != expectedNext || !seen.add(key) ||
+      if (surahNumber < 1 || surahNumber > 114 ||
+          ayahNumber != expectedNext || !seen.add(key) ||
           (ayah['textUthmani'] as String? ?? '').isEmpty) {
-        throw FormatException('Duplicate, missing, unordered, or empty ayah: $key');
+        throw FormatException('Duplicate, missing, unordered, or empty ayah: ' + key);
       }
       nextAyahBySurah[surahNumber] = ayahNumber;
+    }
+    for (var surahNumber = 1; surahNumber <= 114; surahNumber++) {
+      if (nextAyahBySurah[surahNumber] != canonicalAyahCounts[surahNumber - 1]) {
+        throw FormatException('Incomplete ayah sequence for surah ' + surahNumber.toString());
+      }
     }
     await db.transaction(() async {
       await db.customStatement('DELETE FROM quran_ayahs');
       await db.customStatement('DELETE FROM quran_surahs');
-      for (final s in surahs) {
+      for (final surah in surahs) {
         await db.customStatement(
           'INSERT INTO quran_surahs(surah_number, name_arabic, name_transliteration, ayah_count) VALUES(?, ?, ?, ?)',
-          [Variable.withInt(s['surahNumber'] as int), Variable.withString(s['nameArabic'] as String), Variable.withString(s['nameTransliteration'] as String), Variable.withInt(s['ayahCount'] as int)],
+          [
+            Variable.withInt(surah['surahNumber'] as int),
+            Variable.withString(surah['nameArabic'] as String),
+            Variable.withString(surah['nameTransliteration'] as String),
+            Variable.withInt(surah['ayahCount'] as int),
+          ],
         );
       }
-      for (final a in ayahs) {
+      for (final ayah in ayahs) {
         await db.customStatement(
           'INSERT INTO quran_ayahs(surah_number, ayah_number, text_uthmani, normalized_text, juz_number, page_number) VALUES(?, ?, ?, ?, ?, ?)',
-          [Variable.withInt(a['surahNumber'] as int), Variable.withInt(a['ayahNumber'] as int), Variable.withString(a['textUthmani'] as String), Variable.withString((a['normalizedText'] as String?) ?? a['textUthmani'] as String), Variable.withInt(a['juzNumber'] as int? ?? 1), Variable.withInt(a['pageNumber'] as int? ?? 1)],
+          [
+            Variable.withInt(ayah['surahNumber'] as int),
+            Variable.withInt(ayah['ayahNumber'] as int),
+            Variable.withString(ayah['textUthmani'] as String),
+            Variable.withString((ayah['normalizedText'] as String?) ?? ayah['textUthmani'] as String),
+            Variable.withInt(ayah['juzNumber'] as int? ?? 1),
+            Variable.withInt(ayah['pageNumber'] as int? ?? 1),
+          ],
         );
       }
       await db.customStatement(
         '''INSERT OR REPLACE INTO quran_content_manifest(id, source, source_url, edition, version, sha256, license_notice, imported_at, surah_count, ayah_count)
            VALUES(1, ?, ?, ?, ?, ?, ?, ?, 114, ?)''',
-        [Variable.withString(manifest['source'] as String), Variable.withString(manifest['sourceUrl'] as String), Variable.withString(manifest['edition'] as String), Variable.withString(manifest['version'] as String), Variable.withString(sha.toLowerCase()), Variable.withString(manifest['licenseNotice'] as String), Variable.withString(_now), Variable.withInt(ayahs.length)],
+        [
+          Variable.withString(manifest['source'] as String),
+          Variable.withString(manifest['sourceUrl'] as String),
+          Variable.withString(manifest['edition'] as String),
+          Variable.withString(manifest['version'] as String),
+          Variable.withString(sha.toLowerCase()),
+          Variable.withString(manifest['licenseNotice'] as String),
+          Variable.withString(_now),
+          Variable.withInt(ayahs.length),
+        ],
       );
     });
   }
