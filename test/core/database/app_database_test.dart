@@ -12,7 +12,9 @@ void main() {
     var databaseClosed = false;
 
     setUp(() async {
-      temporaryDirectory = await Directory.systemTemp.createTemp('athaar_db_test_');
+      temporaryDirectory = await Directory.systemTemp.createTemp(
+        'athaar_db_test_',
+      );
       databaseFile = File('${temporaryDirectory.path}/athaar_test.sqlite');
       databaseClosed = false;
 
@@ -29,26 +31,29 @@ void main() {
       }
     });
 
-    test('creates default settings, reading position and schema metadata', () async {
-      expect(database.schemaVersion, 1);
+    test(
+      'creates default settings, reading position and schema metadata',
+      () async {
+        expect(database.schemaVersion, 1);
 
-      final settings = await database.getLocalSettings();
-      final position = await database.getReadingPosition();
-      final metadata = await (database.select(database.appMetadata)
-            ..where((row) => row.key.equals('schema_version')))
-          .getSingle();
+        final settings = await database.getLocalSettings();
+        final position = await database.getReadingPosition();
+        final metadata = await (database.select(
+          database.appMetadata,
+        )..where((row) => row.key.equals('schema_version'))).getSingle();
 
-      expect(settings, isNotNull);
-      expect(settings!.locale, 'ar');
-      expect(settings.themeMode, 'system');
+        expect(settings, isNotNull);
+        expect(settings!.locale, 'ar');
+        expect(settings.themeMode, 'system');
 
-      expect(position, isNotNull);
-      expect(position!.surahNumber, 1);
-      expect(position.ayahNumber, 1);
-      expect(position.readingMode, 'surah');
+        expect(position, isNotNull);
+        expect(position!.surahNumber, 1);
+        expect(position.ayahNumber, 1);
+        expect(position.readingMode, 'surah');
 
-      expect(metadata.value, '1');
-    });
+        expect(metadata.value, '1');
+      },
+    );
 
     test('updates user settings without replacing other values', () async {
       await database.updateLocalSettings(locale: 'en');
@@ -83,25 +88,28 @@ void main() {
       );
     });
 
-    test('persists settings and reading position after database reopen', () async {
-      await database.updateLocalSettings(locale: 'en', themeMode: 'dark');
-      await database.saveReadingPosition(surahNumber: 18, ayahNumber: 10);
+    test(
+      'persists settings and reading position after database reopen',
+      () async {
+        await database.updateLocalSettings(locale: 'en', themeMode: 'dark');
+        await database.saveReadingPosition(surahNumber: 18, ayahNumber: 10);
 
-      await database.close();
-      databaseClosed = true;
+        await database.close();
+        databaseClosed = true;
 
-      final reopened = AppDatabase.forTesting(NativeDatabase(databaseFile));
-      try {
-        final settings = await reopened.getLocalSettings();
-        final position = await reopened.getReadingPosition();
+        final reopened = AppDatabase.forTesting(NativeDatabase(databaseFile));
+        try {
+          final settings = await reopened.getLocalSettings();
+          final position = await reopened.getReadingPosition();
 
-        expect(settings!.locale, 'en');
-        expect(settings.themeMode, 'dark');
-        expect(position!.surahNumber, 18);
-        expect(position.ayahNumber, 10);
-      } finally {
-        await reopened.close();
-      }
-    });
+          expect(settings!.locale, 'en');
+          expect(settings.themeMode, 'dark');
+          expect(position!.surahNumber, 18);
+          expect(position.ayahNumber, 10);
+        } finally {
+          await reopened.close();
+        }
+      },
+    );
   });
 }

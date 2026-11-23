@@ -53,13 +53,13 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (migrator) async {
-          await migrator.createAll();
-        },
-        beforeOpen: (details) async {
-          await customStatement('PRAGMA foreign_keys = ON');
-        },
-      );
+    onCreate: (migrator) async {
+      await migrator.createAll();
+    },
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+  );
 
   Future<void> initializeDefaults() async {
     await transaction(() async {
@@ -84,22 +84,18 @@ class AppDatabase extends _$AppDatabase {
       }
 
       await into(appMetadata).insertOnConflictUpdate(
-        AppMetadataCompanion.insert(
-          key: 'schema_version',
-          value: '1',
-        ),
+        AppMetadataCompanion.insert(key: 'schema_version', value: '1'),
       );
     });
   }
 
   Future<LocalSetting?> getLocalSettings() {
-    return (select(localSettings)..where((row) => row.id.equals(1))).getSingleOrNull();
+    return (select(
+      localSettings,
+    )..where((row) => row.id.equals(1))).getSingleOrNull();
   }
 
-  Future<void> updateLocalSettings({
-    String? locale,
-    String? themeMode,
-  }) async {
+  Future<void> updateLocalSettings({String? locale, String? themeMode}) async {
     final current = await getLocalSettings();
 
     await into(localSettings).insertOnConflictUpdate(
@@ -113,7 +109,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<ReadingPosition?> getReadingPosition() {
-    return (select(readingPositions)..where((row) => row.id.equals(1))).getSingleOrNull();
+    return (select(
+      readingPositions,
+    )..where((row) => row.id.equals(1))).getSingleOrNull();
   }
 
   Future<void> saveReadingPosition({
@@ -139,10 +137,7 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<void> saveMetadata({
-    required String key,
-    required String value,
-  }) {
+  Future<void> saveMetadata({required String key, required String value}) {
     return into(appMetadata).insertOnConflictUpdate(
       AppMetadataCompanion.insert(
         key: key,

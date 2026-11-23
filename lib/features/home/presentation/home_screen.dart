@@ -21,10 +21,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           l10n.appName,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
-              ),
+          style: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
         ),
         actions: [
           IconButton(
@@ -41,17 +39,14 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               l10n.homeGreeting,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.homeSubtitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    height: 1.6,
-                  ),
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(color: colors.onSurfaceVariant, height: 1.6),
             ),
             const SizedBox(height: 24),
             _WelcomeCard(
@@ -63,9 +58,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               l10n.yourPath,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
             _FeaturePreviewCard(
@@ -111,9 +105,9 @@ class HomeScreen extends StatelessWidget {
                       child: Text(
                         l10n.privacyNote,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              height: 1.55,
-                              color: colors.onSurfaceVariant,
-                            ),
+                          height: 1.55,
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],
@@ -149,10 +143,7 @@ class _WelcomeCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [
-            Color(0xFF006F88),
-            Color(0xFF075567),
-          ],
+          colors: [Color(0xFF006F88), Color(0xFF075567)],
         ),
         boxShadow: [
           BoxShadow(
@@ -172,27 +163,21 @@ class _WelcomeCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.13),
               borderRadius: BorderRadius.circular(15),
             ),
-            child: const Icon(
-              Icons.spa_rounded,
-              color: Colors.white,
-              size: 23,
-            ),
+            child: const Icon(Icons.spa_rounded, color: Colors.white, size: 23),
           ),
           const SizedBox(height: 20),
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(
             description,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.88),
-                  height: 1.6,
-                ),
+              color: Colors.white.withValues(alpha: 0.88),
+              height: 1.6,
+            ),
           ),
           const SizedBox(height: 18),
           FilledButton.tonal(
@@ -247,17 +232,16 @@ class _FeaturePreviewCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          height: 1.45,
-                        ),
+                      color: colors.onSurfaceVariant,
+                      height: 1.45,
+                    ),
                   ),
                 ],
               ),
@@ -272,9 +256,9 @@ class _FeaturePreviewCard extends StatelessWidget {
               child: Text(
                 status,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
