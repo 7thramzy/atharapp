@@ -22,7 +22,10 @@ class AthaarApp extends ConsumerWidget {
       themeMode: themeMode,
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
       routerConfig: ref.watch(appRouterProvider),
     );
   }
