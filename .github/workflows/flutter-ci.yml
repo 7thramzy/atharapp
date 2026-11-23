@@ -160,6 +160,7 @@ jobs:
           set -euo pipefail
 
           test -f .athaar-ci-artifact/pubspec.lock
+          cp .athaar-ci-artifact/pubspec.lock pubspec.lock
 
           for directory in lib test android ios; do
             if [[ -d ".athaar-ci-artifact/${directory}" ]]; then
