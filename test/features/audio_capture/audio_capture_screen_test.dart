@@ -17,7 +17,12 @@ void main() {
     testWidgets('home shortcut opens the audio route', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [_gatewayOverride(gateway)],
+          overrides: [
+            audioCaptureGatewayProvider.overrideWith((ref) {
+              ref.onDispose(() => unawaited(gateway.dispose()));
+              return gateway;
+            }),
+          ],
           child: const AthaarApp(),
         ),
       );
@@ -99,7 +104,12 @@ void main() {
 }
 
 Widget _testApp(FakeAudioCaptureGateway gateway) => ProviderScope(
-  overrides: [_gatewayOverride(gateway)],
+  overrides: [
+    audioCaptureGatewayProvider.overrideWith((ref) {
+      ref.onDispose(() => unawaited(gateway.dispose()));
+      return gateway;
+    }),
+  ],
   child: MaterialApp(
     localizationsDelegates: [
       AppLocalizations.delegate,
@@ -110,12 +120,6 @@ Widget _testApp(FakeAudioCaptureGateway gateway) => ProviderScope(
     home: const AudioCaptureScreen(),
   ),
 );
-
-Override _gatewayOverride(FakeAudioCaptureGateway gateway) =>
-    audioCaptureGatewayProvider.overrideWith((ref) {
-      ref.onDispose(() => unawaited(gateway.dispose()));
-      return gateway;
-    });
 
 class FakeAudioCaptureGateway implements AudioCaptureGateway {
   static const recordingPath = '/tmp/athaar_capture_widget_test.wav';
