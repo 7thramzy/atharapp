@@ -291,6 +291,13 @@ jobs:
         run: |
           set -euo pipefail
 
+          git fetch origin "${GITHUB_REF_NAME}"
+          REMOTE_HEAD="$(git rev-parse "origin/${GITHUB_REF_NAME}")"
+          if [[ "${REMOTE_HEAD}" != "${GITHUB_SHA}" ]]; then
+            echo "Skipping stale CI artifact commit: branch head moved from ${GITHUB_SHA} to ${REMOTE_HEAD}."
+            exit 0
+          fi
+
           test -f .athaar-ci-artifact/pubspec.lock
           cp .athaar-ci-artifact/pubspec.lock pubspec.lock
 
