@@ -19,6 +19,23 @@ env:
   ATHAAR_VERSION: "0.1.0"
 
 jobs:
+  acquire-quran-source:
+    name: Acquire official Tanzil Uthmani v1.1 source
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download and fingerprint official source
+        run: python tooling/content/quran/download_source.py
+      - name: Upload verbatim source and provenance manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition/
+          if-no-files-found: error
+          retention-days: 7
+
   quality:
     name: Format, analyze and test
     runs-on: ubuntu-latest
