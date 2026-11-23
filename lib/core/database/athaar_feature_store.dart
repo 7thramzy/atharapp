@@ -89,7 +89,7 @@ class AthaarFeatureStore {
 
   Future<void> addBookmark(int surah, int ayah) => db.customStatement(
     'INSERT OR IGNORE INTO quran_bookmarks(id, surah_number, ayah_number, created_at) VALUES(?, ?, ?, ?)',
-    [Variable.withString(_id()), surah, ayah, _now],
+    [_id(), surah, ayah, _now],
   );
 
   Future<List<Map<String, Object?>>> listBookmarks() async {
@@ -110,12 +110,12 @@ class AthaarFeatureStore {
     if (existing.isEmpty) {
       await db.customStatement(
         'INSERT INTO quran_notes(id, surah_number, ayah_number, note, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?)',
-        [Variable.withString(_id()), surah, ayah, note, _now, _now],
+        [_id(), surah, ayah, note, _now, _now],
       );
     } else {
       await db.customStatement(
         'UPDATE quran_notes SET note = ?, updated_at = ? WHERE id = ?',
-        [note, _now, Variable.withString(existing.first.read<String>('id'))],
+        [note, _now, existing.first.read<String>('id')],
       );
     }
   }
@@ -137,7 +137,7 @@ class AthaarFeatureStore {
     );
     await db.customStatement(
       'INSERT INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 0, ?)',
-      [Variable.withString(_id()), categoryId, Variable.withString(textArabic.trim()), targetCount, Variable.withString(sourceReference.trim()), _now],
+      [_id(), categoryId, textArabic.trim(), targetCount, sourceReference.trim(), _now],
     );
   }
 
@@ -193,7 +193,7 @@ class AthaarFeatureStore {
       }
       await db.customStatement(
         'INSERT INTO memorization_sessions(id, surah_number, start_ayah, end_ayah, outcome, notes, started_at, completed_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
-        [Variable.withString(_id()), surah, startAyah, endAyah, outcome, notes, _now, _now],
+        [_id(), surah, startAyah, endAyah, outcome, notes, _now, _now],
       );
     });
   }
@@ -298,7 +298,7 @@ class AthaarFeatureStore {
             ayah['surahNumber'] as int,
             ayah['ayahNumber'] as int,
             ayah['textUthmani'] as String,
-            Variable.withString((ayah['normalizedText'] as String?) ?? ayah['textUthmani'] as String),
+            (ayah['normalizedText'] as String?) ?? ayah['textUthmani'] as String,
             ayah['juzNumber'] as int? ?? 1,
             ayah['pageNumber'] as int? ?? 1,
           ],
@@ -312,7 +312,7 @@ class AthaarFeatureStore {
           manifest['sourceUrl'] as String,
           manifest['edition'] as String,
           manifest['version'] as String,
-          Variable.withString(sha.toLowerCase()),
+          sha.toLowerCase(),
           manifest['licenseNotice'] as String,
           _now,
           ayahs.length,
