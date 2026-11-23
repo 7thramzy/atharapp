@@ -29,7 +29,11 @@ void main() {
       await tester.pumpAndSettle();
 
       final entry = find.text('تسجيل صوتي خاص');
-      await tester.ensureVisible(entry);
+      await tester.scrollUntilVisible(
+        entry,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(entry);
       await tester.pumpAndSettle();
 
