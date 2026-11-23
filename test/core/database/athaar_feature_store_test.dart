@@ -88,8 +88,8 @@ void main() {
       'نص معدل 1:1',
     );
 
-    expect(
-      () => store.importQuranJson(sourceJson),
+    await expectLater(
+      store.importQuranJson(sourceJson),
       throwsFormatException,
     );
     expect(await store.hasQuranDataset, isFalse);
