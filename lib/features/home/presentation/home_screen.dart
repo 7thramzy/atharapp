@@ -87,10 +87,26 @@ class HomeScreen extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                OutlinedButton.icon(onPressed: () => context.push<void>('/quran'), icon: const Icon(Icons.menu_book_rounded), label: Text(l10n.quranTitle)),
-                OutlinedButton.icon(onPressed: () => context.push<void>('/adhkar'), icon: const Icon(Icons.auto_awesome_rounded), label: Text(l10n.adhkarTitle)),
-                OutlinedButton.icon(onPressed: () => context.push<void>('/memorization'), icon: const Icon(Icons.school_rounded), label: Text(l10n.memorizationTitle)),
-                OutlinedButton.icon(onPressed: () => context.push<void>('/impact'), icon: const Icon(Icons.insights_rounded), label: Text('أثري الشخصي')),
+                OutlinedButton.icon(
+                  onPressed: () => context.push<void>('/quran'),
+                  icon: const Icon(Icons.menu_book_rounded),
+                  label: Text(l10n.quranTitle),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push<void>('/adhkar'),
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  label: Text(l10n.adhkarTitle),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push<void>('/memorization'),
+                  icon: const Icon(Icons.school_rounded),
+                  label: Text(l10n.memorizationTitle),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push<void>('/impact'),
+                  icon: const Icon(Icons.insights_rounded),
+                  label: Text('أثري الشخصي'),
+                ),
               ],
             ),
             const SizedBox(height: 20),

@@ -13,10 +13,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
-      GoRoute(path: '/quran', name: 'quran', builder: (context, state) => const QuranScreen()),
-      GoRoute(path: '/adhkar', name: 'adhkar', builder: (context, state) => const AdhkarScreen()),
-      GoRoute(path: '/memorization', name: 'memorization', builder: (context, state) => const MemorizationScreen()),
-      GoRoute(path: '/impact', name: 'impact', builder: (context, state) => const PersonalImpactScreen()),
+      GoRoute(
+        path: '/quran',
+        name: 'quran',
+        builder: (context, state) => const QuranScreen(),
+      ),
+      GoRoute(
+        path: '/adhkar',
+        name: 'adhkar',
+        builder: (context, state) => const AdhkarScreen(),
+      ),
+      GoRoute(
+        path: '/memorization',
+        name: 'memorization',
+        builder: (context, state) => const MemorizationScreen(),
+      ),
+      GoRoute(
+        path: '/impact',
+        name: 'impact',
+        builder: (context, state) => const PersonalImpactScreen(),
+      ),
       GoRoute(
         path: '/settings',
         name: 'settings',

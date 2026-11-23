@@ -164,14 +164,18 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       await into(localSettings).insertOnConflictUpdate(
         const LocalSettingsCompanion(
-          id: Value(1), locale: Value('ar'), themeMode: Value('system'),
+          id: Value(1),
+          locale: Value('ar'),
+          themeMode: Value('system'),
         ),
       );
       final existingPosition = await getReadingPosition();
       if (existingPosition == null) {
         await into(readingPositions).insert(
           const ReadingPositionsCompanion(
-            id: Value(1), surahNumber: Value(1), ayahNumber: Value(1),
+            id: Value(1),
+            surahNumber: Value(1),
+            ayahNumber: Value(1),
             readingMode: Value('surah'),
           ),
         );
@@ -182,24 +186,29 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
-  Future<LocalSetting?> getLocalSettings() => (select(localSettings)
-    ..where((row) => row.id.equals(1))).getSingleOrNull();
+  Future<LocalSetting?> getLocalSettings() => (select(
+    localSettings,
+  )..where((row) => row.id.equals(1))).getSingleOrNull();
 
   Future<void> updateLocalSettings({String? locale, String? themeMode}) async {
     final current = await getLocalSettings();
-    await into(localSettings).insertOnConflictUpdate(LocalSettingsCompanion(
-      id: const Value(1),
-      locale: Value(locale ?? current?.locale ?? 'ar'),
-      themeMode: Value(themeMode ?? current?.themeMode ?? 'system'),
-      updatedAt: Value(DateTime.now().toUtc()),
-    ));
+    await into(localSettings).insertOnConflictUpdate(
+      LocalSettingsCompanion(
+        id: const Value(1),
+        locale: Value(locale ?? current?.locale ?? 'ar'),
+        themeMode: Value(themeMode ?? current?.themeMode ?? 'system'),
+        updatedAt: Value(DateTime.now().toUtc()),
+      ),
+    );
   }
 
-  Future<ReadingPosition?> getReadingPosition() => (select(readingPositions)
-    ..where((row) => row.id.equals(1))).getSingleOrNull();
+  Future<ReadingPosition?> getReadingPosition() => (select(
+    readingPositions,
+  )..where((row) => row.id.equals(1))).getSingleOrNull();
 
   Future<void> saveReadingPosition({
-    required int surahNumber, required int ayahNumber,
+    required int surahNumber,
+    required int ayahNumber,
     String readingMode = 'surah',
   }) async {
     if (surahNumber < 1 || surahNumber > 114) {
@@ -208,15 +217,23 @@ class AppDatabase extends _$AppDatabase {
     if (ayahNumber < 1) {
       throw RangeError.value(ayahNumber, 'ayahNumber', 'must be positive');
     }
-    await into(readingPositions).insertOnConflictUpdate(ReadingPositionsCompanion(
-      id: const Value(1), surahNumber: Value(surahNumber),
-      ayahNumber: Value(ayahNumber), readingMode: Value(readingMode),
-      updatedAt: Value(DateTime.now().toUtc()),
-    ));
+    await into(readingPositions).insertOnConflictUpdate(
+      ReadingPositionsCompanion(
+        id: const Value(1),
+        surahNumber: Value(surahNumber),
+        ayahNumber: Value(ayahNumber),
+        readingMode: Value(readingMode),
+        updatedAt: Value(DateTime.now().toUtc()),
+      ),
+    );
   }
 
   Future<void> saveMetadata({required String key, required String value}) =>
-      into(appMetadata).insertOnConflictUpdate(AppMetadataCompanion.insert(
-        key: key, value: value, updatedAt: Value(DateTime.now().toUtc()),
-      ));
+      into(appMetadata).insertOnConflictUpdate(
+        AppMetadataCompanion.insert(
+          key: key,
+          value: value,
+          updatedAt: Value(DateTime.now().toUtc()),
+        ),
+      );
 }
