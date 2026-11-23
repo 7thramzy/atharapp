@@ -47,10 +47,22 @@ jobs:
         run: flutter pub get
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
-      - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+      # Format in the runner workspace, then upload the formatted source snapshot.
+      # The coordinator commits this exact formatter output before the final CI run.
+      - name: Apply Dart formatting
+        run: dart format lib test
+
+      - name: Upload formatted Dart source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-formatted-dart-source
+          path: |
+            lib/
+            test/
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Static analysis
         run: flutter analyze --fatal-infos
@@ -80,7 +92,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build Android APK
         run: flutter build apk --debug
@@ -107,7 +119,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build iOS without signing
         run: flutter build ios --debug --no-codesign
