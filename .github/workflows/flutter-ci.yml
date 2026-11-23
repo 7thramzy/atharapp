@@ -262,6 +262,7 @@ jobs:
       - android-build
       - ios-build
       - windows-build
+      - acquire-quran-source
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -277,6 +278,12 @@ jobs:
         with:
           name: athaar-formatted-dart-source
           path: .athaar-ci-artifact
+
+      - name: Download official Quran source and generated import payload
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: .athaar-quran-artifact
 
       - name: Commit formatted source, dependency lockfile and native projects
         env:
@@ -298,13 +305,19 @@ jobs:
             cp .athaar-ci-artifact/.metadata .metadata
           fi
 
+          mkdir -p assets/content/quran/source
+          cp .athaar-quran-artifact/quran-uthmani-v1.1.txt assets/content/quran/source/
+          cp .athaar-quran-artifact/quran-data.xml assets/content/quran/source/
+          cp .athaar-quran-artifact/source-manifest.json assets/content/quran/source/
+          cp .athaar-quran-artifact/tanzil-uthmani-v1.1.json assets/content/quran/
+
           rm -f android/local.properties
           rm -f ios/Flutter/Generated.xcconfig
           rm -f ios/Flutter/flutter_export_environment.sh
           rm -rf ios/Flutter/ephemeral
           rm -rf windows/flutter/ephemeral
 
-          git add pubspec.lock .metadata lib test android ios windows
+          git add pubspec.lock .metadata lib test android ios windows assets/content/quran
           if git diff --cached --quiet; then
             echo "No generated or formatted files need committing."
             exit 0
