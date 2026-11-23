@@ -16,7 +16,7 @@ void main() {
     expect(await store.surahCount, 114);
     expect(await store.ayahCount, 6236);
     final manifest = await store.quranManifest;
-    expect(manifest?['source'], 'Tanzil Quran Text');
+    expect(manifest?['source'], 'Tanzil Project');
     expect(manifest?['version'], '1.1');
     expect(manifest?['license_notice'], isNotEmpty);
     expect(await store.getSurahAyahs(1), hasLength(7));
