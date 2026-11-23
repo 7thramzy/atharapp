@@ -23,15 +23,19 @@ with urlopen(request, timeout=60) as response:
 if not raw or b"<html" in raw[:512].lower():
     raise SystemExit("Official Tanzil endpoint did not return a plain text Quran file.")
 text = raw.decode("utf-8-sig")
+raw_path.write_bytes(raw)
 required_notice = (
     "Tanzil Quran Text",
-    "Copyright (C) 2007-2021 Tanzil Project",
+    "Creative Commons Attribution 3.0",
     "CHANGING IT IS NOT ALLOWED",
+    "tanzil.net",
 )
-missing = [part for part in required_notice if part not in text]
+missing = [part for part in required_notice if part.lower() not in text.lower()]
+if "copyright" not in text.lower():
+    missing.append("copyright notice")
 if missing:
+    print("Downloaded file tail for notice review:", repr(text[-2400:]))
     raise SystemExit("Downloaded file is missing required Tanzil notice text: " + ", ".join(missing))
-raw_path.write_bytes(raw)
 metadata = {
     "source": "Tanzil Project",
     "source_url": final_url,
