@@ -103,6 +103,14 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --debug
 
+      - name: Upload installable Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-android-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
   ios-build:
     name: iOS simulator build
     runs-on: macos-latest
