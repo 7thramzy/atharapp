@@ -344,7 +344,11 @@ class AthaarFeatureStore {
         throw FormatException('Missing required source manifest field: $key');
       }
     }
-    final actualSha = sha256.convert(utf8.encode(sourceJson)).toString();
+    // The checksum covers only the ordered import payload, not its own
+    // manifest field. Hashing the whole JSON would be self-referential because
+    // manifest.sha256 is part of that same JSON document.
+    final payloadJson = jsonEncode({'surahs': surahs, 'ayahs': ayahs});
+    final actualSha = sha256.convert(utf8.encode(payloadJson)).toString();
     if (actualSha.toLowerCase() != sha.toLowerCase()) {
       throw FormatException(
         'The Quran JSON SHA-256 does not match its manifest.',
