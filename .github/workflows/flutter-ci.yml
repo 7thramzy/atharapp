@@ -52,6 +52,7 @@ jobs:
           name: athaar-tanzil-uthmani-v1.1-source
           path: build/tanzil-acquisition
       - name: Stage bundled Quran asset
+        shell: bash
         run: |
           mkdir -p assets/content/quran
           cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
@@ -130,6 +131,7 @@ jobs:
           name: athaar-tanzil-uthmani-v1.1-source
           path: build/tanzil-acquisition
       - name: Stage bundled Quran asset
+        shell: bash
         run: |
           mkdir -p assets/content/quran
           cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
@@ -174,6 +176,7 @@ jobs:
           name: athaar-tanzil-uthmani-v1.1-source
           path: build/tanzil-acquisition
       - name: Stage bundled Quran asset
+        shell: bash
         run: |
           mkdir -p assets/content/quran
           cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
@@ -211,6 +214,7 @@ jobs:
           name: athaar-tanzil-uthmani-v1.1-source
           path: build/tanzil-acquisition
       - name: Stage bundled Quran asset
+        shell: bash
         run: |
           mkdir -p assets/content/quran
           cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
