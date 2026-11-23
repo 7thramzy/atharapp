@@ -1,0 +1,39 @@
+{
+  "name": "Athaar Flutter",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "jdkDistro": "tem"
+    },
+    "ghcr.io/akhildevelops/devcontainer-features/android-cli:0.0.3": {
+      "PACKAGES": "platform-tools,platforms;android-36,build-tools;36.0.0"
+    }
+  },
+  "containerEnv": {
+    "FLUTTER_HOME": "/opt/flutter",
+    "ANDROID_HOME": "/opt/android",
+    "ANDROID_SDK_ROOT": "/opt/android"
+  },
+  "remoteEnv": {
+    "PATH": "/opt/flutter/bin:${containerEnv:PATH}"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.flutter",
+        "Dart-Code.dart-code",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "[dart]": {
+          "editor.formatOnSave": true
+        },
+        "dart.lineLength": 100
+      }
+    }
+  },
+  "remoteUser": "vscode"
+}

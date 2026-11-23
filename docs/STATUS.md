@@ -2,52 +2,63 @@
 
 **Last verified:** 2026-11-23  
 **Default branch:** main  
-**Current phase:** M0 documentation/foundation complete; M1 ready; no application code implemented yet.
+**Current phase:** M1 implementation in progress on agent/integration/1-flutter-shell. No M1 changes have been merged to main yet.
 
-## Completed and verified in GitHub
+## Completed on main
 
-- Created independent repository: https://github.com/7thramzy/atharapp
-- Inspected Quran Offline Mobile and Flutter Boilerplate at source level.
-- Selected selective code reuse; rejected a whole-app fork.
-- Chosen Flutter + Riverpod + GoRouter + Drift/SQLite for the mobile client.
-- Deferred Supabase/backend connection until after the local MVP.
-- Added repository audit, architecture decisions, local data model, licensing register, MVP scope, development/release plan and security governance under docs/engineering.
-- Added canonical project documents, agent instructions, parallel workflow, file ownership rules, handoff template, and work board.
-- Updated content-source policy with the initial Tanzil offline text decision and individual license gates for tafsir, translations, fonts, and recitations.
-- Created M1 issue #1 and parallel rights-review issues #2, #3, and #4.
+- Independent Athaar repository and initial product/engineering documents.
+- Source-level audit of Quran Offline Mobile and Flutter Boilerplate.
+- Selective-reuse decision; no full upstream app fork.
+- Flutter + Riverpod + GoRouter + Drift/SQLite architecture.
+- Backend integration deferred until after the local MVP.
+- Content-source policy and parallel-agent workflow.
+- GitHub issues #1–#4 created for M1 and independent content-rights reviews.
 
-## Content-source decisions
+## M1 implementation branch
 
-- Tanzil Uthmani v1.1: selected for verbatim offline Quran text, provided the text remains unchanged and required attribution/notice/link are preserved. Exact source file, options, and checksum still need to be captured before import.
-- Quran Foundation API content: not selected as a static bundled database; its terms impose retention/sync and redistribution restrictions.
-- QUL: discovery/download catalogue only; each individual resource needs its own license review.
-- Cairo UI font: OFL 1.1; include license and notice.
-- KFGQPC Quran font/Mushaf assets: official digital-use source selected conditionally; exact file and usage statement must be recorded before bundling.
-- Tafsir and translation content: no exact resource is approved yet.
-- AlQuran Cloud/Islamic Network audio: conditional streaming/educational use; no bundled MP3 in MVP and no commercial/donation-mode assumption without rights clarification.
-- EveryAyah: blocked until recording-specific rights are documented.
-- Sanad AGPL-3.0: research reference only, not app code to copy.
+Branch: agent/integration/1-flutter-shell
+
+Implemented in the branch (pending CI and review):
+- Flutter package manifest with Flutter 3.50.0 / Dart 3.14 compatibility.
+- Riverpod, GoRouter, Drift, and generated localization wiring.
+- Arabic-first home screen and settings screen with English switching.
+- Athaar light/dark color scheme.
+- Drift schema v1: local settings, reading position, app metadata.
+- Database repository and persistence tests.
+- GitHub Codespaces Dev Container setup and native platform bootstrap script.
+- GitHub Actions format/analyze/test plus Android and unsigned iOS build jobs.
+
+## M1 validation state
+
+- Flutter commands have not yet been executed in this assistant environment.
+- GitHub Actions has not yet reported a passing run for this branch.
+- Generated Drift code and native Android/iOS platform folders are produced by the Codespaces/CI setup scripts, not checked in yet.
+- pubspec.lock is generated during dependency resolution and must be committed after the first successful resolver run.
+- Cairo font binary is not bundled; system Arabic fallback is used pending the exact OFL asset and notice.
+- No Android/iOS binary is signed or published.
+- No Supabase/backend connection has been created.
+
+## Content source decisions
+
+- Tanzil Uthmani v1.1: selected for verbatim offline Arabic Quran text with the required notice and link; exact downloaded file/hash still needs to be recorded before bundling.
+- Quran Foundation API content: not selected as a static app bundle.
+- QUL: discovery catalogue only; each translation/tafsir/font/audio item requires resource-level review.
+- Cairo UI font: OFL 1.1; exact file and notice still to be added.
+- KFGQPC Quran font/Mushaf resources: conditional on exact file and official digital-use notice.
+- Tafsir and translations: no exact dataset is approved yet.
+- Recitations: no MP3 bundle in MVP; provider/reciter rights tasks remain open.
 
 ## Active GitHub work
 
-- #1 M1: Flutter application shell, Arabic RTL, Riverpod, Drift, Codespaces and CI.
-- #2 Content review A: Quran text and Mushaf fonts.
-- #3 Content review B: tafsir and translation rights.
-- #4 Content review C: recitation audio and per-reciter rights.
+- #1 M1: Flutter app shell, Arabic RTL, Drift, Codespaces and CI.
+- #2 Quran text and Mushaf font rights dossier.
+- #3 Tafsir and translation rights dossier.
+- #4 Recitation audio rights dossier.
 
-M1 and content research issues are independent and can proceed in parallel when separate agents claim disjoint paths.
+## Next actions
 
-## Not implemented / not verified
-
-- Flutter application source and platform folders.
-- Drift schema, migrations, or generated code.
-- Codespaces Dev Container and GitHub Actions workflow.
-- Quran text import or binary assets.
-- UI, audio capture, AI, or notification functionality.
-- Supabase, authentication, cloud synchronization, or payment provider.
-- Android/iOS signed builds, TestFlight, Google Play upload, or App Store submission.
-- Flutter commands, CI, emulator tests, or physical-device tests have not yet run for Athaar.
-
-## Next action
-
-Implement M1 from issue #1. In parallel, complete issues #2–#4 as isolated source-rights dossiers. The coordinator reconciles approved results into docs/CONTENT_SOURCES.md before any religious content is added to the app.
+1. Run M1 GitHub Actions on the pull request and fix all toolchain/analyzer/test/build failures.
+2. Resolve and commit pubspec.lock; review generated Android/iOS project folders and finalize the provisional app identifier before store preparation.
+3. Merge M1 only after CI is green and the handoff is complete.
+4. Continue content-rights reviews #2–#4 in parallel.
+5. Start Quran content import only after the exact source and file hash have been recorded and approved.
