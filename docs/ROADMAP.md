@@ -12,9 +12,9 @@
 
 ## M1 — Flutter application shell
 
-**Status: IN PROGRESS — branch agent/integration/1-flutter-shell, issue #1**
+**Status: COMPLETE — merged to main (PR #5, commit b0b51e6)**
 
-Implemented in the branch, pending generated-code, CI, and build verification:
+Implemented and verified on main:
 - Flutter 3.50.0 application shell with Arabic-first Material 3.
 - Riverpod state, GoRouter navigation, and generated Arabic/English localization.
 - Athaar petrol/emerald light/dark theme tokens.
@@ -43,21 +43,23 @@ Research tasks may proceed in parallel with M1. No content binaries may be bundl
 
 ## M2 — Quran reader and verified content
 
-- Add a reproducible Tanzil Uthmani v1.1 manifest and import only after exact file/hash validation.
-- Test chapter/ayah counts, sequence, Unicode integrity, and content checksum.
-- Implement surah navigation, verse reading, basic search, bookmarks, notes, and last-read position.
-- Keep original Uthmani content immutable.
-- Add only approved fonts and structural metadata.
-- Provide a visible source/attribution page.
-- Verify offline behavior and database reopen.
+**Status: IMPLEMENTED FOUNDATION — verified Tanzil dataset import remains gated.**
+
+- Added Drift v2 tables for Quran surahs/ayahs, source manifest, bookmarks, and private notes.
+- Added atomic JSON import with SHA-256 verification, canonical surah/ayah counts, order, uniqueness, and non-empty text checks.
+- Added surah navigation, verse reading, search, bookmarks, notes, and last-reading persistence UI.
+- Added a source notice and explicit empty state; no fabricated Quran text is bundled.
+- Remaining gate: verify the exact Tanzil Uthmani v1.1 download and required notice before importing it; complete physical-device offline/reopen QA.
 
 ## M3 — Adhkar and memorization
 
-- Approve sourced adhkar content and wording before bundling.
-- Implement local counters and optional user-scheduled reminders.
-- Implement memorization status and revision sessions.
-- Derive the private progress dashboard from actual local records.
-- Add personal impact as a private, user-controlled summary.
+**Status: IMPLEMENTED LOCAL WORKFLOWS — curated content and scheduled notifications remain gated.**
+
+- Added personal adhkar entries with required source reference and explicit unverified status.
+- Added persistent daily local counters.
+- Added per-ayah memorization states and range-based revision sessions.
+- Added a private impact dashboard derived from actual local activity, without public rankings.
+- Remaining gates: independently review each bundled adhkar source and implement/QA user-scheduled local notifications.
 
 ## M4 — Audio and recitation support
 

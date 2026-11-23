@@ -4,7 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('renders the Arabic home screen on startup', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: AthaarApp()));
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: AthaarApp(),
+      ),
+    );
 
     await tester.pump(const Duration(milliseconds: 500));
 

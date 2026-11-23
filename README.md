@@ -23,9 +23,10 @@ Drift is the only persistence layer in the initial implementation. Supabase rema
 
 ## Current implementation
 
-The M1 branch contains the first application shell, Arabic/English localization, light/dark themes, initial Drift schema, and database/widget tests. The Quran reader, adhkar data, memorization feature, and audio assessment are later milestones.
+M1 is merged to main. M2/M3 now include the offline Quran reader foundation (waiting for the verified Tanzil payload), ayah search/bookmarks/notes, personal adhkar counters, memorization sessions, and a private activity summary. See the implementation notes for remaining content and device-QA gates.
 
 - [M1 implementation notes](docs/engineering/M1_IMPLEMENTATION.md)
+- [M2/M3 implementation notes](docs/engineering/M2_M3_IMPLEMENTATION.md)
 - [Repository audit](docs/engineering/REPOSITORY_AUDIT.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Architecture decisions](docs/DECISIONS.md)

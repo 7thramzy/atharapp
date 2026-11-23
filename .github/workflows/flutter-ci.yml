@@ -71,7 +71,7 @@ jobs:
         run: flutter analyze --fatal-infos
 
       - name: Drift database tests
-        run: flutter test test/core/database/app_database_test.dart --reporter expanded --timeout 60s
+        run: flutter test test/core/database --reporter expanded --timeout 60s
 
       - name: Widget tests
         run: flutter test test/app/athaar_app_test.dart --reporter expanded --timeout 60s
