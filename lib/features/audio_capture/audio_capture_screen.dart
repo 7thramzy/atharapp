@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:athaar/features/audio_capture/audio_capture_controller.dart';
 import 'package:athaar/l10n/generated/app_localizations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AudioCaptureScreen extends ConsumerStatefulWidget {

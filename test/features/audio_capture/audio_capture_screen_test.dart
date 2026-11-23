@@ -4,8 +4,7 @@ import 'package:athaar/app/athaar_app.dart';
 import 'package:athaar/features/audio_capture/audio_capture_gateway.dart';
 import 'package:athaar/features/audio_capture/audio_capture_screen.dart';
 import 'package:athaar/l10n/generated/app_localizations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -112,7 +111,7 @@ Widget _testApp(FakeAudioCaptureGateway gateway) => ProviderScope(
   ),
 );
 
-_gatewayOverride(FakeAudioCaptureGateway gateway) =>
+Override _gatewayOverride(FakeAudioCaptureGateway gateway) =>
     audioCaptureGatewayProvider.overrideWith((ref) {
       ref.onDispose(() => unawaited(gateway.dispose()));
       return gateway;
