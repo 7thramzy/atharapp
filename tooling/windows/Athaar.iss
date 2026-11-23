@@ -39,7 +39,7 @@ Name: "{autoprograms}\Athaar"; Filename: "{app}\{#AppExeName}"
 Name: "{autodesktop}\Athaar"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Microsoft Visual C++ runtime..."; Check: NeedsVCRedist; Flags: waituntilterminated runhidden ignoreerrors
+Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Microsoft Visual C++ runtime..."; Check: NeedsVCRedist; Flags: waituntilterminated runhidden
 Filename: "{app}\{#AppExeName}"; Description: "Launch Athaar"; Flags: postinstall nowait skipifsilent
 
 [Code]
