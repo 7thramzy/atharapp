@@ -247,6 +247,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Athaar does not require an account for its core experience. Local storage comes first; cloud synchronization will be considered after offline behavior is complete and tested.'**
   String get localPrivacy;
+
+  /// No description provided for @audioCaptureEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Private voice recording'**
+  String get audioCaptureEntry;
+
+  /// No description provided for @audioCaptureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local voice recording'**
+  String get audioCaptureTitle;
+
+  /// No description provided for @audioPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your voice stays on this device'**
+  String get audioPrivacyTitle;
+
+  /// No description provided for @audioPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The recording is not uploaded or kept in a permanent history. It remains temporary while this screen is open and is deleted when you leave. This feature does not stream recitations or provide automated assessment. Microphone permission is requested only after you tap Start, and is used only for this recording.'**
+  String get audioPrivacyBody;
+
+  /// No description provided for @audioPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing temporary recording space…'**
+  String get audioPreparing;
+
+  /// No description provided for @audioReadyToRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready when you choose to record'**
+  String get audioReadyToRecord;
+
+  /// No description provided for @audioRequestingPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for microphone permission…'**
+  String get audioRequestingPermission;
+
+  /// No description provided for @audioRecordingIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording is active'**
+  String get audioRecordingIndicator;
+
+  /// No description provided for @audioStopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping the recording…'**
+  String get audioStopping;
+
+  /// No description provided for @audioRecordingReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary recording complete. You can play it or delete it.'**
+  String get audioRecordingReady;
+
+  /// No description provided for @audioPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing the recording locally'**
+  String get audioPlaying;
+
+  /// No description provided for @audioDeleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting the recording…'**
+  String get audioDeleting;
+
+  /// No description provided for @audioStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start recording'**
+  String get audioStart;
+
+  /// No description provided for @audioStopRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recording'**
+  String get audioStopRecording;
+
+  /// No description provided for @audioPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play recording'**
+  String get audioPlay;
+
+  /// No description provided for @audioStopPlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop playback'**
+  String get audioStopPlayback;
+
+  /// No description provided for @audioDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete recording'**
+  String get audioDelete;
+
+  /// No description provided for @audioPreparationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary recording space could not be prepared. Leave this screen and try again.'**
+  String get audioPreparationError;
+
+  /// No description provided for @audioPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission was not granted. Allow it in device settings, then try again.'**
+  String get audioPermissionDenied;
+
+  /// No description provided for @audioRecordingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording could not start or be saved. No audio was sent.'**
+  String get audioRecordingError;
+
+  /// No description provided for @audioPlaybackError.
+  ///
+  /// In en, this message translates to:
+  /// **'The local recording could not be played. No audio was sent.'**
+  String get audioPlaybackError;
+
+  /// No description provided for @audioDeletionError.
+  ///
+  /// In en, this message translates to:
+  /// **'The recording could not be deleted right now. Temporary files will be cleaned when you open this feature again.'**
+  String get audioDeletionError;
 }
 
 class _AppLocalizationsDelegate

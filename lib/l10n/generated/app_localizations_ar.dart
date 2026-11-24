@@ -87,4 +87,77 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get localPrivacy =>
       'لا يتطلب أثَر حساباً لاستخدام الأساسيات. تخزين البيانات محلياً هو نقطة البداية، وستتم إضافة المزامنة السحابية بعد اكتمال واختبار تجربة العمل دون اتصال.';
+
+  @override
+  String get audioCaptureEntry => 'تسجيل صوتي خاص';
+
+  @override
+  String get audioCaptureTitle => 'تسجيل صوتي محلي';
+
+  @override
+  String get audioPrivacyTitle => 'صوتك يبقى على جهازك';
+
+  @override
+  String get audioPrivacyBody =>
+      'لا يُرفع التسجيل ولا يُحفظ في سجل دائم. يبقى مؤقتاً أثناء وجودك في هذه الشاشة ثم يُحذف عند مغادرتها. لا يوجد بث لتلاوات أو تقييم آلي في هذه الميزة. لن يُطلب إذن الميكروفون إلا بعد ضغطك على بدء التسجيل، ويُستخدم لالتقاط التسجيل الحالي فقط.';
+
+  @override
+  String get audioPreparing => 'جارٍ تجهيز مساحة التسجيل المؤقتة…';
+
+  @override
+  String get audioReadyToRecord => 'جاهز للتسجيل عند طلبك';
+
+  @override
+  String get audioRequestingPermission => 'بانتظار إذن الميكروفون…';
+
+  @override
+  String get audioRecordingIndicator => 'التسجيل جارٍ الآن';
+
+  @override
+  String get audioStopping => 'جارٍ إيقاف التسجيل…';
+
+  @override
+  String get audioRecordingReady =>
+      'اكتمل التسجيل المؤقت. يمكنك الاستماع إليه أو حذفه.';
+
+  @override
+  String get audioPlaying => 'يُشغَّل التسجيل محلياً';
+
+  @override
+  String get audioDeleting => 'جارٍ حذف التسجيل…';
+
+  @override
+  String get audioStart => 'ابدأ التسجيل';
+
+  @override
+  String get audioStopRecording => 'إيقاف التسجيل';
+
+  @override
+  String get audioPlay => 'استمع إلى التسجيل';
+
+  @override
+  String get audioStopPlayback => 'إيقاف التشغيل';
+
+  @override
+  String get audioDelete => 'حذف التسجيل';
+
+  @override
+  String get audioPreparationError =>
+      'تعذر تجهيز مساحة التسجيل المؤقتة. أغلق الشاشة وحاول مرة أخرى.';
+
+  @override
+  String get audioPermissionDenied =>
+      'لم يُمنح إذن الميكروفون. يمكنك السماح به من إعدادات الجهاز ثم المحاولة مجدداً.';
+
+  @override
+  String get audioRecordingError =>
+      'تعذر بدء التسجيل أو حفظه. لم يُرسل أي صوت.';
+
+  @override
+  String get audioPlaybackError =>
+      'تعذر تشغيل التسجيل المحلي. لم يُرسل أي صوت.';
+
+  @override
+  String get audioDeletionError =>
+      'تعذر حذف التسجيل الآن. سيُعاد تنظيف الملفات المؤقتة عند فتح الميزة مجدداً.';
 }
