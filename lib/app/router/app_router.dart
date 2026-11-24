@@ -1,3 +1,4 @@
+import 'package:athaar/features/audio_capture/audio_capture_screen.dart';
 import 'package:athaar/features/home/presentation/home_screen.dart';
 import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
 import 'package:athaar/features/settings/presentation/settings_screen.dart';
@@ -32,6 +33,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/impact',
         name: 'impact',
         builder: (context, state) => const PersonalImpactScreen(),
+      ),
+      GoRoute(
+        path: '/audio-capture',
+        name: 'audio-capture',
+        builder: (context, state) => const AudioCaptureScreen(),
       ),
       GoRoute(
         path: '/settings',

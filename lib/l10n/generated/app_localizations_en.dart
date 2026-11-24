@@ -90,4 +90,77 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get localPrivacy =>
       'Athaar does not require an account for its core experience. Local storage comes first; cloud synchronization will be considered after offline behavior is complete and tested.';
+
+  @override
+  String get audioCaptureEntry => 'Private voice recording';
+
+  @override
+  String get audioCaptureTitle => 'Local voice recording';
+
+  @override
+  String get audioPrivacyTitle => 'Your voice stays on this device';
+
+  @override
+  String get audioPrivacyBody =>
+      'The recording is not uploaded or kept in a permanent history. It remains temporary while this screen is open and is deleted when you leave. This feature does not stream recitations or provide automated assessment. Microphone permission is requested only after you tap Start, and is used only for this recording.';
+
+  @override
+  String get audioPreparing => 'Preparing temporary recording space…';
+
+  @override
+  String get audioReadyToRecord => 'Ready when you choose to record';
+
+  @override
+  String get audioRequestingPermission => 'Waiting for microphone permission…';
+
+  @override
+  String get audioRecordingIndicator => 'Recording is active';
+
+  @override
+  String get audioStopping => 'Stopping the recording…';
+
+  @override
+  String get audioRecordingReady =>
+      'Temporary recording complete. You can play it or delete it.';
+
+  @override
+  String get audioPlaying => 'Playing the recording locally';
+
+  @override
+  String get audioDeleting => 'Deleting the recording…';
+
+  @override
+  String get audioStart => 'Start recording';
+
+  @override
+  String get audioStopRecording => 'Stop recording';
+
+  @override
+  String get audioPlay => 'Play recording';
+
+  @override
+  String get audioStopPlayback => 'Stop playback';
+
+  @override
+  String get audioDelete => 'Delete recording';
+
+  @override
+  String get audioPreparationError =>
+      'Temporary recording space could not be prepared. Leave this screen and try again.';
+
+  @override
+  String get audioPermissionDenied =>
+      'Microphone permission was not granted. Allow it in device settings, then try again.';
+
+  @override
+  String get audioRecordingError =>
+      'Recording could not start or be saved. No audio was sent.';
+
+  @override
+  String get audioPlaybackError =>
+      'The local recording could not be played. No audio was sent.';
+
+  @override
+  String get audioDeletionError =>
+      'The recording could not be deleted right now. Temporary files will be cleaned when you open this feature again.';
 }
