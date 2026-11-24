@@ -107,6 +107,11 @@ class HomeScreen extends StatelessWidget {
                   icon: const Icon(Icons.insights_rounded),
                   label: Text('أثري الشخصي'),
                 ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push<void>('/audio-capture'),
+                  icon: const Icon(Icons.mic_none_rounded),
+                  label: Text(l10n.audioCaptureEntry),
+                ),
               ],
             ),
             const SizedBox(height: 20),

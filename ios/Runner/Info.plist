@@ -66,5 +66,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Athaar uses the microphone only after you tap Start; audio is stored temporarily on this device and deleted when you leave this screen. / لا يستخدم أثَر الميكروفون إلا بعد الضغط على بدء التسجيل؛ يُحفظ الصوت مؤقتاً على الجهاز ويُحذف عند مغادرة هذه الشاشة.</string>
 </dict>
 </plist>
