@@ -1,0 +1,38 @@
+name: Publish public Android test release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-public-test-release.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download verified ARM64 test APK artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 45483559855 \
+            --repo "${GITHUB_REPOSITORY}" \
+            --name "athaar-android-arm64-test-release-apk" \
+            --dir release-files
+          APK="$(find release-files -type f -name '*.apk' -print -quit)"
+          test -n "$APK"
+          mkdir -p public-release
+          cp "$APK" public-release/Athaar-0.2.0-android-arm64-test-release.apk
+      - name: Publish public GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v0.2.0-test \
+            public-release/Athaar-0.2.0-android-arm64-test-release.apk \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Athaar 0.2.0 — Android ARM64 Test" \
+            --prerelease \
+            --notes "Private device-testing build only. ARM64 Android devices. This APK is signed with a test/debug key and is not a Google Play production release. SHA-256: 8c3af9a359ffefaba5d4441562ee9ad5eca6246e292d520a7ae509658b619fd4"
