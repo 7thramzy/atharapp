@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-11-24  
 **Default branch:** main  
-**Current phase:** M2 and M3 local-first workflows implemented; verified content import and device QA remain open.
+**Current phase:** M2/M3 local-first workflows implemented. QCF Hafs Mushaf technical integration is complete on PR #16; physical-device QA and release-size review remain open.
 
 ## Completed on main
 
@@ -45,6 +45,16 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - KFGQPC Quran font/Mushaf resources: conditional on exact file and official digital-use notice.
 - Tafsir and translations: no exact dataset is approved yet.
 - Recitations: no MP3 bundle in MVP; provider/reciter rights tasks remain open.
+
+
+## QCF Hafs Mushaf integration (PR #16)
+
+- Pinned `qcf_quran_plus: 0.1.1` behind an Athaar-owned `HafsRendererAdapter`; no QCF package types leak into the Drift/domain contract.
+- Added the 604-page Hafs reader at `/quran/mushaf`, including page jump/navigation, Tajweed toggle, responsive two-page layout, word tap/highlighting, long-press ayah selection, Drift bookmarks, and last-reading-position restore.
+- Fonts are loaded page-by-page (current page + next page); the all-pages `setupFontsAtStartup` helper is not called.
+- CI run [45471585911](https://github.com/7thramzy/atharapp/actions/runs/45471585911) passed source acquisition, static analysis, all tests, Android debug build, unsigned iOS simulator build, Windows release/installer, and generated-source persistence.
+- Android debug APK measured **251,830,435 bytes (240.16 MiB)**. This is a large debug build; release packaging and size optimization review is still required.
+- Physical-device visual QA and full 604-page mapping verification are not yet complete. The integration is on PR #16 and has not been merged to main.
 
 ## Active GitHub work
 

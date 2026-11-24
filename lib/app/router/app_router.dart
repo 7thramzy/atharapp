@@ -1,5 +1,6 @@
 import 'package:athaar/features/home/presentation/home_screen.dart';
 import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
+import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:athaar/features/settings/presentation/settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/quran',
         name: 'quran',
         builder: (context, state) => const QuranScreen(),
+        routes: [
+          GoRoute(
+            path: 'mushaf',
+            name: 'quran-mushaf-hafs',
+            builder: (context, state) => const HafsMushafScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/adhkar',

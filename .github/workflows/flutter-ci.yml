@@ -85,6 +85,9 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
+      - name: Report QCF package font footprint
+        run: python tooling/quran/report_qcf_package_footprint.py
+
       - name: Generate Drift code
         run: dart run build_runner build
 
@@ -118,8 +121,11 @@ jobs:
       - name: Widget tests
         run: flutter test test/app/athaar_app_test.dart --reporter expanded --timeout 60s
 
+      - name: QCF reader and adapter tests
+        run: flutter test test/quran --reporter expanded --timeout 60s
+
   android-build:
-    name: Android debug build
+    name: Android debug and test-release builds
     runs-on: ubuntu-latest
     needs: [quality, acquire-quran-source]
     steps:
@@ -152,16 +158,79 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build
 
-      - name: Build Android APK
+      - name: Install pinned Android NDK (retry transient SDK downloads)
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+
+          installed=0
+          for attempt in 1 2 3; do
+            echo "Installing Android NDK 28.2.13676358 (attempt $attempt/3)"
+            if "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "ndk;28.2.13676358"; then
+              installed=1
+              break
+            fi
+            if [[ "$attempt" -lt 3 ]]; then
+              echo "NDK download did not complete; retrying after a short delay."
+              sleep $((attempt * 15))
+            fi
+          done
+
+          if [[ "$installed" -ne 1 || ! -f "$SDK_ROOT/ndk/28.2.13676358/source.properties" ]]; then
+            echo "Android NDK 28.2.13676358 was not installed successfully." >&2
+            exit 1
+          fi
+
+      - name: Build Android debug APK
         run: flutter build apk --debug
 
-      - name: Upload installable Android APK
+      - name: Record Android debug APK size
+        shell: bash
+        run: |
+          APK="build/app/outputs/flutter-apk/app-debug.apk"
+          test -f "$APK"
+          stat --printf="ATHAAR_ANDROID_DEBUG_APK_BYTES=%s\\n" "$APK"
+
+      - name: Upload installable Android debug APK
         uses: actions/upload-artifact@v4
         with:
           name: athaar-android-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Build arm64 test-release APK
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Verify Android arm64 test-release APK signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -x "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+
+      - name: Record Android arm64 test-release APK size and checksum
+        shell: bash
+        run: |
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          test -f "$APK"
+          stat --printf="ATHAAR_ANDROID_ARM64_TEST_RELEASE_APK_BYTES=%s\\n" "$APK"
+          sha256sum "$APK"
+
+      - name: Upload Android arm64 test-release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-android-arm64-test-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
 
   ios-build:
     name: iOS simulator build
