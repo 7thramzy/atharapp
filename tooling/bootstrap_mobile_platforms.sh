@@ -20,7 +20,7 @@ if permission not in text:
     marker = '    <application'
     if marker not in text:
         raise SystemExit('Could not locate the Android application element.')
-    text = text.replace(marker, f'    {permission}\\n{marker}', 1)
+    text = text.replace(marker, f'    {permission}\n{marker}', 1)
     manifest.write_text(text)
 PY
   fi
@@ -43,7 +43,7 @@ if key not in text:
         'لا يستخدم أثَر الميكروفون إلا بعد الضغط على بدء التسجيل؛ يُحفظ الصوت '
         'مؤقتاً على الجهاز ويُحذف عند مغادرة هذه الشاشة.'
     )
-    entry = f'    {key}\\n    <string>{value}</string>\\n'
+    entry = f'    {key}\n    <string>{value}</string>\n'
     text = text[:root_end] + entry + text[root_end:]
     plist.write_text(text)
 PY
