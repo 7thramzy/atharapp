@@ -1,38 +1,92 @@
-name: Publish public Android test release
+name: Rebuild and publish verified Android test APK
 
 on:
   push:
     branches: [main]
     paths:
       - .github/workflows/publish-public-test-release.yml
+      - pubspec.yaml
+      - lib/**
+      - assets/content/quran/**
+      - android/**
+  workflow_dispatch:
 
 permissions:
-  actions: read
   contents: write
 
+concurrency:
+  group: athaar-android-test-release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.50.0"
+
 jobs:
-  publish:
+  build-and-publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
-      - name: Download verified ARM64 test APK artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Acquire official Quran source
         run: |
-          gh run download 45483559855 \
-            --repo "${GITHUB_REPOSITORY}" \
-            --name "athaar-android-arm64-test-release-apk" \
-            --dir release-files
-          APK="$(find release-files -type f -name '*.apk' -print -quit)"
-          test -n "$APK"
+          python tooling/content/quran/download_source.py
+          python tooling/content/quran/build_dataset.py
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Generate native mobile folders if needed
+        run: bash tooling/bootstrap_mobile_platforms.sh
+
+      - name: Resolve dependencies and generate Drift code
+        run: |
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build universal Android release APK
+        run: flutter build apk --release
+
+      - name: Verify APK structure, alignment, manifest and signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          test -s "$APK"
+          unzip -t "$APK"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          test -x "$BUILD_TOOLS/apksigner"
+          test -x "$BUILD_TOOLS/zipalign"
+          test -x "$BUILD_TOOLS/aapt"
+          "$BUILD_TOOLS/zipalign" -c -v 4 "$APK"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
+          "$BUILD_TOOLS/aapt" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.athaar.athaar'" apk-badging.txt
+          grep -q "native-code:.*arm64-v8a" apk-badging.txt
+          sha256sum "$APK" | tee apk-sha256.txt
+
+      - name: Prepare public release assets
+        run: |
           mkdir -p public-release
-          cp "$APK" public-release/Athaar-0.2.0-android-arm64-test-release.apk
-      - name: Publish public GitHub prerelease
+          cp build/app/outputs/flutter-apk/app-release.apk public-release/Athaar-0.2.1-android-test.apk
+          cp apk-sha256.txt public-release/SHA256SUMS.txt
+
+      - name: Publish verified GitHub prerelease
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v0.2.0-test \
-            public-release/Athaar-0.2.0-android-arm64-test-release.apk \
+          SHA="$(cut -d ' ' -f1 apk-sha256.txt)"
+          gh release create v0.2.1-test \
+            public-release/Athaar-0.2.1-android-test.apk \
+            public-release/SHA256SUMS.txt \
             --repo "${GITHUB_REPOSITORY}" \
-            --title "Athaar 0.2.0 — Android ARM64 Test" \
+            --title "Athaar 0.2.1 — Android Device Test" \
             --prerelease \
-            --notes "Private device-testing build only. ARM64 Android devices. This APK is signed with a test/debug key and is not a Google Play production release. SHA-256: 8c3af9a359ffefaba5d4441562ee9ad5eca6246e292d520a7ae509658b619fd4"
+            --notes "Fresh universal Flutter release APK for device testing. Includes ARM64 native code. APK structure, zip alignment, package ID and Android signing were checked in CI. Test/debug signing only; not for Google Play production. SHA-256: ${SHA}"
