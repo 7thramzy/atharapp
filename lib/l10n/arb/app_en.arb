@@ -28,7 +28,7 @@
   "audioCaptureEntry": "Private voice recording",
   "audioCaptureTitle": "Local voice recording",
   "audioPrivacyTitle": "Your voice stays on this device",
-  "audioPrivacyBody": "The recording is not uploaded or kept in a permanent history. It remains temporary while this screen is open and is deleted when you leave. This feature does not stream recitations or provide automated assessment.",
+  "audioPrivacyBody": "The recording is not uploaded or kept in a permanent history. It remains temporary while this screen is open and is deleted when you leave. This feature does not stream recitations or provide automated assessment. Microphone permission is requested only after you tap Start, and is used only for this recording.",
   "audioPreparing": "Preparing temporary recording space…",
   "audioReadyToRecord": "Ready when you choose to record",
   "audioRequestingPermission": "Waiting for microphone permission…",
