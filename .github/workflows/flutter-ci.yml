@@ -460,10 +460,13 @@ jobs:
             -d "{\"ref\":\"${GITHUB_REF_NAME}\"}"
 
   web-preview:
-    name: Build browser preview artifact
+    name: Build and publish browser preview
     needs: [quality, acquire-quran-source]
     if: github.ref == 'refs/heads/design/match-athaar-reference' || github.ref == 'refs/heads/design/quran-study-multimedia'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     timeout-minutes: 20
     steps:
       - name: Checkout
