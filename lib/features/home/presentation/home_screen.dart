@@ -1,296 +1,147 @@
 import 'dart:async';
 
 import 'package:athaar/core/design_system/athaar_colors.dart';
-import 'package:athaar/l10n/generated/app_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _openSettings(BuildContext context) {
-    unawaited(context.push<void>('/settings'));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.appName,
-          style: Theme.of(context).textTheme.titleLarge
-              ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+        title: Row(
+          children: [
+            const Icon(Icons.spa_rounded, color: AthaarColors.mutedGold, size: 27),
+            const SizedBox(width: 8),
+            Text('أثَر', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+          ],
         ),
         actions: [
           IconButton(
-            tooltip: l10n.settings,
-            onPressed: () => _openSettings(context),
-            icon: const Icon(Icons.tune_rounded),
+            tooltip: 'الإعدادات',
+            onPressed: () => context.push<void>('/settings'),
+            icon: const Icon(Icons.settings_outlined),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
           children: [
-            Text(
-              l10n.homeGreeting,
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.homeSubtitle,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(color: colors.onSurfaceVariant, height: 1.6),
-            ),
-            const SizedBox(height: 24),
-            _WelcomeCard(
-              title: l10n.heroTitle,
-              description: l10n.heroDescription,
-              actionLabel: l10n.exploreSettings,
-              onPressed: () => _openSettings(context),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              l10n.yourPath,
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 12),
-            _FeaturePreviewCard(
-              icon: Icons.menu_book_rounded,
-              title: l10n.quranTitle,
-              description: l10n.quranDescription,
-              status: l10n.inPreparation,
-            ),
-            const SizedBox(height: 10),
-            _FeaturePreviewCard(
-              icon: Icons.auto_awesome_rounded,
-              title: l10n.adhkarTitle,
-              description: l10n.adhkarDescription,
-              status: l10n.inPreparation,
-            ),
-            const SizedBox(height: 10),
-            _FeaturePreviewCard(
-              icon: Icons.school_rounded,
-              title: l10n.memorizationTitle,
-              description: l10n.memorizationDescription,
-              status: l10n.inPreparation,
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => context.push<void>('/quran'),
-                  icon: const Icon(Icons.menu_book_rounded),
-                  label: Text(l10n.quranTitle),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => context.push<void>('/adhkar'),
-                  icon: const Icon(Icons.auto_awesome_rounded),
-                  label: Text(l10n.adhkarTitle),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => context.push<void>('/memorization'),
-                  icon: const Icon(Icons.school_rounded),
-                  label: Text(l10n.memorizationTitle),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => context.push<void>('/impact'),
-                  icon: const Icon(Icons.insights_rounded),
-                  label: Text('أثري الشخصي'),
-                ),
-              ],
-            ),
+            Text('أهلاً بك في أثَر', textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            Text('خطوات صغيرة تصنع أثراً طيباً', textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.onSurfaceVariant)),
             const SizedBox(height: 20),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: colors.outlineVariant.withValues(alpha: 0.55),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.phonelink_lock_rounded,
-                      color: AthaarColors.petrol,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        l10n.privacyNote,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          height: 1.55,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _JourneyCard(onTap: () => context.push<void>('/quran')),
+            const SizedBox(height: 22),
+            Row(children: [
+              const Expanded(child: Divider(color: AthaarColors.mutedGold)),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text('مسارك', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900))),
+              const Expanded(child: Divider(color: AthaarColors.mutedGold)),
+            ]),
+            const SizedBox(height: 12),
+            _PathTile(icon: Icons.menu_book_rounded, title: 'القرآن الكريم',
+              subtitle: 'قراءة وتدبّر', onTap: () => context.push<void>('/quran')),
+            _PathTile(icon: Icons.grain_rounded, title: 'الأذكار',
+              subtitle: 'طمأنينة في كل حين', onTap: () => context.push<void>('/adhkar')),
+            _PathTile(icon: Icons.bookmark_added_rounded, title: 'الحفظ والمراجعة',
+              subtitle: 'ثبّت وتذكّر دائماً', onTap: () => context.push<void>('/memorization')),
+            _PathTile(icon: Icons.insights_rounded, title: 'أثري الشخصي',
+              subtitle: 'تابع أثر خطواتك', onTap: () => context.push<void>('/impact')),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(color: const Color(0xFFE1EEDC), borderRadius: BorderRadius.circular(18)),
+              child: const Row(children: [
+                Icon(Icons.verified_user_rounded, color: Color(0xFF28745B), size: 28),
+                SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('خصوصيتك أولويتنا', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF174E42))),
+                  SizedBox(height: 3),
+                  Text('بياناتك آمنة ولا نشاركها مع أي طرف ثالث', style: TextStyle(fontSize: 12, color: Color(0xFF37665A))),
+                ])),
+              ]),
             ),
           ],
         ),
       ),
+      bottomNavigationBar: _AthaarNavigation(selectedIndex: 0),
     );
   }
 }
 
-class _WelcomeCard extends StatelessWidget {
-  const _WelcomeCard({
-    required this.title,
-    required this.description,
-    required this.actionLabel,
-    required this.onPressed,
-  });
-
-  final String title;
-  final String description;
-  final String actionLabel;
-  final VoidCallback onPressed;
-
+class _JourneyCard extends StatelessWidget {
+  const _JourneyCard({required this.onTap});
+  final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        gradient: const LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [Color(0xFF006F88), Color(0xFF075567)],
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(25),
+      gradient: const LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft,
+        colors: [Color(0xFF087C83), Color(0xFF004D5C)]),
+      boxShadow: [BoxShadow(color: AthaarColors.petrol.withValues(alpha: .18), blurRadius: 18, offset: const Offset(0, 8))],
+    ),
+    child: Row(children: [
+      Container(width: 76, height: 88,
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .12), borderRadius: BorderRadius.circular(20)),
+        child: const Icon(Icons.eco_rounded, color: Color(0xFFD8C18D), size: 48)),
+      const SizedBox(width: 16),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('رحلتك نحو أثر دائم', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 10),
+        FilledButton(
+          onPressed: onTap,
+          style: FilledButton.styleFrom(backgroundColor: AthaarColors.mutedGold, foregroundColor: Colors.white),
+          child: const Text('اكتشف رحلتك'),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AthaarColors.petrol.withValues(alpha: 0.16),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.13),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(Icons.spa_rounded, color: Colors.white, size: 23),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineSmall
-                ?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.88),
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 18),
-          FilledButton.tonal(
-            onPressed: onPressed,
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AthaarColors.petrol,
-            ),
-            child: Text(actionLabel),
-          ),
-        ],
-      ),
-    );
-  }
+      ])),
+    ]),
+  );
 }
 
-class _FeaturePreviewCard extends StatelessWidget {
-  const _FeaturePreviewCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.status,
-  });
-
+class _PathTile extends StatelessWidget {
+  const _PathTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
   final IconData icon;
-  final String title;
-  final String description;
-  final String status;
-
+  final String title, subtitle;
+  final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+  Widget build(BuildContext context) => Card(
+    margin: const EdgeInsets.only(bottom: 9),
+    child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      leading: Container(width: 46, height: 46,
+        decoration: BoxDecoration(color: AthaarColors.petrol.withValues(alpha: .10), borderRadius: BorderRadius.circular(14)),
+        child: Icon(icon, color: AthaarColors.petrol)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_left_rounded),
+      onTap: onTap,
+    ),
+  );
+}
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: AthaarColors.petrol.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Icon(icon, color: AthaarColors.petrol),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      height: 1.45,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                status,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+class _AthaarNavigation extends StatelessWidget {
+  const _AthaarNavigation({required this.selectedIndex});
+  final int selectedIndex;
+  @override
+  Widget build(BuildContext context) => NavigationBar(
+    selectedIndex: selectedIndex,
+    onDestinationSelected: (index) {
+      const paths = ['/', '/impact', '/memorization', '/settings'];
+      if (index != selectedIndex) context.go(paths[index]);
+    },
+    destinations: const [
+      NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'الرئيسية'),
+      NavigationDestination(icon: Icon(Icons.insights_outlined), selectedIcon: Icon(Icons.insights_rounded), label: 'إنجازاتي'),
+      NavigationDestination(icon: Icon(Icons.star_border_rounded), selectedIcon: Icon(Icons.star_rounded), label: 'المفضلة'),
+      NavigationDestination(icon: Icon(Icons.person_outline_rounded), selectedIcon: Icon(Icons.person_rounded), label: 'حسابي'),
+    ],
+  );
 }
