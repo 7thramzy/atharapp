@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
@@ -142,6 +143,10 @@ class QuranAsrModelManager {
       modelPart = File('${model.path}.part');
       tokensPart = File('${tokens.path}.part');
 
+      for (final file in [model, tokens, manifest, modelPart, tokensPart]) {
+        if (await file.exists()) await file.delete();
+      }
+
       for (final file in [modelPart, tokensPart]) {
         if (await file.exists()) await file.delete();
       }
@@ -153,6 +158,7 @@ class QuranAsrModelManager {
         onProgress: onProgress,
       );
       final actualSha = sha256.convert(modelBytes).toString();
+      modelBytes.fillRange(0, modelBytes.length, 0);
       if (actualSha != modelSha256) {
         throw const QuranAsrModelDownloadException(
           'The downloaded ASR model failed its pinned SHA-256 check.',
