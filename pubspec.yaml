@@ -15,6 +15,7 @@ dependencies:
   material_ui: ^1.11.1
   http: ^1.6.0
   just_audio: ^0.10.6
+  path_provider: ^2.1.6
   url_launcher: ^6.3.3
 
   # Used to decompress page-scoped QCF fonts in the browser without path_provider.
