@@ -16,6 +16,8 @@ class QuranStudyRepository {
 
   static const _quranEncHost = 'quranenc.com';
   static const _audioHost = 'api.alquran.cloud';
+  static const _tafsirVersion = 'v1.2.3';
+  static const _tafsirEdition = 'ar-tafsir-al-jami-al-wajiz';
 
   void close() => _client.close();
 
@@ -68,6 +70,29 @@ class QuranStudyRepository {
     return QuranTranslationText.fromJson(
       Map<String, dynamic>.from(result),
     );
+  }
+
+  Future<QuranTafsirText> getTafsir({
+    required int surah,
+    required int ayah,
+  }) async {
+    _validateAyah(surah, ayah);
+    final response = await _client.get(
+      Uri.https(
+        'cdn.jsdelivr.net',
+        '/gh/spa5k/tafsir_api@$_tafsirVersion/tafsir/$_tafsirEdition/$surah/$ayah.json',
+      ),
+      headers: const {'Accept': 'application/json'},
+    );
+    final decoded = _decodeMap(response, 'tafsir');
+    final tafsir = QuranTafsirText.fromJson(decoded);
+    if (tafsir.text.isEmpty) {
+      throw const FormatException('The selected edition returned empty tafsir text.');
+    }
+    if (tafsir.surahNumber != surah || tafsir.ayahNumber != ayah) {
+      throw const FormatException('The tafsir source returned a mismatched ayah reference.');
+    }
+    return tafsir;
   }
 
   Future<List<QuranAudioEdition>> getAudioEditions() async {
@@ -196,6 +221,26 @@ class QuranTranslationText {
       footnotes: _asString(json['footnotes']),
       surahNumber: _asInt(json['sura']),
       ayahNumber: _asInt(json['aya']),
+    );
+  }
+}
+
+class QuranTafsirText {
+  const QuranTafsirText({
+    required this.text,
+    required this.surahNumber,
+    required this.ayahNumber,
+  });
+
+  final String text;
+  final int? surahNumber;
+  final int? ayahNumber;
+
+  factory QuranTafsirText.fromJson(Map<String, dynamic> json) {
+    return QuranTafsirText(
+      text: _asString(json['text']),
+      surahNumber: _asInt(json['surah']),
+      ayahNumber: _asInt(json['ayah']),
     );
   }
 }
