@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -37,7 +38,7 @@ class QcfWebFontLoader {
         await _loadPageFont(pageNumber);
         _loadedPages.add(pageNumber);
       } finally {
-        _loadingTasks.remove(pageNumber);
+        unawaited(_loadingTasks.remove(pageNumber));
       }
     });
   }
