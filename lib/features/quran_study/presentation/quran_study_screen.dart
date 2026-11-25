@@ -83,7 +83,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       if (!mounted) return;
       setState(() {
         _surahName = matchingSurah.isEmpty
-            ? 'السورة ' + widget.surahNumber.toString()
+            ? 'السورة ${widget.surahNumber}'
             : matchingSurah.first['name'] as String? ?? '';
         _ayahText = matchingAyah.first['text'] as String? ?? '';
         _loadingAyah = false;
@@ -578,7 +578,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                                       ),
                             ),
                             Text(
-                              _formatDuration(position) + ' / ' + _formatDuration(duration),
+                              '${_formatDuration(position)} / ${_formatDuration(duration)}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -603,7 +603,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             'تلاوة قرآنية',
             'Quran recitation',
           ),
-          version: 'API v1 · ' + (selected?.identifier ?? '—'),
+          version: 'API v1 · ${selected?.identifier ?? '—'}',
           onOpen: () => _openSource(
             Uri.https('alquran.cloud', '/terms-and-conditions'),
           ),
@@ -655,9 +655,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                _surahName + ' · ' +
-                                    widget.surahNumber.toString() + ':' +
-                                    widget.ayahNumber.toString(),
+                                '$_surahName · ${widget.surahNumber}:${widget.ayahNumber}',
                                 style: Theme.of(context).textTheme.labelLarge,
                               ),
                               const SizedBox(height: 10),
@@ -720,7 +718,7 @@ class _SourceAttribution extends StatelessWidget {
             const SizedBox(height: 6),
             Text(title),
             if (description.isNotEmpty) Text(description),
-            if (version.isNotEmpty) Text('Version: ' + version),
+            if (version.isNotEmpty) Text('Version: $version'),
             if (extraNote != null) ...[
               const SizedBox(height: 6),
               Text(extraNote!, style: Theme.of(context).textTheme.bodySmall),
@@ -776,5 +774,5 @@ class _InfoCard extends StatelessWidget {
 String _formatDuration(Duration value) {
   final minutes = value.inMinutes.remainder(60).toString().padLeft(2, '0');
   final seconds = value.inSeconds.remainder(60).toString().padLeft(2, '0');
-  return minutes + ':' + seconds;
+  return '$minutes:$seconds';
 }
