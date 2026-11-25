@@ -68,26 +68,36 @@ class QuranRecitationCaptureSession {
       throw StateError('Microphone permission was not granted.');
     }
 
-    _started = true;
-    final stream = await _recorder.startStream(
+    _progressCallback = onProgress;
+    _errorCallback = onError;
+    try {
+      final stream = await _recorder.startStream(
       RecordConfig(
         encoder: AudioEncoder.pcm16bits,
         sampleRate: sampleRate,
         numChannels: 1,
       ),
     );
-    _subscription = stream.listen(
-      _onAudioData,
-      onError: (Object error, StackTrace stack) {
-        onError?.call(error);
-      },
-      onDone: () {
-        if (!_stopped) onError?.call(StateError('Microphone stream ended.'));
-      },
-      cancelOnError: false,
-    );
-    _progressCallback = onProgress;
-    _errorCallback = onError;
+      _subscription = stream.listen(
+        _onAudioData,
+        onError: (Object error, StackTrace stack) {
+          _errorCallback?.call(error);
+        },
+        onDone: () {
+          if (!_stopped) {
+            _errorCallback?.call(StateError('Microphone stream ended.'));
+          }
+        },
+        cancelOnError: false,
+      );
+      _started = true;
+    } catch (_) {
+      _progressCallback = null;
+      _errorCallback = null;
+      _started = false;
+      _recorder.dispose();
+      rethrow;
+    }
   }
 
   QuranRecitationProgressCallback? _progressCallback;
@@ -163,7 +173,7 @@ class QuranRecitationCaptureSession {
     try {
       await _recorder.stop();
     } finally {
-      await _recorder.dispose();
+      _recorder.dispose();
       _pcmWindow.fillRange(0, _pcmWindow.length, 0);
       _pcmWindow.clear();
       _bytesSinceInference = 0;
