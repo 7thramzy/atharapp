@@ -81,6 +81,34 @@ void main() {
       expect(result.ayahNumber, 1);
     });
 
+    test('loads the Arabic Al-Jami Al-Wajiz tafsir verbatim from the pinned edition', () async {
+      const tafsirText = 'نص التفسير كما ورد من المؤلف دون تعديل.';
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          expect(request.url.host, 'cdn.jsdelivr.net');
+          expect(
+            request.url.path,
+            '/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/1/1.json',
+          );
+          return http.Response(
+            jsonEncode({
+              'text': tafsirText,
+              'surah': 1,
+              'ayah': 1,
+            }),
+            200,
+          );
+        }),
+      );
+      addTearDown(repository.close);
+
+      final result = await repository.getTafsir(surah: 1, ayah: 1);
+
+      expect(result.text, tafsirText);
+      expect(result.surahNumber, 1);
+      expect(result.ayahNumber, 1);
+    });
+
     test('parses verse-by-verse Arabic reciter editions', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
