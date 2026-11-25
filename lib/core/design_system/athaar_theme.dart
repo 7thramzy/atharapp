@@ -66,7 +66,11 @@ abstract final class AthaarTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        centerTitle: false,\n        titleTextStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+        centerTitle: false,
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w900,
+        ),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,
