@@ -95,6 +95,91 @@ class QuranStudyRepository {
     return tafsir;
   }
 
+  Future<List<QuranTranslationText>> getTranslationSurah({
+    required String key,
+    required int surah,
+  }) async {
+    if (key.trim().isEmpty || surah < 1 || surah > 114) {
+      throw ArgumentError('A valid translation key and surah are required.');
+    }
+    final response = await _client.get(
+      Uri.https(
+        _quranEncHost,
+        '/api/v1/translation/sura/$key/$surah',
+      ),
+      headers: const {'Accept': 'application/json'},
+    );
+    final decoded = _decodeMap(response, 'surah translation');
+    final rows = decoded['result'];
+    if (rows is! List || rows.isEmpty) {
+      throw const FormatException('QuranEnc returned an empty or invalid surah translation.');
+    }
+    final translations = <QuranTranslationText>[];
+    final seen = <int>{};
+    for (final row in rows) {
+      if (row is! Map) {
+        throw const FormatException('QuranEnc returned a malformed translation row.');
+      }
+      final translation = QuranTranslationText.fromJson(
+        Map<String, dynamic>.from(row),
+      );
+      if (translation.surahNumber != surah ||
+          translation.ayahNumber == null ||
+          translation.ayahNumber! < 1 ||
+          translation.text.isEmpty ||
+          !seen.add(translation.ayahNumber!)) {
+        throw const FormatException('QuranEnc returned a mismatched or duplicate ayah.');
+      }
+      translations.add(translation);
+    }
+    translations.sort((a, b) => a.ayahNumber!.compareTo(b.ayahNumber!));
+    return List.unmodifiable(translations);
+  }
+
+  Future<List<QuranTafsirText>> getTafsirSurah({
+    required int surah,
+  }) async {
+    if (surah < 1 || surah > 114) {
+      throw RangeError.range(surah, 1, 114, 'surah');
+    }
+    final response = await _client.get(
+      Uri.https(
+        'cdn.jsdelivr.net',
+        '/gh/spa5k/tafsir_api@$_tafsirVersion/tafsir/$_tafsirEdition/$surah.json',
+      ),
+      headers: const {'Accept': 'application/json'},
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw QuranStudyException(
+        'Surah tafsir request failed (HTTP ${response.statusCode}).',
+      );
+    }
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    if (decoded is! List || decoded.isEmpty) {
+      throw const FormatException('The tafsir source returned an invalid surah.');
+    }
+    final tafsir = <QuranTafsirText>[];
+    final seen = <int>{};
+    for (final row in decoded) {
+      if (row is! Map) {
+        throw const FormatException('The tafsir source returned a malformed row.');
+      }
+      final item = QuranTafsirText.fromJson(
+        Map<String, dynamic>.from(row),
+      );
+      if (item.surahNumber != surah ||
+          item.ayahNumber == null ||
+          item.ayahNumber! < 1 ||
+          item.text.isEmpty ||
+          !seen.add(item.ayahNumber!)) {
+        throw const FormatException('The tafsir source returned a mismatched or duplicate ayah.');
+      }
+      tafsir.add(item);
+    }
+    tafsir.sort((a, b) => a.ayahNumber!.compareTo(b.ayahNumber!));
+    return List.unmodifiable(tafsir);
+  }
+
   Future<List<QuranAudioEdition>> getAudioEditions() async {
     final response = await _client.get(
       Uri.https(_audioHost, '/v1/edition', {
