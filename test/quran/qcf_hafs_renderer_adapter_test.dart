@@ -2,6 +2,50 @@ import 'package:athaar/features/quran/data/qcf_hafs_renderer_adapter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('QCF font platform routing', () {
+    test('uses the browser memory loader for the current and next page', () async {
+      final webPages = <int>[];
+      final nativePages = <int>[];
+      final adapter = QcfQuranPlusHafsRendererAdapter(
+        isWebOverride: true,
+        webPageFontLoader: (page) async => webPages.add(page),
+        nativePageFontLoader: (page) async => nativePages.add(page),
+      );
+
+      await adapter.ensurePageFonts(12);
+
+      expect(webPages, [12, 13]);
+      expect(nativePages, isEmpty);
+    });
+
+    test('retains the package disk loader on native platforms', () async {
+      final webPages = <int>[];
+      final nativePages = <int>[];
+      final adapter = QcfQuranPlusHafsRendererAdapter(
+        isWebOverride: false,
+        webPageFontLoader: (page) async => webPages.add(page),
+        nativePageFontLoader: (page) async => nativePages.add(page),
+      );
+
+      await adapter.ensurePageFonts(21);
+
+      expect(nativePages, [21, 22]);
+      expect(webPages, isEmpty);
+    });
+
+    test('does not request a page beyond the end of the Mushaf', () async {
+      final requestedPages = <int>[];
+      final adapter = QcfQuranPlusHafsRendererAdapter(
+        isWebOverride: true,
+        webPageFontLoader: (page) async => requestedPages.add(page),
+      );
+
+      await adapter.ensurePageFonts(604);
+
+      expect(requestedPages, [604]);
+    });
+  });
+
   group('QCF Hafs page map', () {
     final adapter = QcfQuranPlusHafsRendererAdapter();
 

@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qcf_quran_plus/qcf_quran_plus.dart';
+
+import 'qcf_web_font_loader.dart';
 
 // The QCF package does not expose its page-data repository from its public
 // barrel. Keep this pinned internal import inside this adapter only.
@@ -41,7 +44,22 @@ abstract interface class HafsRendererAdapter {
 }
 
 /// QCF 604-page Hafs implementation, pinned to qcf_quran_plus 0.1.1.
+typedef HafsPageFontLoader = Future<void> Function(int pageNumber);
+
 class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
+  QcfQuranPlusHafsRendererAdapter({
+    bool? isWebOverride,
+    HafsPageFontLoader? webPageFontLoader,
+    HafsPageFontLoader? nativePageFontLoader,
+  }) : _isWeb = isWebOverride ?? kIsWeb,
+       _webPageFontLoader =
+           webPageFontLoader ?? QcfWebFontLoader.ensureFontLoaded,
+       _nativePageFontLoader =
+           nativePageFontLoader ?? QcfFontLoader.ensureFontLoaded;
+
+  final bool _isWeb;
+  final HafsPageFontLoader _webPageFontLoader;
+  final HafsPageFontLoader _nativePageFontLoader;
   Future<void>? _initialization;
 
   @override
@@ -62,7 +80,13 @@ class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
       if (pageNumber < totalPagesCount) pageNumber + 1,
     ];
 
-    await Future.wait(pagesToLoad.map(QcfFontLoader.ensureFontLoaded));
+    // qcf_quran_plus defaults to permanentDisk and calls
+    // getApplicationDocumentsDirectory(), which has no browser implementation.
+    // The web loader extracts only the visible page fonts from package assets
+    // and registers them in Flutter's in-memory font registry. Native targets
+    // retain the package's persistent disk cache.
+    final loadFont = _isWeb ? _webPageFontLoader : _nativePageFontLoader;
+    await Future.wait(pagesToLoad.map(loadFont));
   }
 
   @override
