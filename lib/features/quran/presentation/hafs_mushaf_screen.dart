@@ -225,7 +225,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
           readingMode: 'hafs_mushaf',
         );
     if (!mounted) return;
-    context.push<void>(
+    await context.push<void>(
       QuranReaderRoutes.downloadedText(
         surahNumber: surahNumber,
         ayahNumber: ayahNumber,
