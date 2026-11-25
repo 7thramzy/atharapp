@@ -25,7 +25,7 @@ class QuranStudyRepository {
   }) async {
     final path = language == null
         ? '/api/v1/translations/list/'
-        : '/api/v1/translations/list/' + language + '/';
+        : '/api/v1/translations/list/$language/';
     final response = await _client.get(
       Uri.https(_quranEncHost, path, {'localization': localization}),
       headers: const {'Accept': 'application/json'},
@@ -36,7 +36,7 @@ class QuranStudyRepository {
       throw const FormatException('QuranEnc returned an invalid translation catalogue.');
     }
     return rows
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((row) => QuranTranslationEdition.fromJson(
               Map<String, dynamic>.from(row),
             ))
@@ -56,7 +56,7 @@ class QuranStudyRepository {
     final response = await _client.get(
       Uri.https(
         _quranEncHost,
-        '/api/v1/translation/aya/' + key + '/' + surah.toString() + '/' + ayah.toString(),
+        '/api/v1/translation/aya/$key/$surah/$ayah',
       ),
       headers: const {'Accept': 'application/json'},
     );
@@ -85,7 +85,7 @@ class QuranStudyRepository {
       throw const FormatException('AlQuran Cloud returned an invalid recitation catalogue.');
     }
     return rows
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((row) => QuranAudioEdition.fromJson(
               Map<String, dynamic>.from(row),
             ))
@@ -102,9 +102,9 @@ class QuranStudyRepository {
     if (edition.trim().isEmpty) {
       throw ArgumentError.value(edition, 'edition');
     }
-    final reference = surah.toString() + ':' + ayah.toString();
+    final reference = '$surah:$ayah';
     final response = await _client.get(
-      Uri.https(_audioHost, '/v1/ayah/' + reference + '/' + edition),
+      Uri.https(_audioHost, '/v1/ayah/$reference/$edition'),
       headers: const {'Accept': 'application/json'},
     );
     final decoded = _decodeMap(response, 'recitation audio');
@@ -126,19 +126,19 @@ class QuranStudyRepository {
   Map<String, dynamic> _decodeMap(http.Response response, String label) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw QuranStudyException(
-        label + ' request failed (HTTP ' + response.statusCode.toString() + ').',
+        '$label request failed (HTTP ${response.statusCode}).',
       );
     }
     final decoded = jsonDecode(utf8.decode(response.bodyBytes));
     if (decoded is! Map) {
-      throw FormatException('Invalid ' + label + ' response.');
+      throw FormatException('Invalid $label response.');
     }
     return Map<String, dynamic>.from(decoded);
   }
 
   static void _validateAyah(int surah, int ayah) {
     if (surah < 1 || surah > 114 || ayah < 1 || ayah > 286) {
-      throw RangeError('Invalid Quran reference ' + surah.toString() + ':' + ayah.toString() + '.');
+      throw RangeError('Invalid Quran reference $surah:$ayah.');
     }
   }
 }
