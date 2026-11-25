@@ -116,7 +116,6 @@ class _QuranRecitationPracticeScreenState
         lines.add(
           _AyahPracticeLine(
             ayahNumber: ayahNumber,
-            text: text,
             startIndex: startIndex,
             endExclusive: expected.length,
           ),
@@ -607,13 +606,11 @@ class _QuranRecitationPracticeScreenState
 class _AyahPracticeLine {
   const _AyahPracticeLine({
     required this.ayahNumber,
-    required this.text,
     required this.startIndex,
     required this.endExclusive,
   });
 
   final int ayahNumber;
-  final String text;
   final int startIndex;
   final int endExclusive;
 }
