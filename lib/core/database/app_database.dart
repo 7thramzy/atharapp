@@ -32,7 +32,16 @@ class AppMetadata extends Table {
 
 @DriftDatabase(tables: [LocalSettings, ReadingPositions, AppMetadata])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(driftDatabase(name: 'athaar'));
+  AppDatabase()
+    : super(
+        driftDatabase(
+          name: 'athaar',
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
+        ),
+      );
   AppDatabase.forTesting(super.executor);
 
   @override
