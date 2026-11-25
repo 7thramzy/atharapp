@@ -463,7 +463,6 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 _audioError = null;
               });
               unawaited(_audioPlayer.stop());
-              });
             },
           ),
         const SizedBox(height: 14),
