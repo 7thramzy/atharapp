@@ -11,8 +11,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}
@@ -458,14 +456,11 @@ jobs:
             -d "{\"ref\":\"${GITHUB_REF_NAME}\"}"
 
   web-preview:
-    name: Build and publish browser preview
+    name: Build browser preview artifact
     needs: [quality, acquire-quran-source]
     if: github.ref == 'refs/heads/design/match-athaar-reference'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -494,19 +489,35 @@ jobs:
       - name: Resolve dependencies and generate database code
         run: |
           flutter pub get
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build
+
+      - name: Download matching Drift browser runtime assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p web
+          curl --fail --location --retry 3 \
+            https://github.com/simolus3/drift/releases/download/drift-2.35.4/sqlite3.wasm \
+            --output web/sqlite3.wasm
+          curl --fail --location --retry 3 \
+            https://github.com/simolus3/drift/releases/download/drift-2.35.4/drift_worker.js \
+            --output web/drift_worker.js
+          echo "e7451780e78c56ff864fe9317a0fbcd6aeb2e8de3beba7f5efd963202f7ec3d9  web/sqlite3.wasm" | sha256sum --check
+          echo "48c950cd8e3bc3cddb34816c860e228be8832bef07a297c27e9907c057ff8162  web/drift_worker.js" | sha256sum --check
 
       - name: Build browser preview
-        run: flutter build web --release --base-href "/atharapp/"
+        run: flutter build web --release
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Verify browser runtime files
+        run: |
+          test -s build/web/index.html
+          test -s build/web/sqlite3.wasm
+          test -s build/web/drift_worker.js
 
-      - name: Upload browser preview
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload browser preview artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: build/web
-
-      - name: Publish browser preview
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: athaar-browser-preview
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 14
