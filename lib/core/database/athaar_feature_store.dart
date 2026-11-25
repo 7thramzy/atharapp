@@ -134,6 +134,263 @@ class AthaarFeatureStore {
         .toList();
   }
 
+  /// Atomically replaces one local tafsir or translation surah pack.
+  ///
+  /// Text and footnotes are stored exactly as received. Only references and
+  /// source metadata are validated; displayed source text is never rewritten.
+  Future<void> saveOfflineStudyPack({
+    required String contentType,
+    required String editionKey,
+    required int surahNumber,
+    required String title,
+    String description = '',
+    String languageCode = 'ar',
+    String direction = 'rtl',
+    required String version,
+    required String sourceUrl,
+    required String licenseNotice,
+    int? sourceLastUpdated,
+    required List<Map<String, Object?>> verses,
+    bool requireCompleteTranslation = false,
+  }) async {
+    if (!const {'tafsir', 'translation'}.contains(contentType)) {
+      throw ArgumentError.value(contentType, 'contentType');
+    }
+    if (editionKey.trim().isEmpty ||
+        title.trim().isEmpty ||
+        version.trim().isEmpty ||
+        sourceUrl.trim().isEmpty ||
+        licenseNotice.trim().isEmpty) {
+      throw ArgumentError('Edition identity, source, version, and licence are required.');
+    }
+    if (surahNumber < 1 || surahNumber > 114 || verses.isEmpty) {
+      throw ArgumentError('A study pack must contain a valid surah and verses.');
+    }
+
+    final surahRows = await db.customSelect(
+      'SELECT ayah_count FROM quran_surahs WHERE surah_number = ?',
+      variables: [Variable.withInt(surahNumber)],
+    ).get();
+    if (surahRows.isEmpty) {
+      throw StateError('The selected surah is not present in the local Quran dataset.');
+    }
+    final expectedAyahCount = surahRows.first.read<int>('ayah_count');
+    final normalizedVerses = <Map<String, Object>>[];
+    final seenAyat = <int>{};
+
+    for (final verse in verses) {
+      final rawAyah = verse['ayahNumber'] ?? verse['ayah_number'] ?? verse['aya'];
+      final ayahNumber = rawAyah is int
+          ? rawAyah
+          : int.tryParse(rawAyah?.toString() ?? '');
+      final rawSurah = verse['surahNumber'] ?? verse['surah_number'] ?? verse['surah'];
+      final verseSurah = rawSurah == null
+          ? surahNumber
+          : rawSurah is int
+              ? rawSurah
+              : int.tryParse(rawSurah.toString());
+      final text = verse['text'] ?? verse['translation'];
+      final footnotes = verse['footnotes']?.toString() ?? '';
+
+      if (ayahNumber == null ||
+          ayahNumber < 1 ||
+          ayahNumber > expectedAyahCount ||
+          verseSurah != surahNumber ||
+          text is! String ||
+          text.trim().isEmpty ||
+          !seenAyat.add(ayahNumber)) {
+        throw FormatException(
+          'The $contentType pack contains an invalid, empty, duplicate, or mismatched ayah.',
+        );
+      }
+      normalizedVerses.add({
+        'ayahNumber': ayahNumber,
+        'text': text,
+        'footnotes': footnotes,
+      });
+    }
+
+    if (requireCompleteTranslation &&
+        (contentType != 'translation' ||
+            seenAyat.length != expectedAyahCount ||
+            List<int>.generate(expectedAyahCount, (i) => i + 1)
+                .any((ayah) => !seenAyat.contains(ayah)))) {
+      throw FormatException(
+        'The translation pack is incomplete; the previous local pack was kept.',
+      );
+    }
+
+    await db.transaction(() async {
+      await db.customStatement(
+        '''INSERT INTO quran_offline_study_packs(
+             content_type, edition_key, surah_number, title, description,
+             language_code, direction, version, source_url, license_notice,
+             source_last_updated, verse_count, downloaded_at
+           ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(content_type, edition_key, surah_number) DO UPDATE SET
+             title = excluded.title,
+             description = excluded.description,
+             language_code = excluded.language_code,
+             direction = excluded.direction,
+             version = excluded.version,
+             source_url = excluded.source_url,
+             license_notice = excluded.license_notice,
+             source_last_updated = excluded.source_last_updated,
+             verse_count = excluded.verse_count,
+             downloaded_at = excluded.downloaded_at''',
+        [
+          contentType,
+          editionKey,
+          surahNumber,
+          title,
+          description,
+          languageCode,
+          direction,
+          version,
+          sourceUrl,
+          licenseNotice,
+          sourceLastUpdated,
+          normalizedVerses.length,
+          _now,
+        ],
+      );
+      await db.customStatement(
+        '''DELETE FROM quran_offline_study_verses
+           WHERE content_type = ? AND edition_key = ? AND surah_number = ?''',
+        [contentType, editionKey, surahNumber],
+      );
+      for (final verse in normalizedVerses) {
+        await db.customStatement(
+          '''INSERT INTO quran_offline_study_verses(
+               content_type, edition_key, surah_number, ayah_number, text, footnotes
+             ) VALUES(?, ?, ?, ?, ?, ?)''',
+          [
+            contentType,
+            editionKey,
+            surahNumber,
+            verse['ayahNumber'],
+            verse['text'],
+            verse['footnotes'],
+          ],
+        );
+      }
+    });
+  }
+
+  Future<Map<String, Object?>?> getOfflineStudyVerse({
+    required String contentType,
+    required String editionKey,
+    required int surahNumber,
+    required int ayahNumber,
+  }) async {
+    final rows = await db.customSelect(
+      '''SELECT p.content_type, p.edition_key, p.surah_number, p.title,
+                p.description, p.language_code, p.direction, p.version,
+                p.source_url, p.license_notice, p.source_last_updated,
+                p.downloaded_at, v.ayah_number, v.text, v.footnotes
+         FROM quran_offline_study_packs p
+         JOIN quran_offline_study_verses v
+           ON v.content_type = p.content_type
+          AND v.edition_key = p.edition_key
+          AND v.surah_number = p.surah_number
+         WHERE p.content_type = ? AND p.edition_key = ?
+           AND p.surah_number = ? AND v.ayah_number = ?''',
+      variables: [
+        Variable.withString(contentType),
+        Variable.withString(editionKey),
+        Variable.withInt(surahNumber),
+        Variable.withInt(ayahNumber),
+      ],
+    ).get();
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return {
+      'content_type': row.read<String>('content_type'),
+      'edition_key': row.read<String>('edition_key'),
+      'surah_number': row.read<int>('surah_number'),
+      'ayah_number': row.read<int>('ayah_number'),
+      'title': row.read<String>('title'),
+      'description': row.read<String>('description'),
+      'language_code': row.read<String>('language_code'),
+      'direction': row.read<String>('direction'),
+      'version': row.read<String>('version'),
+      'source_url': row.read<String>('source_url'),
+      'license_notice': row.read<String>('license_notice'),
+      'source_last_updated': row.readNullable<int>('source_last_updated'),
+      'downloaded_at': row.read<String>('downloaded_at'),
+      'text': row.read<String>('text'),
+      'footnotes': row.read<String>('footnotes'),
+    };
+  }
+
+  Future<Map<String, Object?>?> getOfflineStudyPack({
+    required String contentType,
+    required String editionKey,
+    required int surahNumber,
+  }) async {
+    final rows = await db.customSelect(
+      '''SELECT * FROM quran_offline_study_packs
+         WHERE content_type = ? AND edition_key = ? AND surah_number = ?''',
+      variables: [
+        Variable.withString(contentType),
+        Variable.withString(editionKey),
+        Variable.withInt(surahNumber),
+      ],
+    ).get();
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return {
+      'content_type': row.read<String>('content_type'),
+      'edition_key': row.read<String>('edition_key'),
+      'surah_number': row.read<int>('surah_number'),
+      'title': row.read<String>('title'),
+      'description': row.read<String>('description'),
+      'language_code': row.read<String>('language_code'),
+      'direction': row.read<String>('direction'),
+      'version': row.read<String>('version'),
+      'source_url': row.read<String>('source_url'),
+      'license_notice': row.read<String>('license_notice'),
+      'source_last_updated': row.readNullable<int>('source_last_updated'),
+      'verse_count': row.read<int>('verse_count'),
+      'downloaded_at': row.read<String>('downloaded_at'),
+    };
+  }
+
+  Future<List<Map<String, Object?>>> listOfflineStudyPacks() async {
+    final rows = await db.customSelect(
+      '''SELECT content_type, edition_key, surah_number, title, version,
+                license_notice, verse_count, downloaded_at
+         FROM quran_offline_study_packs
+         ORDER BY content_type, edition_key, surah_number''',
+    ).get();
+    return rows.map((row) => <String, Object?>{
+      'content_type': row.read<String>('content_type'),
+      'edition_key': row.read<String>('edition_key'),
+      'surah_number': row.read<int>('surah_number'),
+      'title': row.read<String>('title'),
+      'version': row.read<String>('version'),
+      'license_notice': row.read<String>('license_notice'),
+      'verse_count': row.read<int>('verse_count'),
+      'downloaded_at': row.read<String>('downloaded_at'),
+    }).toList(growable: false);
+  }
+
+  Future<void> deleteOfflineStudyPack({
+    required String contentType,
+    required String editionKey,
+    required int surahNumber,
+  }) async {
+    await db.customStatement(
+      '''DELETE FROM quran_offline_study_packs
+         WHERE content_type = ? AND edition_key = ? AND surah_number = ?''',
+      [
+        Variable.withString(contentType),
+        Variable.withString(editionKey),
+        Variable.withInt(surahNumber),
+      ],
+    );
+  }
+
   Future<ReadingPosition?> getReadingPosition() => db.getReadingPosition();
 
   Future<void> saveReadingPosition(
