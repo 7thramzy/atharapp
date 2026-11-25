@@ -1,3 +1,5 @@
+import 'package:athaar/features/quran/data/hafs_page_font_loader.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qcf_quran_plus/qcf_quran_plus.dart';
 
@@ -25,8 +27,8 @@ abstract interface class HafsRendererAdapter {
 
   /// Loads the requested page's font and the next page's font.
   ///
-  /// This is intentionally page-scoped. Do not call
-  /// [QcfFontLoader.setupFontsAtStartup], which eagerly iterates all 604 pages.
+  /// This is intentionally page-scoped. Browsers use an in-memory loader
+  /// because qcf_quran_plus does not register a path_provider web plugin.
   Future<void> ensurePageFonts(int pageNumber);
 
   /// Returns the first page of the currently visible spread.
@@ -61,6 +63,11 @@ class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
       pageNumber,
       if (pageNumber < totalPagesCount) pageNumber + 1,
     ];
+
+    if (kIsWeb) {
+      await Future.wait(pagesToLoad.map(HafsPageFontLoader.ensurePageLoaded));
+      return;
+    }
 
     await Future.wait(pagesToLoad.map(QcfFontLoader.ensureFontLoaded));
   }
