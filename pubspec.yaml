@@ -16,6 +16,8 @@ dependencies:
   http: ^1.6.0
   just_audio: ^0.10.6
   path_provider: ^2.1.6
+  sherpa_onnx: ^2.0.3
+  record: ^7.2.0
   url_launcher: ^6.3.3
 
   # Used to decompress page-scoped QCF fonts in the browser without path_provider.
