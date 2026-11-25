@@ -1,4 +1,5 @@
 name: Flutter CI
+# Browser preview is published only after quality checks pass.
 
 on:
   push:
