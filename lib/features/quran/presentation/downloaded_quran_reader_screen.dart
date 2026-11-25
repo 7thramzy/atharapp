@@ -115,7 +115,7 @@ class _DownloadedQuranReaderScreenState
           readingMode: 'downloaded_text',
         );
     if (!mounted) return;
-    context.push<void>(
+    await context.push<void>(
       QuranReaderRoutes.hafsMushaf(
         surahNumber: widget.surahNumber,
         ayahNumber: _currentAyah,
@@ -126,11 +126,8 @@ class _DownloadedQuranReaderScreenState
   Future<void> _openAyahStudy(int ayahNumber) async {
     await _setCurrentAyah(ayahNumber);
     if (!mounted) return;
-    context.push<void>(
-      '/quran/study/' +
-          widget.surahNumber.toString() +
-          '/' +
-          ayahNumber.toString(),
+    await context.push<void>(
+      '/quran/study/${widget.surahNumber}/$ayahNumber',
     );
   }
 
@@ -224,10 +221,7 @@ class _DownloadedQuranReaderScreenState
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'النص المحلي — Tanzil ' +
-                                        edition +
-                                        ' ' +
-                                        version,
+                                    'النص المحلي — Tanzil $edition $version',
                                     style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                 ),
@@ -290,7 +284,7 @@ class _DownloadedQuranReaderScreenState
                                     Row(
                                       children: [
                                         Chip(
-                                          label: Text('آية ' + number.toString()),
+                                          label: Text('آية $number'),
                                           visualDensity: VisualDensity.compact,
                                         ),
                                         const Spacer(),
