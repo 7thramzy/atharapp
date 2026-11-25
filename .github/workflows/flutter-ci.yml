@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: athaar-flutter-ci-${{ github.workflow }}-${{ github.ref }}
@@ -453,3 +455,57 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/flutter-ci.yml/dispatches" \
             -d "{\"ref\":\"${GITHUB_REF_NAME}\"}"
+
+  web-preview:
+    name: Build and publish browser preview
+    needs: [quality, acquire-quran-source]
+    if: github.ref == 'refs/heads/design/match-athaar-reference'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download official Quran dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+
+      - name: Stage Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Generate web platform
+        run: flutter create --no-pub --project-name athaar --org com.athaar --platforms=web .
+
+      - name: Resolve dependencies and generate database code
+        run: |
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build browser preview
+        run: flutter build web --release --base-href "/atharapp/"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload browser preview
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Publish browser preview
+        id: deployment
+        uses: actions/deploy-pages@v4
