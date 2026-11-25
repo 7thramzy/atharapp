@@ -125,6 +125,8 @@ jobs:
 
       - name: QCF reader and adapter tests
         run: flutter test test/quran --reporter expanded --timeout 60s
+      - name: Local Quran audio-evaluation metric tests
+        run: python -m unittest discover -s tooling/audio_evaluation -p 'test_*.py' -v
 
   android-build:
     name: Android debug and test-release builds
