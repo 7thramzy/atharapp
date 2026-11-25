@@ -35,15 +35,32 @@ Display conditions:
 
 The initial integration is live/on-demand and is not an offline copy or a bundled translation database. Any later offline import must pin a particular edition, verify its exact licence and metadata, preserve the required attribution, and include an update process.
 
-## Tafsir decision and next gate
+## Approved Arabic tafsir integration
 
-The current QuranEnc OpenAPI file describes itself as a read-only API for translations of Quran meanings. Its declared paths contain translations, ayah translations, surah names, and notes; it does not declare tafsir endpoints. QUL is a downloadable resource library rather than a hosted public API. Its individual Tafsir Muyassar, Tafseer Al-Saadi, and Arabic Al-Mukhtasar records each say copyright information is unavailable.
+The selected in-app edition is **Al-Jami' Al-Wajiz fi Tafsir Ay al-Kitab al-Aziz**, authored by Sheikh Dr. Ayman Fathih Al-Amer.
 
-A stronger official path is now documented by Quran Foundation. Its Content API v4 exposes dedicated Tafsir, Translation and Audio resources, but access is not anonymous: the developer must submit an app access request, receive a client ID/secret, request the `content` scope, obtain a client-credentials token, and send `x-auth-token` plus `x-client-id` from a backend. Its developer terms permit displaying content as part of an end-user app experience, prohibit distributing raw content separately, limit caching to one week unless expressly permitted, and prohibit ML training without written permission. This is the preferred long-term in-app tafsir provider once Athaar has received credentials and implemented a secure server-side proxy. Do not put the client secret in the Flutter app or use demo credentials in production.
+The author's source repository includes an explicit **CC BY-ND 4.0** licence. Its Arabic licence summary permits copying and redistribution in any medium and for any purpose, including commercial use, provided the author is credited and the text is not modified. The API maintainer documents this edition as imported from the author's JSON export and redistributed unchanged.
 
-Therefore the Athaar Tafsir tab currently provides clearly labelled links to the original publishers/catalogues and the official API access process; it does not copy commentary text into the application. This is intentional rights protection, not a hidden or fake in-app tafsir implementation.
+The app requests one ayah at a time from the pinned static release:
 
-To enable in-app tafsir, complete the Quran Foundation app-access request, store credentials in a secure backend environment, implement a server-side content proxy with a cache no longer than the permitted period, then record the chosen source/edition, attribution, licence and update policy here before enabling the in-app content.
+`https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/{surah}/{ayah}.json`
+
+Runtime behavior:
+
+1. The study screen requests tafsir by the exact surah/ayah selected in the Hafs Mushaf.
+2. The app verifies that the returned surah and ayah numbers match the requested location.
+3. The text is shown verbatim as plain text. It is not paraphrased, normalized, transformed, summarized, or passed through an HTML renderer.
+4. The author's name, source repository, release version, and CC BY-ND 4.0 licence are shown in the attribution panel.
+5. The app does not bundle this content or retain an offline copy in this implementation.
+6. If an ayah has no entry or the source is unavailable, the screen reports that condition instead of inventing text.
+
+The `MIT` licence of the API repository applies to the repository's software/code; it is **not** treated as the tafsir text licence. The tafsir is used under the author's separate CC BY-ND 4.0 grant.
+
+The QUL editions listed above remain blocked for embedding because their individual resource pages do not provide adequate rights information. The Quran Foundation API remains a future alternative if Athaar later receives its app credentials and sets up a secure server-side integration.
+
+## Next gate for additional tafsir editions
+
+Only add another edition after confirming its individual text licence. For CC BY-ND material, keep the text unchanged and display the exact author/source attribution and licence link. A repository-level software licence or the fact that a text is available on a CDN does not by itself grant rights to the content.
 
 ## Sources reviewed
 
@@ -51,6 +68,8 @@ To enable in-app tafsir, complete the Quran Foundation app-access request, store
 - Quran Foundation Content API v4: https://api-docs.quran.com/docs/content_apis_versioned/4.0.0/content-apis/
 - Quran Foundation app access request: https://api-docs.quran.com/request-access/
 - Quran Foundation developer terms: https://api-docs.quran.com/legal/developer-terms/
+- Author's Al-Jami' Al-Wajiz source and explicit CC BY-ND 4.0 licence: https://github.com/yamanamr/quran-tafsir-jami-wajiz and https://github.com/yamanamr/quran-tafsir-jami-wajiz/blob/main/LICENSE
+- Pinned data release and edition source: https://github.com/spa5k/tafsir_api/tree/v1.2.3
 - QuranEnc terms: https://quranenc.com/en/home/about/conditions
 - QUL Tafsir resources: https://qul.tarteel.ai/resources/tafsir
 - QUL Tafsir Muyassar resource 38: https://qul.tarteel.ai/resources/tafsir/38/licence
