@@ -95,6 +95,7 @@ class QuranRecitationCaptureSession {
       _progressCallback = null;
       _errorCallback = null;
       _started = false;
+      _stopped = true;
       _recorder.dispose();
       rethrow;
     }
