@@ -28,12 +28,14 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   late final AudioPlayer _audioPlayer;
 
   bool _loadingAyah = true;
+  bool _loadingTafsir = true;
   bool _loadingTranslations = true;
   bool _loadingTranslation = false;
   bool _loadingReciters = true;
   bool _loadingAudio = false;
 
   String? _ayahError;
+  String? _tafsirError;
   String? _translationsError;
   String? _translationError;
   String? _recitersError;
@@ -47,12 +49,14 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   QuranAudioEdition? _selectedReciter;
   String? _loadedReciterIdentifier;
   QuranTranslationText? _translation;
+  QuranTafsirText? _tafsir;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     unawaited(_loadLocalAyah());
+    unawaited(_loadTafsir());
     unawaited(_loadTranslationCatalog());
     unawaited(_loadReciterCatalog());
   }
@@ -93,6 +97,26 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       setState(() {
         _ayahError = error.toString();
         _loadingAyah = false;
+      });
+    }
+  }
+
+  Future<void> _loadTafsir() async {
+    try {
+      final text = await ref.read(quranStudyRepositoryProvider).getTafsir(
+            surah: widget.surahNumber,
+            ayah: widget.ayahNumber,
+          );
+      if (!mounted) return;
+      setState(() {
+        _tafsir = text;
+        _loadingTafsir = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _tafsirError = error.toString();
+        _loadingTafsir = false;
       });
     }
   }
@@ -240,95 +264,54 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.menu_book_rounded, size: 34),
-                const SizedBox(height: 10),
-                Text(
-                  _studyText(
-                    context,
-                    'مصادر التفسير',
-                    'Tafsir sources',
-                  ),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _studyText(
-                    context,
-                    'لم نعتمد بعد نسخة تفسير تسمح شروطها بتضمين النص داخل أثَر. موارد QUL التي راجعناها لا تعرض معلومات حقوق نشر كافية. يوفر Quran Foundation واجهة API رسمية للتفسير، لكنها تتطلب طلب وصول وبيانات اعتماد ونطاق content وخادمًا آمنًا؛ لم نستلم بيانات اعتماد أثَر بعد، لذلك لا نعرض بيانات تجريبية أو ننسخ نصًا غير مرخّص.',
-                    'No tafsir edition has yet been cleared for in-app display in Athaar. The QUL editions reviewed do not provide adequate copyright information. Quran Foundation provides an official Tafsir API, but access requires an approved app request, credentials, the content scope and a secure server proxy. Athaar has not received credentials yet, so the screen links to the official access process rather than showing demo or unlicensed commentary.',
-                  ),
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _openSource(
-                      Uri.https('quranenc.com', '/ar/home'),
+        if (_loadingTafsir)
+          const Center(child: CircularProgressIndicator())
+        else if (_tafsirError != null)
+          _InfoError(message: _tafsirError!)
+        else if (_tafsir == null)
+          _InfoCard(
+            message: _studyText(
+              context,
+              'لا يتوفر نص تفسير لهذا الموضع في الإصدار المحدد.',
+              'No tafsir text is available for this ayah in the pinned edition.',
+            ),
+          )
+        else ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: SelectableText(
+                _tafsir!.text,
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.start,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      height: 1.95,
+                      fontSize: 16,
                     ),
-                    icon: const Icon(Icons.open_in_new),
-                    label: Text(
-                      _studyText(
-                        context,
-                        'فتح موسوعة القرآن الكريم',
-                        'Open QuranEnc',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _openSource(
-                      Uri.https(
-                        'qul.tarteel.ai',
-                        '/resources/tafsir',
-                      ),
-                    ),
-                    icon: const Icon(Icons.library_books_outlined),
-                    label: Text(
-                      _studyText(
-                        context,
-                        'استعراض مصادر التفسير في QUL',
-                        'Browse tafsir resources in QUL',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _openSource(
-                      Uri.https('api-docs.quran.com', '/request-access/'),
-                    ),
-                    icon: const Icon(Icons.verified_user_outlined),
-                    label: Text(
-                      _studyText(
-                        context,
-                        'طلب وصول رسمي إلى API للتفسير',
-                        'Request official tafsir API access',
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _studyText(
-                    context,
-                    'عند توفير نسخة مرخصة سنعرض نصها مع اسم المؤلف والطبعة والجهة الناشرة وشروطها.',
-                    'A licensed edition can be shown here with its author, edition, publisher, and required attribution.',
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          _SourceAttribution(
+            title: 'الجامع الوجيز في تفسير آي الكتاب العزيز',
+            description: _studyText(
+              context,
+              'تأليف الشيخ الدكتور أيمن فاتح آل عامر',
+              'Authored by Sheikh Dr. Ayman Fathih Al-Amer',
+            ),
+            version: 'v1.2.3 · CC BY-ND 4.0',
+            onOpen: () => _openSource(
+              Uri.https(
+                'github.com',
+                '/yamanamr/quran-tafsir-jami-wajiz/blob/main/LICENSE',
+              ),
+            ),
+            extraNote: _studyText(
+              context,
+              'يُعرض نص التفسير كما ورد من المصدر دون تعديل. الرخصة تسمح بإعادة التوزيع مع نسب المؤلف ورابط الرخصة، ولا تسمح بتوزيع نص معدل.',
+              'The publisher text is displayed verbatim. CC BY-ND 4.0 permits redistribution with attribution and a licence link, but not distribution of modified text.',
+            ),
+          ),
+        ],
       ],
     );
   }
