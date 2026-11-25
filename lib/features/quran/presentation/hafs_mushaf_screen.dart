@@ -316,10 +316,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                       selection: _selectedAyah!,
                       onBookmark: _bookmarkSelectedAyah,
                       onStudy: () => context.push<void>(
-                        '/quran/study/' +
-                            _selectedAyah!.surahNumber.toString() +
-                            '/' +
-                            _selectedAyah!.ayahNumber.toString(),
+                        '/quran/study/${_selectedAyah!.surahNumber}/${_selectedAyah!.ayahNumber}',
                       ),
                       onClear: _clearSelection,
                     ),
