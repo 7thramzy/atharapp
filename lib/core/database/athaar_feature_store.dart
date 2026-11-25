@@ -136,8 +136,16 @@ class AthaarFeatureStore {
 
   Future<ReadingPosition?> getReadingPosition() => db.getReadingPosition();
 
-  Future<void> saveReadingPosition(int surah, int ayah) =>
-      db.saveReadingPosition(surahNumber: surah, ayahNumber: ayah);
+  Future<void> saveReadingPosition(
+    int surah,
+    int ayah, {
+    String readingMode = 'downloaded_text',
+  }) =>
+      db.saveReadingPosition(
+        surahNumber: surah,
+        ayahNumber: ayah,
+        readingMode: readingMode,
+      );
 
   Future<void> addBookmark(int surah, int ayah) => db.customStatement(
     'INSERT OR IGNORE INTO quran_bookmarks(id, surah_number, ayah_number, created_at) VALUES(?, ?, ?, ?)',
