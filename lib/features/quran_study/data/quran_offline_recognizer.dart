@@ -26,20 +26,20 @@ class QuranOfflineRecognizer {
   final OfflineRecognizer _recognizer;
   bool _disposed = false;
 
-  factory QuranOfflineRecognizer.fromInstalledModel(
+  static Future<QuranOfflineRecognizer> fromInstalledModel(
     QuranAsrModelFiles files, {
     int numThreads = 2,
-  }) {
+  }) async {
     final model = OfflineModelConfig(
       zipformerCtc: OfflineZipformerCtcModelConfig(
         model: files.modelFile.path,
       ),
       tokens: files.tokensFile.path,
-      numThreads: numThreads.clamp(1, 4),
+      numThreads: numThreads.clamp(1, 4).toInt(),
       debug: false,
       provider: 'cpu',
     );
-    final recognizer = OfflineRecognizer(
+    final recognizer = await OfflineRecognizer.createAsync(
       OfflineRecognizerConfig(
         model: model,
         feat: const FeatureConfig(sampleRate: 16000, featureDim: 80),
