@@ -5,10 +5,7 @@ abstract final class QuranReaderRoutes {
     required int ayahNumber,
   }) {
     _validate(surahNumber, ayahNumber);
-    return '/quran/text/' +
-        surahNumber.toString() +
-        '?ayah=' +
-        ayahNumber.toString();
+    return '/quran/text/$surahNumber?ayah=$ayahNumber';
   }
 
   static String hafsMushaf({
@@ -16,10 +13,7 @@ abstract final class QuranReaderRoutes {
     required int ayahNumber,
   }) {
     _validate(surahNumber, ayahNumber);
-    return '/quran/mushaf?surah=' +
-        surahNumber.toString() +
-        '&ayah=' +
-        ayahNumber.toString();
+    return '/quran/mushaf?surah=$surahNumber&ayah=$ayahNumber';
   }
 
   static void _validate(int surahNumber, int ayahNumber) {
