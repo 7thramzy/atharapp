@@ -139,7 +139,7 @@ class AthaarFeatureStore {
   Future<void> saveReadingPosition(
     int surah,
     int ayah, {
-    String readingMode = 'downloaded_text',
+    String readingMode = 'surah',
   }) =>
       db.saveReadingPosition(
         surahNumber: surah,
