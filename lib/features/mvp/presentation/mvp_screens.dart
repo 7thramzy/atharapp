@@ -542,6 +542,35 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
           ),
         ),
         const SizedBox(height: 12),
+        FilledButton.tonalIcon(
+          onPressed: () {
+            final s = int.tryParse(_surah.text) ?? 0;
+            final a = int.tryParse(_start.text) ?? 0;
+            final b = int.tryParse(_end.text) ?? 0;
+            if (s < 1 || s > 114 || a < 1 || b < a) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    _t(
+                      context,
+                      'تحقق من أرقام السورة والآيات أولاً',
+                      'Check the surah and ayah range first',
+                    ),
+                  ),
+                ),
+              );
+              return;
+            }
+            context.push<void>(
+              '/memorization/recite?surah=$s&start=$a&end=$b',
+            );
+          },
+          icon: const Icon(Icons.mic_rounded),
+          label: Text(
+            _t(context, 'ابدأ التسميع الذكي المحلي', 'Start local smart recitation'),
+          ),
+        ),
+        const SizedBox(height: 8),
         FilledButton.icon(
           onPressed: () async {
             final s = int.tryParse(_surah.text) ?? 0;
