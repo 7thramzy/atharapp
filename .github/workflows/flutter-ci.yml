@@ -7,6 +7,7 @@ on:
       - main
       - "agent/**"
       - "design/**"
+      - "validation/**"
   workflow_dispatch:
 
 permissions:
@@ -462,7 +463,7 @@ jobs:
   web-preview:
     name: Build and publish browser preview
     needs: [quality, acquire-quran-source]
-    if: github.ref == 'refs/heads/design/match-athaar-reference' || github.ref == 'refs/heads/design/quran-study-multimedia'
+    if: github.ref == 'refs/heads/design/match-athaar-reference' || github.ref == 'refs/heads/design/quran-study-multimedia' || github.ref == 'refs/heads/validation/quran-study-release'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
