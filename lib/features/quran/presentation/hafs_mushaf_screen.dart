@@ -211,12 +211,12 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
     final saved = await ref.read(athaarFeatureStoreProvider).getReadingPosition();
     final pageStart = adapter.pageStart(_currentPage);
     final surahNumber = _selectedAyah?.surahNumber ??
-        pageStart?.surahNumber ??
         saved?.surahNumber ??
+        pageStart?.surahNumber ??
         1;
     final ayahNumber = _selectedAyah?.ayahNumber ??
-        pageStart?.ayahNumber ??
         saved?.ayahNumber ??
+        pageStart?.ayahNumber ??
         1;
 
     await ref.read(athaarFeatureStoreProvider).saveReadingPosition(
