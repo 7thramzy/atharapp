@@ -117,15 +117,41 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.menu_book_rounded),
-                    title: const Text('فتح المصحف — رواية حفص'),
-                    subtitle: const Text(
-                      '604 صفحات · تجويد ملوّن · تظليل الكلمات',
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [Color(0xFF087C83), Color(0xFF004D5C)],
                     ),
-                    trailing: const Icon(Icons.chevron_left_rounded),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
                     onTap: () => context.push<void>('/quran/mushaf'),
+                    child: Row(children: [
+                      Container(
+                        width: 66, height: 76,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.menu_book_rounded, color: Color(0xFFE1C78E), size: 42),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('فتح المصحف — رواية حفص',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
+                          SizedBox(height: 7),
+                          Text('604 صفحات · تجويد ملوّن · تظليل الكلمات',
+                            style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      )),
+                      const Icon(Icons.chevron_left_rounded, color: Colors.white),
+                    ]),
                   ),
                 ),
                 const SizedBox(height: 12),
