@@ -52,7 +52,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('المصحف الشريف — حفص'), findsOneWidget);
+    expect(find.text('المصحف المعتمد — حفص عن عاصم'), findsOneWidget);
+    expect(find.byTooltip('القراءة النصية المحلية — تنزيل'), findsOneWidget);
     expect(find.text('التجويد الملوّن'), findsOneWidget);
     expect(find.text('صفحة 1 من 604'), findsOneWidget);
     expect(adapter.requestedPages, contains(1));
