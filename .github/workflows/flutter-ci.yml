@@ -517,14 +517,14 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build browser preview
-        run: flutter build web --release --base-href "/${{ steps.pages.outputs.base_path }}/"
+        run: flutter build web --release --base-href "${{ steps.pages.outputs.base_path }}/"
 
       - name: Verify browser runtime files
         run: |
           test -s build/web/index.html
           test -s build/web/sqlite3.wasm
           test -s build/web/drift_worker.js
-          grep -F '<base href="/atharapp/">' build/web/index.html
+          grep -F '<base href="${{ steps.pages.outputs.base_path }}/">' build/web/index.html
 
       - name: Upload browser preview artifact
         uses: actions/upload-artifact@v4
