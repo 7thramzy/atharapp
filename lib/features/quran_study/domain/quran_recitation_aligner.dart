@@ -76,20 +76,19 @@ class QuranRecitationAligner {
       return QuranRecitationAlignment(
         state: QuranRecitationMatchState.noSpeech,
         confirmedThroughExclusive: previousConfirmedThrough
-            .clamp(0, expectedWords.length),
+            .clamp(0, expectedWords.length)
+            .toInt(),
         heardWords: heard,
       );
     }
 
-    final initialProgress = previousConfirmedThrough.clamp(
-      0,
-      expectedWords.length,
-    );
+    final initialProgress = previousConfirmedThrough
+        .clamp(0, expectedWords.length)
+        .toInt();
     var confirmed = initialProgress;
-    var searchCursor = (initialProgress - overlapWindowWords).clamp(
-      0,
-      expectedWords.length,
-    );
+    var searchCursor = (initialProgress - overlapWindowWords)
+        .clamp(0, expectedWords.length)
+        .toInt();
     var ignoredPrefixWords = 0;
     var matchedNew = 0;
     var exactSeen = 0;
@@ -97,10 +96,9 @@ class QuranRecitationAligner {
     var uncertain = false;
 
     for (final heardWord in heard) {
-      final searchEnd = (searchCursor + maxLookAheadWords + 1).clamp(
-        0,
-        expectedWords.length,
-      );
+      final searchEnd = (searchCursor + maxLookAheadWords + 1)
+          .clamp(0, expectedWords.length)
+          .toInt();
       var exactIndex = -1;
       var bestFuzzyIndex = -1;
       var bestSimilarity = 0.0;
