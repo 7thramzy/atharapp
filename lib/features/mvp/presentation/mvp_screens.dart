@@ -4,6 +4,7 @@ import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:athaar/features/quran/data/quran_reader_routes.dart';
 
 String _t(BuildContext context, String ar, String en) =>
     Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
@@ -143,10 +144,10 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                       const Expanded(child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('فتح المصحف — رواية حفص',
+                          Text('فتح المصحف المعتمد — حفص عن عاصم',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
                           SizedBox(height: 7),
-                          Text('604 صفحات · تجويد ملوّن · تظليل الكلمات',
+                          Text('المصحف المرجعي في أثَر · 604 صفحات · تجويد وتظليل',
                             style: TextStyle(color: Colors.white70, fontSize: 12)),
                         ],
                       )),
@@ -229,20 +230,12 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                           '${s['ayah_count']} ${_t(context, 'آية', 'ayahs')}',
                         ),
                         leading: CircleAvatar(child: Text('${s['number']}')),
-                        onTap: () async {
-                          final n = s['number'] as int;
-                          await store.saveReadingPosition(n, 1);
-                          final verses = await store.getSurahAyahs(n);
-                          if (!context.mounted) {
-                            return;
-                          }
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  _SurahReaderScreen(surah: s, verses: verses),
-                            ),
-                          );
-                        },
+                        onTap: () => context.push<void>(
+                          QuranReaderRoutes.downloadedText(
+                            surahNumber: s['number'] as int,
+                            ayahNumber: 1,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -257,6 +250,12 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                         subtitle: Text(
                           '${v['surah_name']} — ${v['ayah_number']}',
                         ),
+                        onTap: () => context.push<void>(
+                          QuranReaderRoutes.downloadedText(
+                            surahNumber: v['surah_number'] as int,
+                            ayahNumber: v['ayah_number'] as int,
+                          ),
+                        ),
                         trailing: IconButton(
                           icon: const Icon(Icons.bookmark_add_outlined),
                           onPressed: () => store.addBookmark(
@@ -269,100 +268,6 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                   ),
               ],
             ),
-    );
-  }
-}
-
-class _SurahReaderScreen extends ConsumerWidget {
-  const _SurahReaderScreen({required this.surah, required this.verses});
-  final Map<String, Object?> surah;
-  final List<Map<String, Object?>> verses;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final store = ref.read(athaarFeatureStoreProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(surah['name'] as String)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: verses
-            .map(
-              (verse) => Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        verse['text'] as String,
-                        textDirection: TextDirection.rtl,
-                        textAlign: TextAlign.justify,
-                        style: Theme.of(context).textTheme.titleLarge
-                            ?.copyWith(height: 2),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('${verse['number']}'),
-                          IconButton(
-                            tooltip: _t(context, 'حفظ علامة', 'Bookmark'),
-                            icon: const Icon(Icons.bookmark_add_outlined),
-                            onPressed: () => store.addBookmark(
-                              surah['number'] as int,
-                              verse['number'] as int,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: _t(context, 'إضافة ملاحظة', 'Add note'),
-                            icon: const Icon(Icons.note_add_outlined),
-                            onPressed: () async {
-                              final controller = TextEditingController();
-                              final note = await showDialog<String>(
-                                context: context,
-                                builder: (dialogContext) => AlertDialog(
-                                  title: Text(
-                                    _t(context, 'ملاحظة خاصة', 'Private note'),
-                                  ),
-                                  content: TextField(
-                                    controller: controller,
-                                    maxLines: 4,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(dialogContext),
-                                      child: Text(
-                                        _t(context, 'إلغاء', 'Cancel'),
-                                      ),
-                                    ),
-                                    FilledButton(
-                                      onPressed: () => Navigator.pop(
-                                        dialogContext,
-                                        controller.text,
-                                      ),
-                                      child: Text(_t(context, 'حفظ', 'Save')),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (note != null && note.trim().isNotEmpty) {
-                                await store.saveNote(
-                                  surah['number'] as int,
-                                  verse['number'] as int,
-                                  note,
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
     );
   }
 }
