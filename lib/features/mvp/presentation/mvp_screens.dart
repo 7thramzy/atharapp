@@ -91,7 +91,7 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
         .read(athaarFeatureStoreProvider)
         .getReadingPosition();
     if (!mounted) return;
-    context.push<void>(
+    await context.push<void>(
       QuranReaderRoutes.downloadedText(
         surahNumber: position?.surahNumber ?? 1,
         ayahNumber: position?.ayahNumber ?? 1,
