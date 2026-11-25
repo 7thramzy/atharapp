@@ -23,11 +23,27 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
         children: [
           _SectionCard(title: 'اللغة', icon: Icons.language_rounded, child: Column(children: [
-            RadioListTile<String>(value: 'ar', groupValue: locale.languageCode,
-              title: const Text('العربية'), onChanged: (v) => ref.read(localeProvider.notifier).setLocale(Locale(v!))),
-            const Divider(height: 1),
-            RadioListTile<String>(value: 'en', groupValue: locale.languageCode,
-              title: const Text('English'), onChanged: (v) => ref.read(localeProvider.notifier).setLocale(Locale(v!))),
+            RadioGroup<String>(
+              groupValue: locale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(localeProvider.notifier).setLocale(Locale(value));
+                }
+              },
+              child: const Column(
+                children: [
+                  RadioListTile<String>(
+                    value: 'ar',
+                    title: Text('العربية'),
+                  ),
+                  Divider(height: 1),
+                  RadioListTile<String>(
+                    value: 'en',
+                    title: Text('English'),
+                  ),
+                ],
+              ),
+            ),
           ])),
           const SizedBox(height: 14),
           _SectionCard(title: 'المظهر', icon: Icons.palette_outlined, child: Column(children: [
