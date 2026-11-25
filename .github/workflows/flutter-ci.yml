@@ -460,7 +460,7 @@ jobs:
   web-preview:
     name: Build browser preview artifact
     needs: [quality, acquire-quran-source]
-    if: github.ref == 'refs/heads/design/match-athaar-reference'
+    if: github.ref == 'refs/heads/design/match-athaar-reference' || github.ref == 'refs/heads/design/quran-study-multimedia'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
