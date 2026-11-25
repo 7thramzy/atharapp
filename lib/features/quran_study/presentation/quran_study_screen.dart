@@ -45,6 +45,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   List<QuranAudioEdition> _reciters = const [];
   QuranTranslationEdition? _selectedTranslation;
   QuranAudioEdition? _selectedReciter;
+  String? _loadedReciterIdentifier;
   QuranTranslationText? _translation;
 
   @override
@@ -202,6 +203,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             edition: reciter.identifier,
           );
       await _audioPlayer.setUrl(uri.toString());
+      _loadedReciterIdentifier = reciter.identifier;
       if (!mounted) return;
       setState(() => _loadingAudio = false);
       unawaited(_audioPlayer.play());
@@ -457,7 +459,10 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               if (item == null) return;
               setState(() {
                 _selectedReciter = item;
+                _loadedReciterIdentifier = null;
                 _audioError = null;
+              });
+              unawaited(_audioPlayer.stop());
               });
             },
           ),
@@ -500,7 +505,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                               ? null
                               : playing
                                   ? _audioPlayer.pause
-                                  : completed
+                                  : completed ||
+                                          _loadedReciterIdentifier != selected.identifier
                                       ? _playAyah
                                       : _audioPlayer.play,
                           icon: Icon(
