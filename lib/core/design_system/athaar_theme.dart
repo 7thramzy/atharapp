@@ -66,14 +66,14 @@ abstract final class AthaarTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: false,\n        titleTextStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           side: BorderSide(
             color: colorScheme.outlineVariant.withValues(alpha: 0.55),
           ),
@@ -83,7 +83,7 @@ abstract final class AthaarTheme {
         filled: true,
         fillColor: colorScheme.surfaceContainer,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
         ),
       ),
