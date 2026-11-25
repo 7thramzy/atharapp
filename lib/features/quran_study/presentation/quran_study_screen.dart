@@ -260,8 +260,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 Text(
                   _studyText(
                     context,
-                    'لم نعتمد بعد نسخة تفسير تسمح شروطها بتضمين النص داخل أثَر. بعض موارد مكتبة QUL تعرض صراحةً أن بيانات حقوق النشر غير متوفرة، كما أن واجهة QuranEnc المنشورة حاليًا مخصصة للترجمات ولا توثق واجهة API للتفسير. لذلك لا ننسخ نص التفسير إلى التطبيق قبل الحصول على إذن واضح.',
-                    'No tafsir edition has yet been cleared for in-app republication. Some QUL resources explicitly state that copyright information is unavailable, and QuranEnc’s published API documents translations rather than tafsir endpoints. Athaar therefore links to the original source instead of copying unlicensed commentary.',
+                    'لم نعتمد بعد نسخة تفسير تسمح شروطها بتضمين النص داخل أثَر. موارد QUL التي راجعناها لا تعرض معلومات حقوق نشر كافية. يوفر Quran Foundation واجهة API رسمية للتفسير، لكنها تتطلب طلب وصول وبيانات اعتماد ونطاق content وخادمًا آمنًا؛ لم نستلم بيانات اعتماد أثَر بعد، لذلك لا نعرض بيانات تجريبية أو ننسخ نصًا غير مرخّص.',
+                    'No tafsir edition has yet been cleared for in-app display in Athaar. The QUL editions reviewed do not provide adequate copyright information. Quran Foundation provides an official Tafsir API, but access requires an approved app request, credentials, the content scope and a secure server proxy. Athaar has not received credentials yet, so the screen links to the official access process rather than showing demo or unlicensed commentary.',
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -296,6 +296,22 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                         context,
                         'استعراض مصادر التفسير في QUL',
                         'Browse tafsir resources in QUL',
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openSource(
+                      Uri.https('api-docs.quran.com', '/request-access/'),
+                    ),
+                    icon: const Icon(Icons.verified_user_outlined),
+                    label: Text(
+                      _studyText(
+                        context,
+                        'طلب وصول رسمي إلى API للتفسير',
+                        'Request official tafsir API access',
                       ),
                     ),
                   ),
