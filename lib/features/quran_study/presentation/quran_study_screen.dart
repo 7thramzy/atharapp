@@ -397,7 +397,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               padding: const EdgeInsets.all(16),
               child: SelectableText(
                 _translation!.footnotes,
-                textDirection: TextDirection.auto,
+                textDirection: selected?.direction == 'rtl' ? TextDirection.rtl : TextDirection.ltr,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       height: 1.6,
                     ),
