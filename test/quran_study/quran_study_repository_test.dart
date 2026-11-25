@@ -109,6 +109,111 @@ void main() {
       expect(result.ayahNumber, 1);
     });
 
+    test('loads a full translation surah and preserves footnotes verbatim', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          expect(
+            request.url.path,
+            '/api/v1/translation/sura/english_saheeh/1',
+          );
+          return http.Response(
+            jsonEncode({
+              'result': [
+                {
+                  'id': '1',
+                  'sura': '1',
+                  'aya': '1',
+                  'translation': 'Meaning one [1]',
+                  'footnotes': '[1] Publisher note',
+                },
+                {
+                  'id': '2',
+                  'sura': '1',
+                  'aya': '2',
+                  'translation': 'Meaning two',
+                  'footnotes': '',
+                },
+              ],
+            }),
+            200,
+          );
+        }),
+      );
+      addTearDown(repository.close);
+
+      final rows = await repository.getTranslationSurah(
+        key: 'english_saheeh',
+        surah: 1,
+      );
+
+      expect(rows, hasLength(2));
+      expect(rows.first.text, 'Meaning one [1]');
+      expect(rows.first.footnotes, '[1] Publisher note');
+      expect(rows.last.ayahNumber, 2);
+    });
+
+    test('rejects a full translation response with duplicate ayah references', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((_) async => http.Response(
+          jsonEncode({
+            'result': [
+              {'sura': '1', 'aya': '1', 'translation': 'A'},
+              {'sura': '1', 'aya': '1', 'translation': 'B'},
+            ],
+          }),
+          200,
+        )),
+      );
+      addTearDown(repository.close);
+
+      await expectLater(
+        repository.getTranslationSurah(key: 'english_saheeh', surah: 1),
+        throwsFormatException,
+      );
+    });
+
+    test('loads all tafsir entries from the pinned full-surah JSON', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          expect(
+            request.url.path,
+            '/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/1.json',
+          );
+          return http.Response(
+            jsonEncode([
+              {'surah': 1, 'ayah': 1, 'text': 'Tafsir one'},
+              {'surah': 1, 'ayah': 2, 'text': 'Tafsir two'},
+            ]),
+            200,
+          );
+        }),
+      );
+      addTearDown(repository.close);
+
+      final rows = await repository.getTafsirSurah(surah: 1);
+
+      expect(rows, hasLength(2));
+      expect(rows.first.text, 'Tafsir one');
+      expect(rows.last.ayahNumber, 2);
+    });
+
+    test('rejects tafsir rows from a different surah', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((_) async => http.Response(
+          jsonEncode([
+            {'surah': 2, 'ayah': 1, 'text': 'Wrong reference'},
+          ]),
+          200,
+        )),
+      );
+      addTearDown(repository.close);
+
+      await expectLater(
+        repository.getTafsirSurah(surah: 1),
+        throwsFormatException,
+      );
+    });
+
     test('parses verse-by-verse Arabic reciter editions', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
