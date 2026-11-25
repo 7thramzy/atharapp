@@ -20,8 +20,6 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
   List<Map<String, Object?>> _results = [];
   List<Map<String, Object?>> _surahs = [];
   Map<String, Object?>? _sourceManifest;
-  int _resumeSurah = 1;
-  int _resumeAyah = 1;
   bool _loading = true;
   String? _error;
 
@@ -42,13 +40,10 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
       final store = ref.read(athaarFeatureStoreProvider);
       final rows = await store.listSurahs();
       final sourceManifest = await store.quranManifest;
-      final savedPosition = await store.getReadingPosition();
       if (mounted) {
         setState(() {
           _surahs = rows;
           _sourceManifest = sourceManifest;
-          _resumeSurah = savedPosition?.surahNumber ?? 1;
-          _resumeAyah = savedPosition?.ayahNumber ?? 1;
           _loading = false;
         });
       }
@@ -87,6 +82,19 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
             child: Text(_t(context, 'إغلاق', 'Close')),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _openDownloadedText() async {
+    final position = await ref
+        .read(athaarFeatureStoreProvider)
+        .getReadingPosition();
+    if (!mounted) return;
+    context.push<void>(
+      QuranReaderRoutes.downloadedText(
+        surahNumber: position?.surahNumber ?? 1,
+        ayahNumber: position?.ayahNumber ?? 1,
       ),
     );
   }
@@ -166,15 +174,10 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                     leading: const Icon(Icons.article_outlined),
                     title: const Text('قراءة النص المحلي — وضع مساعد'),
                     subtitle: Text(
-                      'Tanzil Uthmani 1.1 · استئناف من $_resumeSurah:$_resumeAyah',
+                      'Tanzil Uthmani 1.1 · استئناف آخر موضع محفوظ',
                     ),
                     trailing: const Icon(Icons.chevron_left_rounded),
-                    onTap: () => context.push<void>(
-                      QuranReaderRoutes.downloadedText(
-                        surahNumber: _resumeSurah,
-                        ayahNumber: _resumeAyah,
-                      ),
-                    ),
+                    onTap: _openDownloadedText,
                   ),
                 ),
                 const SizedBox(height: 12),
