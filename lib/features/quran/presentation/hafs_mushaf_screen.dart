@@ -5,6 +5,7 @@ import 'package:athaar/features/quran/data/qcf_hafs_renderer_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:qcf_quran_plus/qcf_quran_plus.dart';
+import 'package:go_router/go_router.dart';
 
 class HafsMushafScreen extends ConsumerStatefulWidget {
   const HafsMushafScreen({super.key});
@@ -314,6 +315,12 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                     _SelectedAyahPanel(
                       selection: _selectedAyah!,
                       onBookmark: _bookmarkSelectedAyah,
+                      onStudy: () => context.push<void>(
+                        '/quran/study/' +
+                            _selectedAyah!.surahNumber.toString() +
+                            '/' +
+                            _selectedAyah!.ayahNumber.toString(),
+                      ),
                       onClear: _clearSelection,
                     ),
                   Expanded(
@@ -382,11 +389,13 @@ class _SelectedAyahPanel extends StatelessWidget {
   const _SelectedAyahPanel({
     required this.selection,
     required this.onBookmark,
+    required this.onStudy,
     required this.onClear,
   });
 
   final _SelectedAyah selection;
   final VoidCallback onBookmark;
+  final VoidCallback onStudy;
   final VoidCallback onClear;
 
   @override
@@ -414,6 +423,11 @@ class _SelectedAyahPanel extends StatelessWidget {
                   Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
+            ),
+            IconButton.filledTonal(
+              tooltip: 'التفسير والترجمة والتلاوة',
+              onPressed: onStudy,
+              icon: const Icon(Icons.menu_book_outlined),
             ),
             IconButton.filledTonal(
               tooltip: 'حفظ علامة للآية',
