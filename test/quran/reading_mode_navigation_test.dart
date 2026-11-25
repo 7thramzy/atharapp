@@ -58,10 +58,11 @@ Future<AppDatabase> _createDatabase() async {
 
 void main() {
   testWidgets(
-    'switching from downloaded text to Hafs preserves the ayah coordinate',
+    'downloaded text opens the real Hafs Mushaf at the same highlighted ayah',
     (tester) async {
       final database = await _createDatabase();
       addTearDown(database.close);
+      final adapter = _NavigationHafsAdapter();
 
       final router = GoRouter(
         initialLocation: '/quran/text/2?ayah=2',
@@ -77,10 +78,11 @@ void main() {
           ),
           GoRoute(
             path: '/quran/mushaf',
-            builder: (context, state) => Scaffold(
-              body: Text(
-                'Hafs location ${state.uri.queryParameters['surah']}:${state.uri.queryParameters['ayah']}',
-              ),
+            builder: (context, state) => HafsMushafScreen(
+              initialSurahNumber:
+                  int.tryParse(state.uri.queryParameters['surah'] ?? ''),
+              initialAyahNumber:
+                  int.tryParse(state.uri.queryParameters['ayah'] ?? ''),
             ),
           ),
         ],
@@ -91,6 +93,7 @@ void main() {
         ProviderScope(
           overrides: [
             appDatabaseProvider.overrideWith((ref) => database),
+            hafsRendererAdapterProvider.overrideWithValue(adapter),
           ],
           child: MaterialApp.router(routerConfig: router),
         ),
@@ -105,16 +108,24 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Hafs location 2:2'), findsOneWidget);
+      expect(find.text('المصحف المعتمد — حفص عن عاصم'), findsOneWidget);
+      final pageView = tester.widget<QuranPageView>(
+        find.byType(QuranPageView),
+      );
+      expect(pageView.highlights, hasLength(1));
+      expect(pageView.highlights.single.surah, 2);
+      expect(pageView.highlights.single.verseNumber, 2);
+      expect(pageView.highlights.single.page, 12);
+
       final saved = await database.getReadingPosition();
       expect(saved?.surahNumber, 2);
       expect(saved?.ayahNumber, 2);
-      expect(saved?.readingMode, 'downloaded_text');
+      expect(saved?.readingMode, 'hafs_mushaf');
     },
   );
 
   testWidgets(
-    'switching from Hafs to downloaded text preserves and highlights the ayah',
+    'Hafs Mushaf returns to downloaded text at the same selected ayah',
     (tester) async {
       final database = await _createDatabase();
       await database.saveReadingPosition(
@@ -134,10 +145,11 @@ void main() {
           ),
           GoRoute(
             path: '/quran/text/:surah',
-            builder: (context, state) => Scaffold(
-              body: Text(
-                'Text location ${state.pathParameters['surah']}:${state.uri.queryParameters['ayah']}',
-              ),
+            builder: (context, state) => DownloadedQuranReaderScreen(
+              surahNumber:
+                  int.parse(state.pathParameters['surah'] ?? '2'),
+              initialAyahNumber:
+                  int.parse(state.uri.queryParameters['ayah'] ?? '1'),
             ),
           ),
         ],
@@ -161,18 +173,20 @@ void main() {
       expect(pageView.highlights, hasLength(1));
       expect(pageView.highlights.single.surah, 2);
       expect(pageView.highlights.single.verseNumber, 2);
-      expect(pageView.highlights.single.page, 12);
 
       await tester.tap(
         find.byTooltip('القراءة النصية المحلية — تنزيل'),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Text location 2:2'), findsOneWidget);
+      expect(find.text('آية 2'), findsOneWidget);
+      expect(find.text('موضع القراءة'), findsOneWidget);
+      expect(find.text('ذَٰلِكَ الْكِتَابُ'), findsOneWidget);
+
       final saved = await database.getReadingPosition();
       expect(saved?.surahNumber, 2);
       expect(saved?.ayahNumber, 2);
-      expect(saved?.readingMode, 'hafs_mushaf');
+      expect(saved?.readingMode, 'downloaded_text');
     },
   );
 }
