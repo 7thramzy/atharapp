@@ -410,10 +410,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             description: selected.description,
             version: selected.version,
             onOpen: () => _openSource(
-              Uri.https(
-                'quranenc.com',
-                '/ar/browse/translation/' + selected.key,
-              ),
+              Uri.https('quranenc.com', '/ar/home/api'),
             ),
           ),
       ],
