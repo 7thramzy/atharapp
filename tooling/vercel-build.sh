@@ -21,6 +21,7 @@ if [[ ! -x "$FLUTTER_ROOT/bin/flutter" ]]; then
 fi
 
 export PATH="$FLUTTER_ROOT/bin:$PATH"
+git config --global --add safe.directory "$FLUTTER_ROOT"
 flutter config --no-analytics --enable-web >/dev/null
 flutter --version
 
