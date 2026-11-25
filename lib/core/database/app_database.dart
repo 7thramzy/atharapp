@@ -45,17 +45,21 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
       await _createFeatureTables();
+      await _createOfflineStudyTables();
     },
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await _createFeatureTables();
+      }
+      if (from < 3) {
+        await _createOfflineStudyTables();
       }
     },
     beforeOpen: (details) async {
@@ -169,6 +173,44 @@ class AppDatabase extends _$AppDatabase {
     ''');
   }
 
+  Future<void> _createOfflineStudyTables() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS quran_offline_study_packs (
+        content_type TEXT NOT NULL CHECK (content_type IN ('tafsir', 'translation')),
+        edition_key TEXT NOT NULL,
+        surah_number INTEGER NOT NULL CHECK (surah_number BETWEEN 1 AND 114),
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        language_code TEXT NOT NULL DEFAULT 'ar',
+        direction TEXT NOT NULL DEFAULT 'rtl',
+        version TEXT NOT NULL,
+        source_url TEXT NOT NULL,
+        license_notice TEXT NOT NULL,
+        source_last_updated INTEGER,
+        verse_count INTEGER NOT NULL DEFAULT 0,
+        downloaded_at TEXT NOT NULL,
+        PRIMARY KEY (content_type, edition_key, surah_number)
+      )
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS quran_offline_study_verses (
+        content_type TEXT NOT NULL,
+        edition_key TEXT NOT NULL,
+        surah_number INTEGER NOT NULL,
+        ayah_number INTEGER NOT NULL CHECK (ayah_number > 0),
+        text TEXT NOT NULL,
+        footnotes TEXT NOT NULL DEFAULT '',
+        PRIMARY KEY (content_type, edition_key, surah_number, ayah_number),
+        FOREIGN KEY (content_type, edition_key, surah_number)
+          REFERENCES quran_offline_study_packs(content_type, edition_key, surah_number)
+          ON DELETE CASCADE
+      )
+    ''');
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS idx_quran_offline_study_lookup ON quran_offline_study_verses(content_type, edition_key, surah_number, ayah_number)',
+    );
+  }
+
   Future<void> initializeDefaults() async {
     await transaction(() async {
       await into(localSettings).insertOnConflictUpdate(
@@ -190,7 +232,7 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       await into(appMetadata).insertOnConflictUpdate(
-        AppMetadataCompanion.insert(key: 'schema_version', value: '2'),
+        AppMetadataCompanion.insert(key: 'schema_version', value: '3'),
       );
     });
   }
