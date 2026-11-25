@@ -33,6 +33,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   bool _loadingTranslation = false;
   bool _loadingReciters = true;
   bool _loadingAudio = false;
+  bool _downloadingTafsir = false;
+  bool _downloadingTranslation = false;
 
   String? _ayahError;
   String? _tafsirError;
@@ -101,12 +103,57 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     }
   }
 
+  static const _tafsirEditionKey = 'ar-tafsir-al-jami-al-wajiz';
+  static const _tafsirVersion = 'v1.2.3';
+  static const _tafsirSourceUrl =
+      'https://github.com/spa5k/tafsir_api/tree/v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz';
+
   Future<void> _loadTafsir() async {
+    final store = ref.read(athaarFeatureStoreProvider);
     try {
+      final cached = await store.getOfflineStudyVerse(
+        contentType: 'tafsir',
+        editionKey: _tafsirEditionKey,
+        surahNumber: widget.surahNumber,
+        ayahNumber: widget.ayahNumber,
+      );
+      if (cached != null) {
+        if (!mounted) return;
+        setState(() {
+          _tafsir = QuranTafsirText(
+            text: cached['text']! as String,
+            surahNumber: widget.surahNumber,
+            ayahNumber: widget.ayahNumber,
+          );
+          _loadingTafsir = false;
+          _tafsirError = null;
+        });
+        return;
+      }
+
       final text = await ref.read(quranStudyRepositoryProvider).getTafsir(
             surah: widget.surahNumber,
             ayah: widget.ayahNumber,
           );
+      await store.saveOfflineStudyPack(
+        contentType: 'tafsir',
+        editionKey: _tafsirEditionKey,
+        surahNumber: widget.surahNumber,
+        title: 'الجامع الوجيز في تفسير آي الكتاب العزيز',
+        description: 'تأليف الشيخ الدكتور أيمن فاتح آل عامر',
+        languageCode: 'ar',
+        direction: 'rtl',
+        version: _tafsirVersion,
+        sourceUrl: _tafsirSourceUrl,
+        licenseNotice: 'CC BY-ND 4.0 · النص يُحفظ ويُعرض دون تعديل',
+        verses: [
+          {
+            'surahNumber': widget.surahNumber,
+            'ayahNumber': widget.ayahNumber,
+            'text': text.text,
+          },
+        ],
+      );
       if (!mounted) return;
       setState(() {
         _tafsir = text;
@@ -121,35 +168,109 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     }
   }
 
-  Future<void> _loadTranslationCatalog() async {
+  Future<void> _downloadTafsirSurah() async {
+    if (_downloadingTafsir) return;
+    setState(() {
+      _downloadingTafsir = true;
+      _tafsirError = null;
+    });
     try {
-      final items = await ref
-          .read(quranStudyRepositoryProvider)
-          .getTranslations(localization: 'ar');
-      final preferred = items.where((item) => item.key == 'english_rwwad');
-      final english = items.where((item) => item.languageCode == 'en');
-      final selected = preferred.isNotEmpty
-          ? preferred.first
-          : english.isNotEmpty
-              ? english.first
-              : items.isNotEmpty
-                  ? items.first
-                  : null;
+      final repository = ref.read(quranStudyRepositoryProvider);
+      final verses = await repository.getTafsirSurah(
+        surah: widget.surahNumber,
+      );
+      await ref.read(athaarFeatureStoreProvider).saveOfflineStudyPack(
+        contentType: 'tafsir',
+        editionKey: _tafsirEditionKey,
+        surahNumber: widget.surahNumber,
+        title: 'الجامع الوجيز في تفسير آي الكتاب العزيز',
+        description: 'تأليف الشيخ الدكتور أيمن فاتح آل عامر',
+        languageCode: 'ar',
+        direction: 'rtl',
+        version: _tafsirVersion,
+        sourceUrl: _tafsirSourceUrl,
+        licenseNotice: 'CC BY-ND 4.0 · النص يُحفظ ويُعرض دون تعديل',
+        verses: verses.map((item) => {
+          'surahNumber': item.surahNumber,
+          'ayahNumber': item.ayahNumber,
+          'text': item.text,
+        }).toList(growable: false),
+      );
+      await _loadTafsir();
       if (!mounted) return;
-      setState(() {
-        _translations = items;
-        _selectedTranslation = selected;
-        _loadingTranslations = false;
-      });
-      if (selected != null) {
-        unawaited(_loadTranslation(selected));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _studyText(
+              context,
+              'تم حفظ تفسير السورة للاستخدام دون اتصال.',
+              'The surah tafsir is now available offline.',
+            ),
+          ),
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
-      setState(() {
-        _translationsError = error.toString();
-        _loadingTranslations = false;
-      });
+      setState(() => _tafsirError = error.toString());
+    } finally {
+      if (mounted) setState(() => _downloadingTafsir = false);
+    }
+  }
+
+  Future<void> _loadTranslationCatalog() async {
+    List<QuranTranslationEdition> items;
+    try {
+      items = await ref
+          .read(quranStudyRepositoryProvider)
+          .getTranslations(localization: 'ar');
+    } catch (networkError) {
+      try {
+        final localPacks = await ref
+            .read(athaarFeatureStoreProvider)
+            .listOfflineStudyPacks();
+        items = localPacks
+            .where((item) => item['content_type'] == 'translation')
+            .map(
+              (item) => QuranTranslationEdition(
+                key: item['edition_key']! as String,
+                title: item['title']! as String,
+                languageCode: item['language_code']! as String,
+                version: item['version']! as String,
+                description: item['description']! as String,
+                direction: item['direction']! as String,
+                lastUpdated: item['source_last_updated'] as int?,
+              ),
+            )
+            .toList(growable: false);
+        if (items.isEmpty) rethrow;
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _translationsError = networkError.toString();
+          _loadingTranslations = false;
+        });
+        return;
+      }
+    }
+
+    final preferred = items.where((item) => item.key == 'english_rwwad');
+    final english = items.where((item) => item.languageCode == 'en');
+    final selected = preferred.isNotEmpty
+        ? preferred.first
+        : english.isNotEmpty
+            ? english.first
+            : items.isNotEmpty
+                ? items.first
+                : null;
+    if (!mounted) return;
+    setState(() {
+      _translations = items;
+      _selectedTranslation = selected;
+      _loadingTranslations = false;
+      _translationsError = null;
+    });
+    if (selected != null) {
+      unawaited(_loadTranslation(selected));
     }
   }
 
@@ -159,7 +280,27 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       _translationError = null;
       _translation = null;
     });
+    final store = ref.read(athaarFeatureStoreProvider);
     try {
+      final cached = await store.getOfflineStudyVerse(
+        contentType: 'translation',
+        editionKey: edition.key,
+        surahNumber: widget.surahNumber,
+        ayahNumber: widget.ayahNumber,
+      );
+      if (cached != null) {
+        if (!mounted) return;
+        setState(() {
+          _translation = QuranTranslationText(
+            text: cached['text']! as String,
+            footnotes: cached['footnotes']! as String,
+            surahNumber: widget.surahNumber,
+            ayahNumber: widget.ayahNumber,
+          );
+          _loadingTranslation = false;
+        });
+        return;
+      }
       final text = await ref
           .read(quranStudyRepositoryProvider)
           .getTranslation(
@@ -167,6 +308,27 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             surah: widget.surahNumber,
             ayah: widget.ayahNumber,
           );
+      await store.saveOfflineStudyPack(
+        contentType: 'translation',
+        editionKey: edition.key,
+        surahNumber: widget.surahNumber,
+        title: edition.title,
+        description: edition.description,
+        languageCode: edition.languageCode,
+        direction: edition.direction,
+        version: edition.version,
+        sourceUrl: 'https://quranenc.com/en/home/api',
+        licenseNotice: 'QuranEnc · preserve translation, version, and attribution verbatim',
+        sourceLastUpdated: edition.lastUpdated,
+        verses: [
+          {
+            'surahNumber': widget.surahNumber,
+            'ayahNumber': widget.ayahNumber,
+            'translation': text.text,
+            'footnotes': text.footnotes,
+          },
+        ],
+      );
       if (!mounted) return;
       setState(() {
         _translation = text;
@@ -178,6 +340,62 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         _translationError = error.toString();
         _loadingTranslation = false;
       });
+    }
+  }
+
+  Future<void> _downloadTranslationSurah(
+    QuranTranslationEdition edition,
+  ) async {
+    if (_downloadingTranslation) return;
+    setState(() {
+      _downloadingTranslation = true;
+      _translationError = null;
+    });
+    try {
+      final verses = await ref
+          .read(quranStudyRepositoryProvider)
+          .getTranslationSurah(
+            key: edition.key,
+            surah: widget.surahNumber,
+          );
+      await ref.read(athaarFeatureStoreProvider).saveOfflineStudyPack(
+        contentType: 'translation',
+        editionKey: edition.key,
+        surahNumber: widget.surahNumber,
+        title: edition.title,
+        description: edition.description,
+        languageCode: edition.languageCode,
+        direction: edition.direction,
+        version: edition.version,
+        sourceUrl: 'https://quranenc.com/en/home/api',
+        licenseNotice: 'QuranEnc · preserve translation, version, and attribution verbatim',
+        sourceLastUpdated: edition.lastUpdated,
+        requireCompleteTranslation: true,
+        verses: verses.map((item) => {
+          'surahNumber': item.surahNumber,
+          'ayahNumber': item.ayahNumber,
+          'translation': item.text,
+          'footnotes': item.footnotes,
+        }).toList(growable: false),
+      );
+      await _loadTranslation(edition);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _studyText(
+              context,
+              'تم حفظ ترجمة السورة كاملة للاستخدام دون اتصال.',
+              'The complete surah translation is now available offline.',
+            ),
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _translationError = error.toString());
+    } finally {
+      if (mounted) setState(() => _downloadingTranslation = false);
     }
   }
 
@@ -264,6 +482,23 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        OutlinedButton.icon(
+          onPressed: _downloadingTafsir ? null : _downloadTafsirSurah,
+          icon: _downloadingTafsir
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.download_for_offline_outlined),
+          label: Text(
+            _studyText(
+              context,
+              'تنزيل تفسير السورة للاستخدام دون اتصال',
+              'Download surah tafsir for offline use',
+            ),
+          ),
+        ),
         if (_loadingTafsir)
           const Center(child: CircularProgressIndicator())
         else if (_tafsirError != null)
@@ -361,6 +596,29 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               setState(() => _selectedTranslation = item);
               unawaited(_loadTranslation(item));
             },
+          ),
+        if (selected != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: OutlinedButton.icon(
+              onPressed: _downloadingTranslation
+                  ? null
+                  : () => _downloadTranslationSurah(selected),
+              icon: _downloadingTranslation
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.download_for_offline_outlined),
+              label: Text(
+                _studyText(
+                  context,
+                  'تنزيل ترجمة السورة كاملة',
+                  'Download the complete surah translation',
+                ),
+              ),
+            ),
           ),
         const SizedBox(height: 12),
         if (_loadingTranslation)
