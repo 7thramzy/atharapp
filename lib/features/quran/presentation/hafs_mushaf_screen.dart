@@ -324,6 +324,25 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
               backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
             ),
           ];
+    final selectedAyahPage = _selectedAyah == null
+        ? null
+        : ref.read(hafsRendererAdapterProvider).pageForAyah(
+            _selectedAyah!.surahNumber,
+            _selectedAyah!.ayahNumber,
+          );
+    final verseHighlights = _selectedAyah == null
+        ? const <HighlightVerse>[]
+        : [
+            HighlightVerse(
+              surah: _selectedAyah!.surahNumber,
+              verseNumber: _selectedAyah!.ayahNumber,
+              page: selectedAyahPage ?? _currentPage,
+              color: Theme.of(context)
+                  .colorScheme
+                  .secondaryContainer
+                  .withValues(alpha: 0.38),
+            ),
+          ];
 
     return Scaffold(
       appBar: AppBar(
@@ -418,7 +437,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                         Positioned.fill(
                           child: QuranPageView(
                             pageController: _pageController!,
-                            highlights: const [],
+                            highlights: verseHighlights,
                             wordHighlights: wordHighlights,
                             onWordTap: _onWordTap,
                             onLongPress: (surahNumber, ayahNumber, details) =>
