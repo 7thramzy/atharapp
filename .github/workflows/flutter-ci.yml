@@ -515,6 +515,8 @@ jobs:
       - name: Configure GitHub Pages
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Build browser preview
         run: flutter build web --release --base-href "${{ steps.pages.outputs.base_path }}/"
