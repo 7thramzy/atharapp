@@ -39,13 +39,18 @@ The initial integration is live/on-demand and is not an offline copy or a bundle
 
 The current QuranEnc OpenAPI file describes itself as a read-only API for translations of Quran meanings. Its declared paths contain translations, ayah translations, surah names, and notes; it does not declare tafsir endpoints. QUL is a downloadable resource library rather than a hosted public API. Its individual Tafsir Muyassar, Tafseer Al-Saadi, and Arabic Al-Mukhtasar records each say copyright information is unavailable.
 
-Therefore the Athaar Tafsir tab currently provides clearly labelled links to the original publishers/catalogues; it does not copy commentary text into the application. This is intentional rights protection, not a hidden or fake in-app tafsir implementation.
+A stronger official path is now documented by Quran Foundation. Its Content API v4 exposes dedicated Tafsir, Translation and Audio resources, but access is not anonymous: the developer must submit an app access request, receive a client ID/secret, request the `content` scope, obtain a client-credentials token, and send `x-auth-token` plus `x-client-id` from a backend. Its developer terms permit displaying content as part of an end-user app experience, prohibit distributing raw content separately, limit caching to one week unless expressly permitted, and prohibit ML training without written permission. This is the preferred long-term in-app tafsir provider once Athaar has received credentials and implemented a secure server-side proxy. Do not put the client secret in the Flutter app or use demo credentials in production.
 
-To enable in-app tafsir, obtain written permission or an exact machine-readable licence for a named edition that explicitly covers redistribution in a mobile application, then record author, editor, publisher, source URL, edition/version, licence, attribution text, and update policy here before importing it.
+Therefore the Athaar Tafsir tab currently provides clearly labelled links to the original publishers/catalogues and the official API access process; it does not copy commentary text into the application. This is intentional rights protection, not a hidden or fake in-app tafsir implementation.
+
+To enable in-app tafsir, complete the Quran Foundation app-access request, store credentials in a secure backend environment, implement a server-side content proxy with a cache no longer than the permitted period, then record the chosen source/edition, attribution, licence and update policy here before enabling the in-app content.
 
 ## Sources reviewed
 
 - QuranEnc API and OpenAPI: https://quranenc.com/ar/home/api and https://quranenc.com/openapi.json
+- Quran Foundation Content API v4: https://api-docs.quran.com/docs/content_apis_versioned/4.0.0/content-apis/
+- Quran Foundation app access request: https://api-docs.quran.com/request-access/
+- Quran Foundation developer terms: https://api-docs.quran.com/legal/developer-terms/
 - QuranEnc terms: https://quranenc.com/en/home/about/conditions
 - QUL Tafsir resources: https://qul.tarteel.ai/resources/tafsir
 - QUL Tafsir Muyassar resource 38: https://qul.tarteel.ai/resources/tafsir/38/licence
