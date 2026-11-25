@@ -3,6 +3,7 @@ import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
 import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:athaar/features/quran/presentation/downloaded_quran_reader_screen.dart';
 import 'package:athaar/features/quran_study/presentation/quran_study_screen.dart';
+import 'package:athaar/features/quran_study/presentation/quran_recitation_practice_screen.dart';
 import 'package:athaar/features/settings/presentation/settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -61,6 +62,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/adhkar',
         name: 'adhkar',
         builder: (context, state) => const AdhkarScreen(),
+      ),
+      GoRoute(
+        path: '/memorization/recite',
+        name: 'memorization-recitation',
+        builder: (context, state) => QuranRecitationPracticeScreen(
+          surahNumber: int.tryParse(
+                state.uri.queryParameters['surah'] ?? '',
+              ) ??
+              1,
+          startAyah: int.tryParse(
+                state.uri.queryParameters['start'] ?? '',
+              ) ??
+              1,
+          endAyah: int.tryParse(
+                state.uri.queryParameters['end'] ?? '',
+              ) ??
+              1,
+        ),
       ),
       GoRoute(
         path: '/memorization',
