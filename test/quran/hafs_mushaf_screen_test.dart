@@ -46,11 +46,30 @@ void main() {
           }),
           hafsRendererAdapterProvider.overrideWithValue(adapter),
         ],
-        child: const MaterialApp(home: HafsMushafScreen()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: [Locale('en')],
+          home: HafsMushafScreen(),
+        ),
       ),
     );
 
     await tester.pumpAndSettle();
+
+    final mushafView = find.byType(QuranPageView);
+    expect(mushafView, findsOneWidget);
+    expect(
+      find.ancestor(
+        of: mushafView,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Directionality &&
+              widget.textDirection == TextDirection.rtl,
+        ),
+      ),
+      findsOneWidget,
+      reason: 'The Hafs Mushaf must stay RTL even when the app locale is LTR.',
+    );
 
     expect(find.text('المصحف المعتمد — حفص عن عاصم'), findsOneWidget);
     expect(find.byTooltip('القراءة النصية المحلية — تنزيل'), findsOneWidget);
