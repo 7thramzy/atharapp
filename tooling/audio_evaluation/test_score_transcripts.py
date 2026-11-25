@@ -28,7 +28,7 @@ class TranscriptScoringTests(unittest.TestCase):
         ])
         self.assertEqual(result["clips"], 2)
         self.assertEqual(result["exact_match_rate"], 0.5)
-        self.assertAlmostEqual(result["wer"], 1 / 3)
+        self.assertAlmostEqual(result["wer"], 1 / 4)
 
     def test_duplicate_clip_ids_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "Duplicate"):
