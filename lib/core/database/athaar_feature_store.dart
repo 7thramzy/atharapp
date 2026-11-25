@@ -358,8 +358,9 @@ class AthaarFeatureStore {
 
   Future<List<Map<String, Object?>>> listOfflineStudyPacks() async {
     final rows = await db.customSelect(
-      '''SELECT content_type, edition_key, surah_number, title, version,
-                license_notice, verse_count, downloaded_at
+      '''SELECT content_type, edition_key, surah_number, title, description,
+                language_code, direction, version, source_url, license_notice,
+                source_last_updated, verse_count, downloaded_at
          FROM quran_offline_study_packs
          ORDER BY content_type, edition_key, surah_number''',
     ).get();
@@ -368,6 +369,11 @@ class AthaarFeatureStore {
       'edition_key': row.read<String>('edition_key'),
       'surah_number': row.read<int>('surah_number'),
       'title': row.read<String>('title'),
+      'description': row.read<String>('description'),
+      'language_code': row.read<String>('language_code'),
+      'direction': row.read<String>('direction'),
+      'source_url': row.read<String>('source_url'),
+      'source_last_updated': row.readNullable<int>('source_last_updated'),
       'version': row.read<String>('version'),
       'license_notice': row.read<String>('license_notice'),
       'verse_count': row.read<int>('verse_count'),
@@ -384,9 +390,9 @@ class AthaarFeatureStore {
       '''DELETE FROM quran_offline_study_packs
          WHERE content_type = ? AND edition_key = ? AND surah_number = ?''',
       [
-        Variable.withString(contentType),
-        Variable.withString(editionKey),
-        Variable.withInt(surahNumber),
+        contentType,
+        editionKey,
+        surahNumber,
       ],
     );
   }
