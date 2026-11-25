@@ -435,7 +435,11 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: QuranPageView(
+                          child: Directionality(
+                            // The canonical QCF Hafs Mushaf remains RTL even
+                            // when the surrounding application UI is English.
+                            textDirection: TextDirection.rtl,
+                            child: QuranPageView(
                             pageController: _pageController!,
                             highlights: verseHighlights,
                             wordHighlights: wordHighlights,
@@ -449,6 +453,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                             pageBackgroundColor: isDark
                                 ? const Color(0xFF202529)
                                 : const Color(0xFFFFFCF4),
+                            ),
                           ),
                         ),
                         if (_loadingPage)
