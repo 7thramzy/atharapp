@@ -114,8 +114,10 @@ void main() {
       }) {
         expect(actual, isNotNull, reason: reason);
         expect(expected, isNotNull, reason: reason);
-        expect(actual!.surahNumber, expected!.surahNumber, reason: reason);
-        expect(actual.ayahNumber, expected.ayahNumber, reason: reason);
+        final actualPosition = actual!;
+        final expectedPosition = expected!;
+        expect(actualPosition.surahNumber, expectedPosition.surahNumber, reason: reason);
+        expect(actualPosition.ayahNumber, expectedPosition.ayahNumber, reason: reason);
       }
 
       HafsPageStart? nextAyah(HafsPageStart current) {
@@ -153,11 +155,12 @@ void main() {
             greaterThanOrEqualTo(previousPage),
             reason: 'QCF page order moved backwards at $surah:$ayah',
           );
+          final pageNumber = page!;
           firstAyahByPage.putIfAbsent(
-            page!,
+            pageNumber,
             () => HafsPageStart(surahNumber: surah, ayahNumber: ayah),
           );
-          previousPage = page;
+          previousPage = pageNumber;
           verifiedAyahs++;
         }
       }
@@ -177,18 +180,20 @@ void main() {
 
         expect(actualStart, isNotNull, reason: 'Page $page has no start coordinate');
         expect(actualEnd, isNotNull, reason: 'Page $page has no end coordinate');
+        final start = actualStart!;
+        final end = actualEnd!;
         expectSamePosition(
-          actualStart,
+          start,
           expectedStart,
           reason: 'Wrong start coordinate at page $page',
         );
         expect(
-          adapter.pageForAyah(actualStart.surahNumber, actualStart.ayahNumber),
+          adapter.pageForAyah(start.surahNumber, start.ayahNumber),
           page,
           reason: 'Page $page start does not map back to the same page',
         );
         expect(
-          adapter.pageForAyah(actualEnd!.surahNumber, actualEnd.ayahNumber),
+          adapter.pageForAyah(end.surahNumber, end.ayahNumber),
           page,
           reason: 'Page $page end does not map back to the same page',
         );
@@ -202,11 +207,11 @@ void main() {
         }
 
         expect(
-          actualEnd.ayahNumber,
-          lessThanOrEqualTo(ayahCounts[actualEnd.surahNumber - 1]),
+          end.ayahNumber,
+          lessThanOrEqualTo(ayahCounts[end.surahNumber - 1]),
           reason: 'Page $page ends beyond its Surah ayah count',
         );
-        previousEnd = actualEnd;
+        previousEnd = end;
       }
 
       expectSamePosition(
