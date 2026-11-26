@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:athaar/features/quran_study/data/quran_study_repository.dart';
 import 'package:athaar/features/quran_study/data/offline_recitation_storage.dart';
+import 'package:athaar/features/quran_study/data/offline_recitation_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:material_ui/material_ui.dart';
