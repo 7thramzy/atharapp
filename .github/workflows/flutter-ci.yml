@@ -458,21 +458,24 @@ jobs:
               throw "Tagged Windows release requires WINDOWS_SIGNING_PFX_BASE64 and WINDOWS_SIGNING_PFX_PASSWORD secrets."
             }
             [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:WINDOWS_SIGNING_PFX_BASE64))
-            $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
-            if (!$signtool) {
-              $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse -ErrorAction Stop |
+            $signtoolCommand = Get-Command signtool.exe -ErrorAction SilentlyContinue
+            if ($signtoolCommand) {
+              $signtoolPath = $signtoolCommand.Source
+            } else {
+              $signtoolFile = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse -ErrorAction Stop |
                 Where-Object { $_.FullName -match "\\x64\\signtool.exe$" } |
                 Sort-Object FullName -Descending |
                 Select-Object -First 1
+              if (!$signtoolFile) {
+                throw "Windows SDK signtool.exe was not found."
+              }
+              $signtoolPath = $signtoolFile.FullName
             }
-            if (!$signtool) {
-              throw "Windows SDK signtool.exe was not found."
-            }
-            & $signtool.Source sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $exe
+            & $signtoolPath sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $exe
             if ($LASTEXITCODE -ne 0) {
               throw "Signing the Athaar application executable failed."
             }
-            & $signtool.Source verify /pa $exe
+            & $signtoolPath verify /pa $exe
             if ($LASTEXITCODE -ne 0) {
               throw "The Athaar application executable signature did not verify."
             }
@@ -486,11 +489,11 @@ jobs:
           }
 
           if ($isTaggedRelease) {
-            & $signtool.Source sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $setupExe
+            & $signtoolPath sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $setupExe
             if ($LASTEXITCODE -ne 0) {
               throw "Signing the Athaar Windows installer failed."
             }
-            & $signtool.Source verify /pa $setupExe
+            & $signtoolPath verify /pa $setupExe
             if ($LASTEXITCODE -ne 0) {
               throw "The Athaar Windows installer signature did not verify."
             }
