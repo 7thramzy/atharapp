@@ -182,7 +182,8 @@ void main() {
               'code': 200,
               'status': 'OK',
               'data': {
-                'ayahs': [
+                'numberOfAyahs': 2,
+              'ayahs': [
                   {
                     'numberInSurah': 1,
                     'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
@@ -215,6 +216,7 @@ void main() {
         client: MockClient((request) async => http.Response(
           jsonEncode({
             'data': {
+              'numberOfAyahs': 1,
               'ayahs': [
                 {
                   'numberInSurah': 1,
