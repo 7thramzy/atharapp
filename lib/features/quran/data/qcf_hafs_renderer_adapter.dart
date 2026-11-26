@@ -39,6 +39,9 @@ abstract interface class HafsRendererAdapter {
   /// Returns the first surah/ayah on a one-based QCF Mushaf page.
   HafsPageStart? pageStart(int pageNumber);
 
+  /// Returns the last surah/ayah on a one-based QCF Mushaf page.
+  HafsPageStart? pageEnd(int pageNumber);
+
   /// Resolves a stored surah/ayah pair to its one-based Mushaf page.
   int? pageForAyah(int surahNumber, int ayahNumber);
 }
@@ -87,6 +90,31 @@ class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
     // retain the package's persistent disk cache.
     final loadFont = _isWeb ? _webPageFontLoader : _nativePageFontLoader;
     await Future.wait(pagesToLoad.map(loadFont));
+  }
+
+  @override
+  HafsPageStart? pageEnd(int pageNumber) {
+    if (pageNumber < 1 || pageNumber > totalPagesCount) {
+      return null;
+    }
+
+    final segments = getPageData(pageNumber);
+    if (segments.isEmpty) {
+      return null;
+    }
+
+    final last = segments.last;
+    if (last is! Map) {
+      return null;
+    }
+
+    final surah = int.tryParse('${last['surah']}');
+    final ayah = int.tryParse('${last['end']}');
+    if (surah == null || ayah == null) {
+      return null;
+    }
+
+    return HafsPageStart(surahNumber: surah, ayahNumber: ayah);
   }
 
   @override
