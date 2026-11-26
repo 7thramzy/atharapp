@@ -4,7 +4,6 @@ import 'package:athaar/core/localization/locale_controller.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -63,58 +62,15 @@ class SettingsScreen extends ConsumerWidget {
           _SectionCard(
             title: 'تنزيل التطبيق',
             icon: Icons.download_rounded,
-            child: Column(
-              children: [
-                _DownloadRow(
-                  icon: Icons.android_rounded,
-                  title: 'Android — نسخة اختبار',
-                  subtitle: 'APK تجريبية 0.2.1 · توقيع اختبار',
-                  onTap: () => _openDownload(
-                    context,
-                    'https://github.com/7thramzy/atharapp/releases/download/v0.2.1-test/Athaar-0.2.1-android-test.apk',
-                  ),
-                ),
-                const Divider(height: 1),
-                _DownloadRow(
-                  icon: Icons.window_rounded,
-                  title: 'Windows — مثبت تجريبي',
-                  subtitle: 'افتح سجل البناء ثم نزّل athaar-windows-installers · رابط مؤقت حتى 9 ديسمبر 2026',
-                  onTap: () => _openDownload(
-                    context,
-                    'https://github.com/7thramzy/atharapp/actions/runs/45697658826',
-                  ),
-                ),
-                const Divider(height: 1),
-                const _DownloadRow(
-                  icon: Icons.phone_iphone_rounded,
-                  title: 'iPhone و iPad',
-                  subtitle: 'غير منشور بعد؛ يتطلب توقيع Apple وتوزيع TestFlight أو App Store',
-                ),
-                const Divider(height: 1),
-                const _DownloadRow(
-                  icon: Icons.data_usage_rounded,
-                  title: 'النسخة الخفيفة',
-                  subtitle: 'لم تُبنَ نسخة خفيفة مستقلة أو تُختبر بعد',
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    'نسخ Android وWindows الحالية للاختبار فقط، وليست إصدارات متجر نهائية. لا تثبّت APK على جهاز يحتوي بيانات مهمة قبل أخذ نسخة احتياطية.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ],
+            child: const Text(
+              'روابط النسخ التجريبية أزيلت من واجهة المستخدم. ستظهر روابط Android وWindows وiPhone هنا بعد اعتماد ملفات إنتاج موقعة وثابتة.',
             ),
           ),
           const SizedBox(height: 14),
           _SettingsRow(icon: Icons.text_fields_rounded, title: 'الخط وحجم النص', onTap: () => _showInfo(context, 'إعدادات الخط', 'سيتم توفير التحكم بحجم الخط في تحديث لاحق.')),
           _SettingsRow(icon: Icons.notifications_none_rounded, title: 'الإشعارات', onTap: () => _showInfo(context, 'الإشعارات', 'إعدادات الإشعارات قيد الإعداد.')),
-          _SettingsRow(icon: Icons.verified_user_outlined, title: 'الخصوصية والأمان', onTap: () => _showInfo(context, 'الخصوصية والأمان', 'نحافظ على بياناتك محلياً ولا نشاركها مع أطراف ثالثة.')),
-          _SettingsRow(icon: Icons.info_outline_rounded, title: 'حول التطبيق', onTap: () => _showInfo(context, 'أثَر', 'رفيقك في القراءة والذكر والحفظ.')),
+          _SettingsRow(icon: Icons.verified_user_outlined, title: 'الخصوصية والأمان', onTap: () => _showInfo(context, 'معلومات البيانات', 'الملاحظات والإشارات والتقدم الشخصي تُحفظ محلياً. عند طلب التفسير أو الترجمة أو التلاوة، يتصل التطبيق بمزود الخدمة المعني لجلب المحتوى. سياسة الخصوصية التفصيلية مؤجلة، وستُضاف قبل النشر العام.')),
+          _SettingsRow(icon: Icons.info_outline_rounded, title: 'حول التطبيق والمصادر', onTap: () => context.push('/about')),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
@@ -125,7 +81,7 @@ class SettingsScreen extends ConsumerWidget {
             child: Row(children: [
               const Icon(Icons.shield_rounded, color: Color(0xFF28745B), size: 30),
               const SizedBox(width: 12),
-              Expanded(child: Text('خصوصيتك أولويتنا\nنحترم بياناتك ونحافظ على خصوصيتك',
+              Expanded(child: Text('أثَر — مصادر موثقة\nالنص القرآني المرجعي محفوظ دون تعديل',
                 style: TextStyle(color: colors.onSurface, height: 1.6, fontWeight: FontWeight.w600))),
             ]),
           ),
@@ -145,26 +101,6 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  static Future<void> _openDownload(BuildContext context, String url) async {
-    try {
-      final opened = await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
-      if (!opened && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذّر فتح رابط التنزيل')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذّر فتح رابط التنزيل')),
-        );
-      }
-    }
   }
 
   static Future<void> _showInfo(BuildContext context, String title, String message) =>
