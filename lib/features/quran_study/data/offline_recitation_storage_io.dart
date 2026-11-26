@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'quran_study_repository.dart';
-import 'offline_recitation_storage.dart';
+import 'offline_recitation_errors.dart';
 
 const bool isSupported = true;
 
