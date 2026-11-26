@@ -125,38 +125,6 @@ class _SectionCard extends StatelessWidget {
   );
 }
 
-class _DownloadRow extends StatelessWidget {
-  const _DownloadRow({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: Icon(
-      icon,
-      color: onTap == null
-          ? Theme.of(context).colorScheme.onSurfaceVariant
-          : AthaarColors.petrol,
-    ),
-    title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-    subtitle: Text(subtitle),
-    trailing: Icon(
-      onTap == null ? Icons.info_outline_rounded : Icons.open_in_new_rounded,
-      size: 20,
-    ),
-    onTap: onTap,
-  );
-}
-
 class _SettingsRow extends StatelessWidget {
   const _SettingsRow({required this.icon, required this.title, required this.onTap});
   final IconData icon; final String title; final VoidCallback onTap;
