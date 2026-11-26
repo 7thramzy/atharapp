@@ -1,3 +1,4 @@
+import 'package:athaar/features/about/presentation/about_screen.dart';
 import 'package:athaar/features/home/presentation/home_screen.dart';
 import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
 import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
@@ -71,6 +72,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/impact',
         name: 'impact',
         builder: (context, state) => const PersonalImpactScreen(),
+      ),
+      GoRoute(
+        path: '/about',
+        name: 'about',
+        builder: (context, state) => const AboutScreen(),
       ),
       GoRoute(
         path: '/settings',
