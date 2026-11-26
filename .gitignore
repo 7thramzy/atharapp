@@ -19,6 +19,7 @@ coverage/
 # Platform-specific generated/local files
 android/local.properties
 android/key.properties
+android/athaar-upload-keystore.base64
 android/.gradle/
 android/captures/
 ios/Flutter/Generated.xcconfig
