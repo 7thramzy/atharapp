@@ -134,6 +134,8 @@ class AthaarFeatureStore {
         .toList();
   }
 
+  Future<ReadingPosition?> getReadingPosition() => db.getReadingPosition();
+
   Future<void> saveReadingPosition(int surah, int ayah) =>
       db.saveReadingPosition(surahNumber: surah, ayahNumber: ayah);
 

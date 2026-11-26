@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 String _t(BuildContext context, String ar, String en) =>
     Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
@@ -116,6 +117,18 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.menu_book_rounded),
+                    title: const Text('فتح المصحف — رواية حفص'),
+                    subtitle: const Text(
+                      '604 صفحات · تجويد ملوّن · تظليل الكلمات',
+                    ),
+                    trailing: const Icon(Icons.chevron_left_rounded),
+                    onTap: () => context.push<void>('/quran/mushaf'),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _search,
                   onChanged: _find,
