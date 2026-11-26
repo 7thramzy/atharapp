@@ -136,6 +136,12 @@ class QuranStudyRepository {
     if (data is! Map || data['ayahs'] is! List) {
       throw const FormatException('AlQuran Cloud returned an invalid surah audio response.');
     }
+    final expectedAyahCount = _asInt(data['numberOfAyahs']);
+    if (expectedAyahCount == null ||
+        expectedAyahCount < 1 ||
+        expectedAyahCount > 286) {
+      throw const FormatException('The provider did not supply a valid surah ayah count.');
+    }
 
     final tracks = <QuranAudioTrack>[];
     for (final raw in data['ayahs'] as List) {
@@ -157,6 +163,12 @@ class QuranStudyRepository {
     }
 
     tracks.sort((left, right) => left.numberInSurah.compareTo(right.numberInSurah));
+    if (tracks.length != expectedAyahCount) {
+      throw FormatException(
+        'The provider returned ${tracks.length} tracks, but the surah requires '
+        '$expectedAyahCount ayahs.',
+      );
+    }
     if (tracks.isEmpty) {
       throw const FormatException('No audio tracks are available for this surah and reciter.');
     }
