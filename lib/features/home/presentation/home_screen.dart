@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('خصوصيتك أولويتنا', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF174E42))),
                   SizedBox(height: 3),
-                  Text('بياناتك آمنة ولا نشاركها مع أي طرف ثالث', style: TextStyle(fontSize: 12, color: Color(0xFF37665A))),
+                  Text('تُحفظ بيانات القراءة محلياً، وتتصل خدمات الدراسة بمصادرها عند طلبها', style: TextStyle(fontSize: 12, color: Color(0xFF37665A))),
                 ])),
               ]),
             ),
