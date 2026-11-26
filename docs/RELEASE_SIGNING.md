@@ -45,7 +45,7 @@ An unsigned simulator build is not a distributable iOS app. Before a signed IPA 
    - IOS_BUNDLE_ID
    - IOS_KEYCHAIN_PASSWORD
 
-The current CI iOS Simulator build is unsigned and is not an IPA. The signed iOS workflow still needs to be configured after the Apple team, bundle ID, certificate and profile are available.
+The ordinary CI iOS Simulator build is unsigned and is not an IPA. The new signed iOS workflow is gated on the Apple team, bundle ID, distribution certificate and provisioning profile secrets.
 
 ## Security requirements
 
