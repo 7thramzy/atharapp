@@ -1,6 +1,6 @@
 # Athaar content sources and licensing register
 
-**Last reviewed:** 2026-11-23  
+**Last reviewed:** 2026-11-27  
 **Purpose:** Record which religious text, tafsir, translation, font, layout, audio, and other content sources may be used in Athaar.
 
 This document is a conservative engineering decision register, not legal advice. A source is not cleared merely because it is publicly downloadable, appears in a permissively licensed repository, or is used by another Quran app.
@@ -50,7 +50,7 @@ Do not combine the Tanzil offline dataset with Quran Foundation data unless a se
 
 ## 2. Translations of meanings
 
-**Status: RESEARCH REQUIRED — NO TRANSLATION DATASET APPROVED YET.**
+**Status: APPROVED FOR ON-DEMAND API DISPLAY UNDER EACH EDITION'S CONDITIONS; NO OFFLINE TRANSLATION BUNDLE APPROVED.**
 
 - Every translation is a separate copyrighted edition with its own translator, publisher, rights holder, and license.
 - QUL can be used to discover translations, but its general repository MIT license does not automatically license translation contents.
@@ -59,11 +59,13 @@ Do not combine the Tanzil offline dataset with Quran Foundation data unless a se
 - Do not assume that a translation is public domain because the original translator died long ago; modern editing, translation, typesetting, digitization, and publisher rights may differ.
 - The UI must label translated content as a translation of meaning and display it in a separate layer from Arabic Quran text.
 
-A translation may be added only after the exact QUL/Quran Foundation/provider record, edition, license, attribution, and offline/commercial distribution terms are recorded.
+Current Athaar behavior is on-demand display through QuranEnc. The API catalogue supplies edition key, publisher title, language, version, description, direction and update metadata; these are shown with the ayah translation. The app does not bundle a translation database. Every edition remains subject to its own publisher terms. Do not add local storage or offline caching unless the exact edition's licence explicitly permits it.
 
 ## 3. Tafsir and Quranic commentary
 
-**Status: RESEARCH REQUIRED — NO TAfsir DATASET APPROVED YET.**
+**Status: ONE EXACT ARABIC EDITION APPROVED FOR VERBATIM ON-DEMAND DISPLAY; OTHER EDITIONS REMAIN RESEARCH REQUIRED.**
+
+Selected in-app edition: **Al-Jami' Al-Wajiz fi Tafsir Ay al-Kitab al-Aziz**, authored by Sheikh Dr. Ayman Fathih Al-Amer, pinned to `spa5k/tafsir_api@v1.2.3`. The author's separate text licence is CC BY-ND 4.0. Athaar displays the selected ayah verbatim with author, source and licence attribution. No offline tafsir database is bundled or retained. The API repository's MIT software licence is not treated as a licence for third-party text.
 
 Potential discovery catalogue: https://qul.tarteel.ai/resources/tafsir
 
@@ -122,19 +124,16 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 ### AlQuran Cloud / Islamic Network CDN
 
-**Status: CONDITIONALLY APPROVED FOR USER-INITIATED STREAMING/EDUCATIONAL USE; NO PREPACKAGED AUDIO IN MVP.**
+**Status: CONDITIONALLY APPROVED FOR USER-INITIATED STREAMING AND PRIVATE OFFLINE LISTENING FOR PERSONAL/EDUCATIONAL USE.**
 
 - Terms: https://alquran.cloud/terms-and-conditions
-- The provider's terms say recitations are licensed to it by reciters or their estates for free, non-commercial redistribution at the published bitrates.
-- Streaming, embedding, and downloads are permitted for personal and educational use under the published terms.
-- The terms also say audio may be bundled into a commercial product, but copyright remains with the reciters and they may request removal.
-- Athaar may later include donations or other monetized features. Do not assume this automatically fits the provider's “personal and educational” language.
-- The first audio integration should be a provider adapter only; no MP3 files are shipped in the APK/AAB/IPA or stored in the Athaar repository.
-- Before production use, record the exact reciter/edition/bitrate and obtain clarification/permission where the app's donation or monetization model may affect the rights.
-- Show the reciter's name and provider credit wherever playback is available.
-- No re-hosting, mirroring, editing, remixing, or training on the recording.
-- Add a takedown/switch-off mechanism so a specific reciter edition can be disabled without an app-wide release.
-- Offline download/caching is disabled in the MVP until the reciter-level scope, app use, cache duration, and withdrawal rules are recorded.
+- CDN documentation: https://alquran.cloud/cdn
+- The provider permits streaming, embedding and downloading for personal and educational use. Recordings remain copyrighted by their reciters/rightsholders, who may request removal.
+- Athaar now supports user-initiated streaming and whole-surah downloads. Native builds store requested tracks only in the app-private support directory; playback checks local storage first, then streams the selected ayah when needed.
+- Users can delete saved audio. Interrupted downloads retain completed tracks for resumption; incomplete temporary files are discarded.
+- No audio file is bundled in the app, uploaded, shared, exported, re-hosted, mirrored, remixed, or used for AI/ML training/evaluation.
+- Display the selected reciter, edition identifier and AlQuran Cloud / Islamic Network attribution. Disable a reciter/edition when access is withdrawn or requested by the rights holder.
+- Re-check the provider's current terms and the exact reciter edition before launch. Do not assume personal/educational rights extend to subscriptions, advertising, commercial redistribution or monetized access.
 
 ### EveryAyah
 
@@ -163,7 +162,7 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 ## 8. Source attribution inside Athaar
 
-Add a “Sources and licenses” screen before the first public release. It must display, for every shipped content asset:
+The in-app “حول التطبيق والمصادر” screen is implemented. Before public release, verify its links, source metadata and wording against the exact versions being shipped. It must display, for every shipped content asset:
 
 - Source/provider name.
 - Author, translator, reciter, or rights holder where known.
@@ -172,7 +171,7 @@ Add a “Sources and licenses” screen before the first public release. It must
 - Required copyright notice and attribution.
 - Any meaningful use limitation.
 
-Attribution strings must come from the approved content manifest, not be hard-coded ad hoc across screens.
+Attribution strings should be sourced from the reviewed register/content manifest wherever possible; do not improvise credit wording or claim that Athaar owns the materials.
 
 ## 9. Content approval record
 
