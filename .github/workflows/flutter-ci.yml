@@ -7,6 +7,8 @@ on:
       - main
       - "agent/**"
       - "design/**"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -209,6 +211,18 @@ jobs:
       - name: Build arm64 test-release APK
         run: flutter build apk --release --target-platform android-arm64
 
+      - name: Verify INTERNET permission in merged Android release manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          MANIFEST="$(find build/app/intermediates -type f -name AndroidManifest.xml | grep -E '/merged_manifests?/release/' | head -n 1 || true)"
+          if [[ -z "$MANIFEST" ]]; then
+            echo "Merged Android release manifest was not found." >&2
+            find build/app/intermediates -type f -name AndroidManifest.xml -print >&2
+            exit 1
+          fi
+          grep -F 'android.permission.INTERNET' "$MANIFEST"
+
       - name: Verify Android arm64 test-release APK signature
         shell: bash
         run: |
@@ -235,6 +249,87 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+
+  android-production-release:
+    name: Signed Android production release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [quality, acquire-quran-source]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout tagged release
+        uses: actions/checkout@v4
+      - name: Download official Quran source
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage Quran source
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Generate Android project and code
+        run: |
+          bash tooling/bootstrap_mobile_platforms.sh
+          flutter pub get
+          dart run build_runner build
+      - name: Configure protected Android upload key
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${ANDROID_KEYSTORE_BASE64:?Missing ANDROID_KEYSTORE_BASE64 secret}"
+          : "${ANDROID_STORE_PASSWORD:?Missing ANDROID_STORE_PASSWORD secret}"
+          : "${ANDROID_KEY_ALIAS:?Missing ANDROID_KEY_ALIAS secret}"
+          : "${ANDROID_KEY_PASSWORD:?Missing ANDROID_KEY_PASSWORD secret}"
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          test -s android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
+      - name: Build production Android App Bundle and universal APK
+        run: |
+          flutter build appbundle --release
+          flutter build apk --release
+      - name: Verify production signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -s "$APK"
+          test -s "$AAB"
+          test -x "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          jarsigner -verify -verbose -certs "$AAB"
+          sha256sum "$APK" "$AAB"
+      - name: Upload signed Android production outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-android-production-${{ github.ref_name }}
+          path: |
+            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
 
   ios-build:
     name: iOS simulator build
