@@ -8,7 +8,7 @@
 
 ### Decision
 
-**CONDITIONALLY APPROVED in principle for an exact official digital asset; current asset acquisition is BLOCKED.** Do not bundle a font or Mushaf-layout asset until the exact file, official rights statement, version, and checksum have been captured.
+**Official digital edition: approved for software use under the published grant. qcf_quran_plus embedded font/page asset mapping: pending verification.** Do not bundle a font or Mushaf-layout asset until the exact file, official rights statement, version, and checksum have been captured.
 
 ### Official source review
 
@@ -16,7 +16,7 @@
 - Official computer-fonts section: https://qurancomplex.gov.sa/ (navigate to “الخطوط الحاسوبية”).
 - Official digital developer-platform announcement: https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
 
-The official website describes Unicode computer fonts for Quranic text and lists a digital Quran developer platform intended for application/software development. However, the live official website currently labels the font and digital-service sections “قريباً” (coming soon); it does not expose a downloadable exact font file or a resource-specific license/notice in the reviewed page.
+The official KFGQPC digital developer platform announcement describes Unicode Quranic text and computer fonts for application/software development. Its current live page still marks the developer platform as “قريباً”. Separately, the official digital Hafs Madinah Mushaf page expressly permits use of that exact digital edition in computer programs, websites and digital publishing, free of charge in and outside Saudi Arabia. The published digital-edition asset on that page is an AI vector file with SHA-256 C2FA8D93A7C4F689B58EB32756E1AE56CD1B7CE4826F63E09723BE8B092224FB. Athaar has not downloaded or integrated that AI file. We have not yet verified that each embedded file in qcf_quran_plus 0.1.1 (HafsSmart_08.ttf, QCF4_BSML, arsura.ttf and the 604 files in qcf_tajweed) is byte-identical to, derived from, or separately covered by that specific official grant.
 
 ### Conditions before bundling
 
@@ -34,7 +34,8 @@ The official website describes Unicode computer fonts for Quranic text and lists
 |---|---|
 | Official KFGQPC site reviewed | PASS |
 | Official site identifies Quran computer-font resources | PASS |
-| Exact downloadable file identified and acquired | BLOCKED — official page currently says coming soon |
+| Exact official digital Hafs edition download identified | PASS — separate official AI vector edition is published with a checksum |
+| qcf_quran_plus embedded files matched to the official edition and covered by the grant | PENDING — no per-file provenance/rights manifest supplied by the package |
 | Exact file/version/hash recorded | PENDING |
 | Exact asset rights notice captured | PENDING |
 | App redistribution and commercial-use terms confirmed for exact file | PENDING |
