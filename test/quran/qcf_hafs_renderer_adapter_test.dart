@@ -107,6 +107,17 @@ void main() {
       expect(ayahCounts, hasLength(114));
       expect(ayahCounts.fold<int>(0, (sum, count) => sum + count), 6236);
 
+      void expectSamePosition(
+        HafsPageStart? actual,
+        HafsPageStart? expected, {
+        required String reason,
+      }) {
+        expect(actual, isNotNull, reason: reason);
+        expect(expected, isNotNull, reason: reason);
+        expect(actual!.surahNumber, expected!.surahNumber, reason: reason);
+        expect(actual.ayahNumber, expected.ayahNumber, reason: reason);
+      }
+
       HafsPageStart? nextAyah(HafsPageStart current) {
         final maxAyah = ayahCounts[current.surahNumber - 1];
         if (current.ayahNumber < maxAyah) {
@@ -166,8 +177,11 @@ void main() {
 
         expect(actualStart, isNotNull, reason: 'Page $page has no start coordinate');
         expect(actualEnd, isNotNull, reason: 'Page $page has no end coordinate');
-        expect(actualStart!.surahNumber, expectedStart.surahNumber, reason: 'Wrong start surah at page $page');
-        expect(actualStart.ayahNumber, expectedStart.ayahNumber, reason: 'Wrong start ayah at page $page');
+        expectSamePosition(
+          actualStart,
+          expectedStart,
+          reason: 'Wrong start coordinate at page $page',
+        );
         expect(
           adapter.pageForAyah(actualStart.surahNumber, actualStart.ayahNumber),
           page,
@@ -180,7 +194,7 @@ void main() {
         );
 
         if (previousEnd != null) {
-          expect(
+          expectSamePosition(
             actualStart,
             nextAyah(previousEnd),
             reason: 'Gap or overlap between the end of page ${page - 1} and page $page',
@@ -195,8 +209,16 @@ void main() {
         previousEnd = actualEnd;
       }
 
-      expect(adapter.pageStart(1), const HafsPageStart(surahNumber: 1, ayahNumber: 1));
-      expect(adapter.pageEnd(604), const HafsPageStart(surahNumber: 114, ayahNumber: 6));
+      expectSamePosition(
+        adapter.pageStart(1),
+        const HafsPageStart(surahNumber: 1, ayahNumber: 1),
+        reason: 'Mushaf must begin at Al-Fatiha 1:1',
+      );
+      expectSamePosition(
+        adapter.pageEnd(604),
+        const HafsPageStart(surahNumber: 114, ayahNumber: 6),
+        reason: 'Mushaf must end at An-Nas 114:6',
+      );
     });
 
   });
