@@ -101,7 +101,7 @@ class AboutScreen extends StatelessWidget {
             onPressed: () => showLicensePage(
               context: context,
               applicationName: 'Athaar',
-              applicationVersion: '0.2.0',
+              applicationVersion: '0.3.0',
             ),
             icon: const Icon(Icons.gavel_outlined),
             label: const Text('عرض جميع رخص المكتبات مفتوحة المصدر'),
