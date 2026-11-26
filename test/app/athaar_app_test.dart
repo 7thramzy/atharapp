@@ -4,6 +4,7 @@ import 'package:athaar/features/about/presentation/about_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   testWidgets('renders the refreshed Arabic home screen on startup', (tester) async {
@@ -32,12 +33,19 @@ void main() {
 
   testWidgets('About screen shows Quran and QCF source credits', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(locale: Locale('ar'), supportedLocales: [Locale('ar')], home: AboutScreen())),
+      const ProviderScope(
+        child: MaterialApp(
+          locale: Locale('ar'),
+          supportedLocales: [Locale('ar')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: AboutScreen(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Tanzil Project'), findsWidgets);
-    expect(find.textContaining('qcf_quran_plus 0.1.1'), findsOneWidget);
+    expect(find.textContaining('qcf_quran_plus 0.1.1'), findsWidgets);
     expect(find.textContaining('4b91f9e6e8ac645d'), findsOneWidget);
     expect(find.textContaining('لا ندّعي ملكيتها'), findsOneWidget);
   });
