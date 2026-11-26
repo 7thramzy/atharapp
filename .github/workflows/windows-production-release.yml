@@ -86,9 +86,9 @@ jobs:
           $env:ATHAAR_VC_REDIST = $redistPath
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (!(Test-Path $iscc)) { $iscc = (Get-Command iscc.exe -ErrorAction Stop).Source }
-          & $iscc "/DAppVersion=0.2.0" "tooling/windows/Athaar.iss"
+          & $iscc "/DAppVersion=0.3.0" "tooling/windows/Athaar.iss"
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
-          $installer = Join-Path $installerDir "Athaar-Setup-0.2.0.exe"
+          $installer = Join-Path $installerDir "Athaar-Setup-0.3.0.exe"
           if (!(Test-Path $installer)) { throw "Windows installer was not created." }
 
       - name: Sign application and installer
@@ -103,7 +103,7 @@ jobs:
           $installerDir = (Resolve-Path "build/windows/installer").Path
           $targets = @(
             (Join-Path $releaseDir "athaar.exe"),
-            (Join-Path $installerDir "Athaar-Setup-0.2.0.exe")
+            (Join-Path $installerDir "Athaar-Setup-0.3.0.exe")
           )
           foreach ($target in $targets) {
             if (!(Test-Path $target)) { throw "Missing expected signing target: $target" }
@@ -112,15 +112,15 @@ jobs:
             & $signtool verify /pa /v $target
             if ($LASTEXITCODE -ne 0) { throw "Signature verification failed: $target" }
           }
-          Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath (Join-Path $installerDir "Athaar-Windows-Portable-0.2.0.zip") -Force
+          Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath (Join-Path $installerDir "Athaar-Windows-Portable-0.3.0.zip") -Force
 
       - name: Upload signed Windows files
         uses: actions/upload-artifact@v4
         with:
           name: athaar-windows-production-signed
           path: |
-            build/windows/installer/Athaar-Setup-0.2.0.exe
-            build/windows/installer/Athaar-Windows-Portable-0.2.0.zip
+            build/windows/installer/Athaar-Setup-0.3.0.exe
+            build/windows/installer/Athaar-Windows-Portable-0.3.0.zip
           if-no-files-found: error
           retention-days: 30
 
