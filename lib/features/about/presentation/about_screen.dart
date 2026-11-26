@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -25,7 +26,6 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isArabic = _isArabic(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(_text(context, 'حول أثَر والمصادر', 'About Athaar & sources')),
