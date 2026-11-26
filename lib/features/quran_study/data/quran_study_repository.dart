@@ -172,15 +172,18 @@ class QuranStudyRepository {
   }
 
   static void _validateAudioEdition(String edition) {
-    if (!RegExp(r'^[A-Za-z0-9._-]+
+    if (!RegExp(r'^[A-Za-z0-9._-]+$').hasMatch(edition)) {
+      throw ArgumentError.value(edition, 'edition');
+    }
+  }
+
+  Future<Uri> getAyahAudioUri({
     required int surah,
     required int ayah,
     required String edition,
   }) async {
     _validateAyah(surah, ayah);
-    if (edition.trim().isEmpty) {
-      throw ArgumentError.value(edition, 'edition');
-    }
+    _validateAudioEdition(edition);
     final reference = '$surah:$ayah';
     final response = await _client.get(
       Uri.https(_audioHost, '/v1/ayah/$reference/$edition'),
@@ -196,7 +199,9 @@ class QuranStudyRepository {
       throw const FormatException('No audio is available for this ayah and reciter.');
     }
     final uri = Uri.tryParse(audio);
-    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != 'cdn.islamic.network') {
       throw const FormatException('The recitation source returned an unsafe audio URL.');
     }
     return uri;
