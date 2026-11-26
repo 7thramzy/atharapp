@@ -70,19 +70,21 @@ void main() {
           GoRoute(
             path: '/quran/text/:surah',
             builder: (context, state) => DownloadedQuranReaderScreen(
-              surahNumber:
-                  int.parse(state.pathParameters['surah'] ?? '2'),
-              initialAyahNumber:
-                  int.parse(state.uri.queryParameters['ayah'] ?? '1'),
+              surahNumber: int.parse(state.pathParameters['surah'] ?? '2'),
+              initialAyahNumber: int.parse(
+                state.uri.queryParameters['ayah'] ?? '1',
+              ),
             ),
           ),
           GoRoute(
             path: '/quran/mushaf',
             builder: (context, state) => HafsMushafScreen(
-              initialSurahNumber:
-                  int.tryParse(state.uri.queryParameters['surah'] ?? ''),
-              initialAyahNumber:
-                  int.tryParse(state.uri.queryParameters['ayah'] ?? ''),
+              initialSurahNumber: int.tryParse(
+                state.uri.queryParameters['surah'] ?? '',
+              ),
+              initialAyahNumber: int.tryParse(
+                state.uri.queryParameters['ayah'] ?? '',
+              ),
             ),
           ),
         ],
@@ -103,15 +105,11 @@ void main() {
       expect(find.text('آية 2'), findsOneWidget);
       expect(find.text('موضع القراءة'), findsOneWidget);
 
-      await tester.tap(
-        find.byTooltip('المصحف المعتمد — حفص عن عاصم').first,
-      );
+      await tester.tap(find.byTooltip('المصحف المعتمد — حفص عن عاصم').first);
       await tester.pumpAndSettle();
 
       expect(find.text('المصحف المعتمد — حفص عن عاصم'), findsOneWidget);
-      final pageView = tester.widget<QuranPageView>(
-        find.byType(QuranPageView),
-      );
+      final pageView = tester.widget<QuranPageView>(find.byType(QuranPageView));
       expect(pageView.highlights, hasLength(1));
       expect(pageView.highlights.single.surah, 2);
       expect(pageView.highlights.single.verseNumber, 2);
@@ -146,10 +144,10 @@ void main() {
           GoRoute(
             path: '/quran/text/:surah',
             builder: (context, state) => DownloadedQuranReaderScreen(
-              surahNumber:
-                  int.parse(state.pathParameters['surah'] ?? '2'),
-              initialAyahNumber:
-                  int.parse(state.uri.queryParameters['ayah'] ?? '1'),
+              surahNumber: int.parse(state.pathParameters['surah'] ?? '2'),
+              initialAyahNumber: int.parse(
+                state.uri.queryParameters['ayah'] ?? '1',
+              ),
             ),
           ),
         ],
@@ -167,16 +165,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final pageView = tester.widget<QuranPageView>(
-        find.byType(QuranPageView),
-      );
+      final pageView = tester.widget<QuranPageView>(find.byType(QuranPageView));
       expect(pageView.highlights, hasLength(1));
       expect(pageView.highlights.single.surah, 2);
       expect(pageView.highlights.single.verseNumber, 2);
 
-      await tester.tap(
-        find.byTooltip('القراءة النصية المحلية — تنزيل'),
-      );
+      await tester.tap(find.byTooltip('القراءة النصية المحلية — تنزيل'));
       await tester.pumpAndSettle();
 
       expect(find.text('آية 2'), findsOneWidget);

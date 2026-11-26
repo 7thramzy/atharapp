@@ -19,8 +19,7 @@ class QcfWebFontLoader {
       'packages/qcf_quran_plus/assets/fonts/qcf_tajweed';
 
   static final Set<int> _loadedPages = <int>{};
-  static final Map<int, Future<void>> _loadingTasks =
-      <int, Future<void>>{};
+  static final Map<int, Future<void>> _loadingTasks = <int, Future<void>>{};
 
   static Future<void> ensureFontLoaded(int pageNumber) {
     if (pageNumber < 1 || pageNumber > totalPagesCount) {
@@ -45,9 +44,7 @@ class QcfWebFontLoader {
 
   static Future<void> _loadPageFont(int pageNumber) async {
     final baseFamily = QcfFontLoader.getBaseFontFamily(pageNumber);
-    final asset = await rootBundle.load(
-      '$_assetDirectory/$baseFamily.ttf.gz',
-    );
+    final asset = await rootBundle.load('$_assetDirectory/$baseFamily.ttf.gz');
     final compressedBytes = asset.buffer.asUint8List(
       asset.offsetInBytes,
       asset.lengthInBytes,
@@ -84,14 +81,9 @@ class QcfWebFontLoader {
     );
   }
 
-  static Future<void> _registerFont(
-    Uint8List fontBytes,
-    String family,
-  ) async {
+  static Future<void> _registerFont(Uint8List fontBytes, String family) async {
     final loader = FontLoader(family);
-    loader.addFont(
-      Future<ByteData>.value(ByteData.sublistView(fontBytes)),
-    );
+    loader.addFont(Future<ByteData>.value(ByteData.sublistView(fontBytes)));
     await loader.load();
   }
 
@@ -133,8 +125,7 @@ class QcfWebFontLoader {
     }
 
     final colorRecordCount = data.getUint16(tableOffset + 6, Endian.big);
-    final firstColorRecordOffset =
-        data.getUint32(tableOffset + 8, Endian.big);
+    final firstColorRecordOffset = data.getUint32(tableOffset + 8, Endian.big);
     final colorDataStart = tableOffset + firstColorRecordOffset;
     final colorDataEnd = colorDataStart + colorRecordCount * 4;
     if (colorDataStart < tableOffset ||

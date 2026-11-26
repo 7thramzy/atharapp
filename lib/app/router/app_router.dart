@@ -37,21 +37,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'text/:surah',
             name: 'quran-downloaded-text',
             builder: (context, state) => DownloadedQuranReaderScreen(
-              surahNumber: int.tryParse(
-                    state.pathParameters['surah'] ?? '',
-                  ) ??
-                  1,
-              initialAyahNumber: int.tryParse(
-                    state.uri.queryParameters['ayah'] ?? '',
-                  ) ??
-                  1,
+              surahNumber:
+                  int.tryParse(state.pathParameters['surah'] ?? '') ?? 1,
+              initialAyahNumber:
+                  int.tryParse(state.uri.queryParameters['ayah'] ?? '') ?? 1,
             ),
           ),
           GoRoute(
             path: 'study/:surah/:ayah',
             name: 'quran-study-ayah',
             builder: (context, state) => QuranStudyScreen(
-              surahNumber: int.tryParse(state.pathParameters['surah'] ?? '') ?? 1,
+              surahNumber:
+                  int.tryParse(state.pathParameters['surah'] ?? '') ?? 1,
               ayahNumber: int.tryParse(state.pathParameters['ayah'] ?? '') ?? 1,
             ),
           ),

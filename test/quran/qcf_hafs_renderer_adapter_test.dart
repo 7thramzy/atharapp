@@ -3,20 +3,23 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('QCF font platform routing', () {
-    test('uses the browser memory loader for the current and next page', () async {
-      final webPages = <int>[];
-      final nativePages = <int>[];
-      final adapter = QcfQuranPlusHafsRendererAdapter(
-        isWebOverride: true,
-        webPageFontLoader: (page) async => webPages.add(page),
-        nativePageFontLoader: (page) async => nativePages.add(page),
-      );
+    test(
+      'uses the browser memory loader for the current and next page',
+      () async {
+        final webPages = <int>[];
+        final nativePages = <int>[];
+        final adapter = QcfQuranPlusHafsRendererAdapter(
+          isWebOverride: true,
+          webPageFontLoader: (page) async => webPages.add(page),
+          nativePageFontLoader: (page) async => nativePages.add(page),
+        );
 
-      await adapter.ensurePageFonts(12);
+        await adapter.ensurePageFonts(12);
 
-      expect(webPages, [12, 13]);
-      expect(nativePages, isEmpty);
-    });
+        expect(webPages, [12, 13]);
+        expect(nativePages, isEmpty);
+      },
+    );
 
     test('retains the package disk loader on native platforms', () async {
       final webPages = <int>[];
