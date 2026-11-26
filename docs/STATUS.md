@@ -69,7 +69,7 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - Verify the exact Tanzil Uthmani v1.1 file SHA-256 and required attribution notice before importing the text.
 - Complete independent review of adhkar sources before shipping a curated pre-populated catalog; user-entered entries remain explicitly unverified.
 - Implement and physically test user-scheduled local reminders.
-- Run CI on the latest main commit and complete Arabic RTL, accessibility, offline, and migration QA.
+- Complete Arabic RTL, accessibility, offline and migration QA on physical devices; run a final CI pass after the release-preparation PR is merged.
 
 
 ## Public release integration snapshot (2026-11-27)
