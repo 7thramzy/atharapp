@@ -24,7 +24,7 @@ void main() {
       final surah = ayah['surahNumber'] as int;
       final number = ayah['ayahNumber'] as int;
       final key = '$surah:$number';
-      expect(expectedPageByAyah.containsKey(key), isFalse, reason: 'Duplicate Tanzil reference ' + key);
+      expect(expectedPageByAyah.containsKey(key), isFalse, reason: 'Duplicate Tanzil reference $key');
       expectedPageByAyah[key] = ayah['pageNumber'] as int;
       canonicalTextByAyah[key] = ayah['textUthmani'] as String;
     }
@@ -33,7 +33,7 @@ void main() {
     var visited = 0;
     for (var page = 1; page <= 604; page++) {
       final sections = getPageData(page);
-      expect(sections, isNotEmpty, reason: 'QCF page ' + page.toString() + ' is empty');
+      expect(sections, isNotEmpty, reason: 'QCF page $page is empty');
 
       for (final rawSection in sections) {
         final section = Map<String, dynamic>.from(rawSection as Map);
@@ -41,29 +41,28 @@ void main() {
         final start = int.parse(section['start'].toString());
         final end = int.parse(section['end'].toString());
 
-        expect(surah, inInclusiveRange(1, 114), reason: 'Page ' + page.toString() + ' has invalid surah');
-        expect(start, greaterThanOrEqualTo(1), reason: 'Page ' + page.toString() + ' has invalid start');
-        expect(end, greaterThanOrEqualTo(start), reason: 'Page ' + page.toString() + ' has reversed range');
+        expect(surah, inInclusiveRange(1, 114), reason: 'Page $page has invalid surah');
+        expect(start, greaterThanOrEqualTo(1), reason: 'Page $page has invalid start');
+        expect(end, greaterThanOrEqualTo(start), reason: 'Page $page has reversed range');
 
         for (var number = start; number <= end; number++) {
           final key = '$surah:$number';
           expect(
             canonicalTextByAyah.containsKey(key),
             isTrue,
-            reason: 'QCF page ' + page.toString() + ' references an ayah absent from Tanzil: ' + key,
+            reason: 'QCF page $page references an ayah absent from Tanzil: $key',
           );
           expect(
             seen.add(key),
             isTrue,
-            reason: 'Ayah ' + key + ' appears more than once in the 604-page QCF map',
+            reason: 'Ayah $key appears more than once in the 604-page QCF map',
           );
           expect(
             expectedPageByAyah[key],
             page,
-            reason: 'Page mismatch for ' + key + ': QCF page ' + page.toString() +
-                ' vs Tanzil page ' + expectedPageByAyah[key].toString(),
+            reason: 'Page mismatch for $key: QCF page $page vs Tanzil page ${expectedPageByAyah[key]}',
           );
-          expect(canonicalTextByAyah[key]!.trim(), isNotEmpty, reason: 'Empty canonical ayah ' + key);
+          expect(canonicalTextByAyah[key]!.trim(), isNotEmpty, reason: 'Empty canonical ayah $key');
           visited++;
         }
       }
