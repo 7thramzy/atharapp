@@ -5,9 +5,18 @@ import 'package:athaar/features/quran/data/qcf_hafs_renderer_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:qcf_quran_plus/qcf_quran_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:athaar/features/quran/data/quran_reader_routes.dart';
 
 class HafsMushafScreen extends ConsumerStatefulWidget {
-  const HafsMushafScreen({super.key});
+  const HafsMushafScreen({
+    this.initialSurahNumber,
+    this.initialAyahNumber,
+    super.key,
+  });
+
+  final int? initialSurahNumber;
+  final int? initialAyahNumber;
 
   @override
   ConsumerState<HafsMushafScreen> createState() => _HafsMushafScreenState();
@@ -50,16 +59,37 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
       final adapter = ref.read(hafsRendererAdapterProvider);
       await adapter.initialize();
 
-      final savedPosition = await ref
-          .read(athaarFeatureStoreProvider)
-          .getReadingPosition();
-      final restoredPage = savedPosition == null
-          ? 1
+      final store = ref.read(athaarFeatureStoreProvider);
+      final savedPosition = await store.getReadingPosition();
+      final requestedSurah = widget.initialSurahNumber;
+      final requestedAyah = widget.initialAyahNumber ?? 1;
+      final requestedPage = requestedSurah == null
+          ? null
+          : adapter.pageForAyah(requestedSurah, requestedAyah);
+      final savedPage = savedPosition == null
+          ? null
           : adapter.pageForAyah(
-                  savedPosition.surahNumber,
-                  savedPosition.ayahNumber,
-                ) ??
-                1;
+              savedPosition.surahNumber,
+              savedPosition.ayahNumber,
+            );
+      final restoredPage = requestedPage ?? savedPage ?? 1;
+      final pageStart = adapter.pageStart(restoredPage);
+      final restoredPosition = requestedPage != null
+          ? _SelectedAyah(
+              surahNumber: requestedSurah!,
+              ayahNumber: requestedAyah,
+            )
+          : savedPosition != null && savedPage != null
+              ? _SelectedAyah(
+                  surahNumber: savedPosition.surahNumber,
+                  ayahNumber: savedPosition.ayahNumber,
+                )
+              : null;
+      final positionToPersist = restoredPosition ??
+          _SelectedAyah(
+            surahNumber: pageStart?.surahNumber ?? 1,
+            ayahNumber: pageStart?.ayahNumber ?? 1,
+          );
 
       final useTwoPageLayout = _isWide && _twoPageLayoutEnabled;
       final fontPage = adapter.firstVisiblePage(
@@ -68,7 +98,14 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
       );
       await adapter.ensurePageFonts(fontPage);
       if (!mounted) return;
+      await store.saveReadingPosition(
+        positionToPersist.surahNumber,
+        positionToPersist.ayahNumber,
+        readingMode: 'hafs_mushaf',
+      );
+      if (!mounted) return;
       _currentPage = restoredPage;
+      _selectedAyah = restoredPosition;
       _pageController = PageController(initialPage: restoredPage - 1);
       setState(() => _initializing = false);
     } catch (error) {
@@ -109,7 +146,11 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
       if (start != null) {
         await ref
             .read(athaarFeatureStoreProvider)
-            .saveReadingPosition(start.surahNumber, start.ayahNumber);
+            .saveReadingPosition(
+              start.surahNumber,
+              start.ayahNumber,
+              readingMode: 'hafs_mushaf',
+            );
       }
     } catch (error) {
       if (mounted && generation == _loadGeneration) {
@@ -136,6 +177,13 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
         word: rawWord,
       );
     });
+    unawaited(
+      ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+            surahNumber,
+            ayahNumber,
+            readingMode: 'hafs_mushaf',
+          ),
+    );
   }
 
   void _onVerseTap(int surahNumber, int ayahNumber) {
@@ -145,10 +193,44 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
         ayahNumber: ayahNumber,
       );
     });
+    unawaited(
+      ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+            surahNumber,
+            ayahNumber,
+            readingMode: 'hafs_mushaf',
+          ),
+    );
   }
 
   void _clearSelection() {
     setState(() => _selectedAyah = null);
+  }
+
+  Future<void> _openDownloadedText() async {
+    final adapter = ref.read(hafsRendererAdapterProvider);
+    final saved = await ref.read(athaarFeatureStoreProvider).getReadingPosition();
+    final pageStart = adapter.pageStart(_currentPage);
+    final surahNumber = _selectedAyah?.surahNumber ??
+        saved?.surahNumber ??
+        pageStart?.surahNumber ??
+        1;
+    final ayahNumber = _selectedAyah?.ayahNumber ??
+        saved?.ayahNumber ??
+        pageStart?.ayahNumber ??
+        1;
+
+    await ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+          surahNumber,
+          ayahNumber,
+          readingMode: 'hafs_mushaf',
+        );
+    if (!mounted) return;
+    await context.push<void>(
+      QuranReaderRoutes.downloadedText(
+        surahNumber: surahNumber,
+        ayahNumber: ayahNumber,
+      ),
+    );
   }
 
   Future<void> _bookmarkSelectedAyah() async {
@@ -242,11 +324,37 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
               backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
             ),
           ];
+    final selectedAyahPage = _selectedAyah == null
+        ? null
+        : ref.read(hafsRendererAdapterProvider).pageForAyah(
+            _selectedAyah!.surahNumber,
+            _selectedAyah!.ayahNumber,
+          );
+    final verseHighlights = _selectedAyah == null
+        ? const <HighlightVerse>[]
+        : [
+            HighlightVerse(
+              surah: _selectedAyah!.surahNumber,
+              verseNumber: _selectedAyah!.ayahNumber,
+              page: selectedAyahPage ?? _currentPage,
+              color: Theme.of(context)
+                  .colorScheme
+                  .secondaryContainer
+                  .withValues(alpha: 0.38),
+            ),
+          ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المصحف الشريف — حفص'),
+        title: const Text('المصحف المعتمد — حفص عن عاصم'),
         actions: [
+          IconButton(
+            tooltip: 'القراءة النصية المحلية — تنزيل',
+            onPressed: _initializing || _error != null
+                ? null
+                : _openDownloadedText,
+            icon: const Icon(Icons.article_outlined),
+          ),
           IconButton(
             tooltip: 'الانتقال إلى صفحة',
             onPressed: _initializing || _error != null ? null : _askForPage,
@@ -300,6 +408,10 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                               }
                             },
                           ),
+                        const Chip(
+                          avatar: Icon(Icons.verified_outlined, size: 18),
+                          label: Text('حفص عن عاصم · المعتمد داخل أثَر'),
+                        ),
                         Chip(
                           avatar: const Icon(
                             Icons.auto_stories_outlined,
@@ -314,15 +426,22 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                     _SelectedAyahPanel(
                       selection: _selectedAyah!,
                       onBookmark: _bookmarkSelectedAyah,
+                      onStudy: () => context.push<void>(
+                        '/quran/study/${_selectedAyah!.surahNumber}/${_selectedAyah!.ayahNumber}',
+                      ),
                       onClear: _clearSelection,
                     ),
                   Expanded(
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: QuranPageView(
+                          child: Directionality(
+                            // The canonical QCF Hafs Mushaf remains RTL even
+                            // when the surrounding application UI is English.
+                            textDirection: TextDirection.rtl,
+                            child: QuranPageView(
                             pageController: _pageController!,
-                            highlights: const [],
+                            highlights: verseHighlights,
                             wordHighlights: wordHighlights,
                             onWordTap: _onWordTap,
                             onLongPress: (surahNumber, ayahNumber, details) =>
@@ -334,6 +453,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                             pageBackgroundColor: isDark
                                 ? const Color(0xFF202529)
                                 : const Color(0xFFFFFCF4),
+                            ),
                           ),
                         ),
                         if (_loadingPage)
@@ -382,11 +502,13 @@ class _SelectedAyahPanel extends StatelessWidget {
   const _SelectedAyahPanel({
     required this.selection,
     required this.onBookmark,
+    required this.onStudy,
     required this.onClear,
   });
 
   final _SelectedAyah selection;
   final VoidCallback onBookmark;
+  final VoidCallback onStudy;
   final VoidCallback onClear;
 
   @override
@@ -414,6 +536,11 @@ class _SelectedAyahPanel extends StatelessWidget {
                   Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
+            ),
+            IconButton.filledTonal(
+              tooltip: 'التفسير والترجمة والتلاوة',
+              onPressed: onStudy,
+              icon: const Icon(Icons.menu_book_outlined),
             ),
             IconButton.filledTonal(
               tooltip: 'حفظ علامة للآية',

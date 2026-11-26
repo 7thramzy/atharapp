@@ -1,5 +1,5 @@
 name: Flutter CI
-# Browser preview is published only after quality checks pass.
+# CI builds and validates the browser preview; the linked Vercel project handles deployment.
 
 on:
   push:
@@ -125,6 +125,8 @@ jobs:
 
       - name: QCF reader and adapter tests
         run: flutter test test/quran --reporter expanded --timeout 60s
+      - name: Local Quran audio-evaluation metric tests
+        run: python -m unittest discover -s tooling/audio_evaluation -p 'test_*.py' -v
 
   android-build:
     name: Android debug and test-release builds
@@ -458,7 +460,7 @@ jobs:
   web-preview:
     name: Build browser preview artifact
     needs: [quality, acquire-quran-source]
-    if: github.ref == 'refs/heads/design/match-athaar-reference'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/design/match-athaar-reference' || github.ref == 'refs/heads/design/quran-study-multimedia'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -506,13 +508,14 @@ jobs:
           echo "48c950cd8e3bc3cddb34816c860e228be8832bef07a297c27e9907c057ff8162  web/drift_worker.js" | sha256sum --check
 
       - name: Build browser preview
-        run: flutter build web --release
+        run: flutter build web --release --base-href "/"
 
       - name: Verify browser runtime files
         run: |
           test -s build/web/index.html
           test -s build/web/sqlite3.wasm
           test -s build/web/drift_worker.js
+          grep -F '<base href="/">' build/web/index.html
 
       - name: Upload browser preview artifact
         uses: actions/upload-artifact@v4
