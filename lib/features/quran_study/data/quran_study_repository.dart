@@ -363,60 +363,7 @@ int? _asInt(Object? value) {
   if (value is int) return value;
   return int.tryParse(value?.toString() ?? '');
 }
-).hasMatch(edition)) {
-      throw ArgumentError.value(edition, 'edition');
-    }
-  }
 
-  Future<Uri> getAyahAudioUri({
-    required int surah,
-    required int ayah,
-    required String edition,
-  }) async {
-    _validateAyah(surah, ayah);
-    if (edition.trim().isEmpty) {
-      throw ArgumentError.value(edition, 'edition');
-    }
-    final reference = '$surah:$ayah';
-    final response = await _client.get(
-      Uri.https(_audioHost, '/v1/ayah/$reference/$edition'),
-      headers: const {'Accept': 'application/json'},
-    );
-    final decoded = _decodeMap(response, 'recitation audio');
-    final data = decoded['data'];
-    if (data is! Map) {
-      throw const FormatException('AlQuran Cloud returned an invalid audio response.');
-    }
-    final audio = data['audio'] ?? data['url'];
-    if (audio is! String || audio.isEmpty) {
-      throw const FormatException('No audio is available for this ayah and reciter.');
-    }
-    final uri = Uri.tryParse(audio);
-    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
-      throw const FormatException('The recitation source returned an unsafe audio URL.');
-    }
-    return uri;
-  }
-
-  Map<String, dynamic> _decodeMap(http.Response response, String label) {
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw QuranStudyException(
-        '$label request failed (HTTP ${response.statusCode}).',
-      );
-    }
-    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-    if (decoded is! Map) {
-      throw FormatException('Invalid $label response.');
-    }
-    return Map<String, dynamic>.from(decoded);
-  }
-
-  static void _validateAyah(int surah, int ayah) {
-    if (surah < 1 || surah > 114 || ayah < 1 || ayah > 286) {
-      throw RangeError('Invalid Quran reference $surah:$ayah.');
-    }
-  }
-}
 
 class QuranTranslationEdition {
   const QuranTranslationEdition({
