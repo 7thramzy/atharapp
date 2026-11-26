@@ -6,7 +6,7 @@ class AboutScreen extends StatelessWidget {
 
   static const _tanzilUrl = 'https://tanzil.net/docs/Text_License';
   static const _qcfUrl = 'https://github.com/hussein12347/qcf_quran_plus';
-  static const _kfgqpcUrl = 'https://qurancomplex.gov.sa/';
+  static const _kfgqpcUrl = 'https://qurancomplex.gov.sa/mushaf-printing';
   static const _tafsirUrl = 'https://github.com/yamanamr/quran-tafsir-jami-wajiz/blob/main/LICENSE';
   static const _quranEncUrl = 'https://quranenc.com/en/home/about/conditions';
   static const _audioTermsUrl = 'https://alquran.cloud/terms-and-conditions';
@@ -50,12 +50,12 @@ class AboutScreen extends StatelessWidget {
           ),
           _SourceCard(
             title: 'عرض المصحف — qcf_quran_plus 0.1.1',
-            status: 'الكود MIT؛ حقوق الأصول المرفقة تحتاج إثباتاً مستقلاً',
+            status: 'المجمع يجيز استخدام نسخته الرقمية في البرمجيات؛ مطابقة أصول الحزمة تحتاج إثباتاً',
             statusColor: Colors.orange,
             description:
-                'تستخدم أثَر الحزمة لعرض مصحف حفص ذي الصفحات الـ604 والخطوط/بيانات التخطيط المرفقة. رخصة MIT تخص كود الحزمة ولا تمنح تلقائياً حقوق إعادة توزيع كل خط أو بيانات صفحات أو أصول طرف ثالث. لذلك نذكر الحزمة ومصدرها صراحةً، ولا نزعم أن جميع أصول QCF حصلت على موافقة توزيع نهائية قبل توثيق الملف الدقيق والجهة المالكة وشروطها. يظل نص Tanzil هو المرجع العربي المستقل ولا يُعدّل بواسطة محرك العرض.',
+                'تستخدم أثَر الحزمة qcf_quran_plus 0.1.1 لعرض مصحف حفص ذي الصفحات الـ604. يعلن مجمع الملك فهد رسمياً إتاحة نسخته الرقمية برواية حفص للاستخدام في البرامج الحاسوبية والنشر الرقمي، مجاناً وداخل المملكة وخارجها. هذا الإذن يخص النسخة الرقمية الصادرة من المجمع؛ أما ملفات الخطوط وبيانات الصفحات المرفقة داخل إصدار الحزمة فيجب مطابقة مصدرها ونسختها مع الأصول الرسمية قبل الجزم بأنها هي نفسها المشمولة بالإذن. رخصة MIT تخص كود الحزمة ولا تمنح وحدها حقوق الأصول. نعرض هذه الحدود بوضوح ولا ننسب الحزمة إلى المجمع على أنها حزمة رسمية. يظل نص Tanzil هو المرجع العربي المستقل ولا يُعدّل بواسطة محرك العرض.',
             attribution:
-                'qcf_quran_plus 0.1.1 · مستودع الحزمة · مرجع الجهة الرسمية KFGQPC',
+                'qcf_quran_plus 0.1.1 · مستودع المطوّر · إذن المجمع للنسخة الرقمية الرسمية',
             onOpen: () => _open(context, _qcfUrl),
             secondaryUrl: _kfgqpcUrl,
             secondaryLabel: 'الموقع الرسمي لمجمع الملك فهد',
