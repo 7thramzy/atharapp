@@ -32,6 +32,11 @@ class _NavigationHafsAdapter implements HafsRendererAdapter {
   }
 
   @override
+  HafsPageStart? pageEnd(int pageNumber) {
+    return const HafsPageStart(surahNumber: 2, ayahNumber: 2);
+  }
+
+  @override
   int? pageForAyah(int surahNumber, int ayahNumber) {
     if (surahNumber != 2 || ayahNumber < 1 || ayahNumber > 2) return null;
     return 12;
