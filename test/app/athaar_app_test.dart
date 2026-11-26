@@ -4,7 +4,7 @@ import 'package:athaar/features/about/presentation/about_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart' as flutter_l10n;
 
 void main() {
   testWidgets('renders the refreshed Arabic home screen on startup', (tester) async {
@@ -33,12 +33,12 @@ void main() {
 
   testWidgets('About screen shows Quran and QCF source credits', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
-          locale: Locale('ar'),
-          supportedLocales: [Locale('ar')],
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          home: AboutScreen(),
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('ar')],
+          localizationsDelegates: flutter_l10n.GlobalMaterialLocalizations.delegates,
+          home: const AboutScreen(),
         ),
       ),
     );
