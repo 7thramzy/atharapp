@@ -43,8 +43,9 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - QUL: discovery catalogue only; each translation/tafsir/font/audio item requires resource-level review.
 - Cairo UI font: OFL 1.1; exact file and notice still to be added.
 - KFGQPC Quran font/Mushaf resources: conditional on exact file and official digital-use notice.
-- Tafsir and translations: no exact dataset is approved yet.
-- Recitations: no MP3 bundle in MVP; provider/reciter rights tasks remain open.
+- Tafsir: the exact Al-Jami' Al-Wajiz v1.2.3 edition is displayed on demand and unchanged under CC BY-ND 4.0; no offline tafsir bundle.
+- Translations: QuranEnc editions are loaded on demand with edition metadata; no offline translation bundle.
+- Recitations: AlQuran Cloud online streaming and user-requested app-private offline surah downloads are implemented on the release branch; verify provider terms and physical-device behavior.
 
 
 ## QCF Hafs Mushaf integration (PR #16)
@@ -53,8 +54,8 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - Added the 604-page Hafs reader at `/quran/mushaf`, including page jump/navigation, Tajweed toggle, responsive two-page layout, word tap/highlighting, long-press ayah selection, Drift bookmarks, and last-reading-position restore.
 - Fonts are loaded page-by-page (current page + next page); the all-pages `setupFontsAtStartup` helper is not called.
 - CI run [45471585911](https://github.com/7thramzy/atharapp/actions/runs/45471585911) passed source acquisition, static analysis, all tests, Android debug build, unsigned iOS simulator build, Windows release/installer, and generated-source persistence.
-- Android debug APK measured **251,830,435 bytes (240.16 MiB)**. This is a large debug build; release packaging and size optimization review is still required.
-- Physical-device visual QA and full 604-page mapping verification are not yet complete. The integration is on PR #16 and has not been merged to main.
+- Android debug APK measured **251,830,435 bytes (240.16 MiB)**. The ARM64 release-mode test APK was 91.58 MiB; production app bundle size and optimization still require review.
+- Physical-device visual QA and full 604-page mapping verification remain release gates. The reader is merged to main through PR #16.
 
 ## Active GitHub work
 
