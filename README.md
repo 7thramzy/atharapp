@@ -23,7 +23,7 @@ Drift is the only persistence layer in the initial implementation. Supabase rema
 
 ## Current implementation
 
-M1 is merged to main. M2/M3 now include the offline Quran reader foundation (waiting for the verified Tanzil payload), ayah search/bookmarks/notes, personal adhkar counters, memorization sessions, and a private activity summary. See the implementation notes for remaining content and device-QA gates.
+M1 is merged to main. M2/M3 include the offline Tanzil Quran text reader, ayah search/bookmarks/notes, personal adhkar counters, memorization sessions, and a private activity summary. The QCF Hafs Mushaf, updated interface, ayah study, tafsir, translations and online recitation are merged to main. Offline recitation downloads and public-release signing are being verified on the release-preparation branch. See the implementation notes for remaining content and device-QA gates.
 
 - [M1 implementation notes](docs/engineering/M1_IMPLEMENTATION.md)
 - [M2/M3 implementation notes](docs/engineering/M2_M3_IMPLEMENTATION.md)
@@ -54,7 +54,7 @@ The first Codespaces setup creates android/, ios/, and .metadata if they are not
 - **Quran script font:** KFGQPC official digital resources, subject to exact-file and rights-notice recording.
 - **UI font:** Cairo under SIL OFL 1.1; the exact binary and OFL notice are not bundled yet.
 - **Tafsir and translations:** QUL is a resource catalogue; every exact item needs an individual license review.
-- **Recitations:** no prepackaged MP3 in MVP; each reciter/provider's rights must be reviewed.
+- **Recitations:** user-requested downloads are stored only in private app storage for offline listening under the provider's personal/educational terms; no app-bundled MP3s, uploads, re-hosting or exports. Each reciter/edition can be disabled if rights are withdrawn.
 
 See [Content sources](docs/CONTENT_SOURCES.md). Do not add religious content assets without an approved source record.
 
