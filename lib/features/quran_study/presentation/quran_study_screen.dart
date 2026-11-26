@@ -211,6 +211,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         _selectedReciter = selected;
         _loadingReciters = false;
       });
+      if (selected != null) {
+        unawaited(_refreshOfflineAudioCount(edition: selected.identifier));
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -597,6 +600,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 _audioError = null;
               });
               unawaited(_audioPlayer.stop());
+              unawaited(_refreshOfflineAudioCount(edition: item.identifier));
             },
           ),
         const SizedBox(height: 14),
