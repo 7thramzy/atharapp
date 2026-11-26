@@ -172,6 +172,71 @@ void main() {
       expect(uri.host, 'cdn.islamic.network');
     });
 
+    test('returns every validated audio track for an offline surah download', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          expect(request.url.host, 'api.alquran.cloud');
+          expect(request.url.path, '/v1/surah/1/ar.husary');
+          return http.Response(
+            jsonEncode({
+              'code': 200,
+              'status': 'OK',
+              'data': {
+                'ayahs': [
+                  {
+                    'numberInSurah': 1,
+                    'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
+                  },
+                  {
+                    'numberInSurah': 2,
+                    'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/2.mp3',
+                  },
+                ],
+              },
+            }),
+            200,
+          );
+        }),
+      );
+      addTearDown(repository.close);
+
+      final tracks = await repository.getSurahAudioTracks(
+        surah: 1,
+        edition: 'ar.husary',
+      );
+
+      expect(tracks, hasLength(2));
+      expect(tracks.map((track) => track.numberInSurah), [1, 2]);
+      expect(tracks.every((track) => track.uri.scheme == 'https'), isTrue);
+    });
+
+    test('rejects incomplete or untrusted surah audio track maps', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async => http.Response(
+          jsonEncode({
+            'data': {
+              'ayahs': [
+                {
+                  'numberInSurah': 1,
+                  'audio': 'https://example.com/not-the-provider.mp3',
+                },
+              ],
+            },
+          }),
+          200,
+        )),
+      );
+      addTearDown(repository.close);
+
+      expect(
+        () => repository.getSurahAudioTracks(
+          surah: 1,
+          edition: 'ar.husary',
+        ),
+        throwsFormatException,
+      );
+    });
+
     test('rejects invalid Quran references before sending a request', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
