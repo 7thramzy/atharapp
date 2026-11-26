@@ -10,6 +10,13 @@ permissions:
   contents: read
 
 jobs:
+  skip-non-production:
+    if: github.ref != 'refs/heads/main' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain that production signing is manual and main-only
+        run: echo "No production signing was requested. Run this workflow manually from main after configuring the production secrets."
+
   signed-release:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     environment: production
