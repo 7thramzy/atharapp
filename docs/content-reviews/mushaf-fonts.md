@@ -1,6 +1,6 @@
 # Quran and UI font rights dossier
 
-**Review date:** 2026-11-24  
+**Review date:** 2026-11-27  
 **GitHub issue:** #2  
 **Scope:** Official KFGQPC Quran-font resources and Cairo UI font. No font binaries were downloaded or committed in this task.
 
@@ -83,6 +83,32 @@ The upstream project states that the font software is licensed under SIL OFL 1.1
 | Exact binary acquired and hashed | PENDING |
 | Full license/notice copied into Athaar | PENDING |
 | Flutter integration and device rendering QA | NOT RUN |
+
+## 3. Pinned QCF renderer package — qcf_quran_plus 0.1.1
+
+### Exact package record
+
+- Package: `qcf_quran_plus` version `0.1.1`.
+- Pub.dev: https://pub.dev/packages/qcf_quran_plus
+- Source repository: https://github.com/hussein12347/qcf_quran_plus
+- The repository's `pubspec.yaml` declares the font assets under `assets/fonts/` and `assets/fonts/qcf_tajweed/`.
+- The package README describes the renderer as powered by the official QCF/Hafs font and its MIT licence covers the package's software.
+- The package uploader is marked **unverified** by pub.dev.
+
+### Rights decision
+
+**CODE: MIT. EMBEDDED QCF FONT/PAGE DATA: NOT CLEARED FOR ATHAAR PUBLIC REDISTRIBUTION UNTIL THE ASSET-SPECIFIC NOTICE OR PERMISSION IS OBTAINED.**
+
+The MIT file in the package repository is a software licence. It does not, by itself, establish that the individual page fonts, surah-header fonts, page/glyph data, or other third-party assets may be redistributed in a public application. The package identifies its source as official QCF but does not provide a separately verified per-file rights schedule in the records examined for Athaar.
+
+### Required release gate
+
+1. Obtain from the package maintainer and/or KFGQPC the exact written licence/permission covering the font files and page data packaged by version 0.1.1, including mobile/desktop distribution and any limits on commercial use.
+2. Record each asset family, source, version, licence/permission, attribution, and SHA-256; retain the original rights notice in the repository and About screen.
+3. If rights cannot be confirmed, do not distribute this package's QCF assets in the public app. Replace the renderer/font set with an alternative whose exact page fonts and layout data have documented redistribution rights, or ship the independently approved Tanzil Arabic text reader without the unresolved QCF bundle.
+4. Do not infer rights from a logo, package description, public availability, the MIT software licence, or permission to use a digital Mushaf in general.
+
+**Current disposition:** the code may remain in the release-candidate branch for engineering validation. The QCF binary assets remain a hard public-distribution gate until the exact grant is documented.
 
 ## Overall font decision
 
