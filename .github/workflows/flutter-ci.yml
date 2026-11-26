@@ -8,6 +8,10 @@ on:
       - "agent/**"
       - "design/**"
       - "release/**"
+  pull_request:
+    branches:
+      - main
+      - "design/quran-study-multimedia"
   workflow_dispatch:
 
 permissions:
