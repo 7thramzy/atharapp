@@ -30,6 +30,11 @@ class _FakeHafsAdapter implements HafsRendererAdapter {
   }
 
   @override
+  HafsPageStart? pageEnd(int pageNumber) {
+    return const HafsPageStart(surahNumber: 1, ayahNumber: 7);
+  }
+
+  @override
   int? pageForAyah(int surahNumber, int ayahNumber) => 1;
 }
 
