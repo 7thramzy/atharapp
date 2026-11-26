@@ -26,13 +26,13 @@ void main() {
     expect(find.textContaining('رابط تنزيل'), findsNothing);
     expect(find.text('iPhone و iPad'), findsOneWidget);
     expect(find.text('النسخة الخفيفة'), findsOneWidget);
-    expect(find.textContaining('غير منشور بعد'), findsOneWidget);
+    expect(find.textContaining('غير منشور بعد'), findsNothing);
     expect(find.textContaining('لم تُبنَ أو تُختبر بعد'), findsOneWidget);
   });
 
   testWidgets('About screen shows Quran and QCF source credits', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: AboutScreen())),
+      const ProviderScope(child: MaterialApp(locale: Locale('ar'), supportedLocales: [Locale('ar')], home: AboutScreen())),
     );
     await tester.pumpAndSettle();
 
