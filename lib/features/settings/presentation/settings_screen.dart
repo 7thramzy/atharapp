@@ -110,7 +110,7 @@ class SettingsScreen extends ConsumerWidget {
             child: Row(children: [
               const Icon(Icons.shield_rounded, color: Color(0xFF28745B), size: 30),
               const SizedBox(width: 12),
-              Expanded(child: Text('خصوصيتك أولويتنا\nنحترم بياناتك ونحافظ على خصوصيتك',
+              Expanded(child: Text('بيانات القراءة تبقى على جهازك\nتتصل مصادر التفسير والترجمة والصوت عند طلبها',
                 style: TextStyle(color: colors.onSurface, height: 1.6, fontWeight: FontWeight.w600))),
             ]),
           ),
@@ -159,30 +159,22 @@ class _DownloadRow extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
     leading: Icon(
       icon,
-      color: onTap == null
-          ? Theme.of(context).colorScheme.onSurfaceVariant
-          : AthaarColors.petrol,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     ),
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
     subtitle: Text(subtitle),
-    trailing: Icon(
-      onTap == null ? Icons.info_outline_rounded : Icons.open_in_new_rounded,
-      size: 20,
-    ),
-    onTap: onTap,
+    trailing: const Icon(Icons.info_outline_rounded, size: 20),
   );
 }
 
