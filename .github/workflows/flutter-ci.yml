@@ -422,6 +422,9 @@ jobs:
 
       - name: Package Windows installer and portable build
         shell: pwsh
+        env:
+          WINDOWS_SIGNING_PFX_BASE64: ${{ secrets.WINDOWS_SIGNING_PFX_BASE64 }}
+          WINDOWS_SIGNING_PFX_PASSWORD: ${{ secrets.WINDOWS_SIGNING_PFX_PASSWORD }}
         run: |
           $releaseDir = (Resolve-Path "build/windows/x64/runner/Release").Path
           $installerDir = Join-Path $PWD "build/windows/installer"
@@ -447,10 +450,51 @@ jobs:
             throw "Expected app executable was not found: $exe"
           }
 
+          $isTaggedRelease = $env:GITHUB_REF -like "refs/tags/v*"
+          $pfxPath = Join-Path $PWD "build/windows/installer-support/athaar-signing.pfx"
+          if ($isTaggedRelease) {
+            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_PFX_BASE64) -or
+                [string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_PFX_PASSWORD)) {
+              throw "Tagged Windows release requires WINDOWS_SIGNING_PFX_BASE64 and WINDOWS_SIGNING_PFX_PASSWORD secrets."
+            }
+            [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:WINDOWS_SIGNING_PFX_BASE64))
+            $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
+            if (!$signtool) {
+              $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse -ErrorAction Stop |
+                Where-Object { $_.FullName -match "\\x64\\signtool.exe$" } |
+                Sort-Object FullName -Descending |
+                Select-Object -First 1
+            }
+            if (!$signtool) {
+              throw "Windows SDK signtool.exe was not found."
+            }
+            & $signtool.Source sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $exe
+            if ($LASTEXITCODE -ne 0) {
+              throw "Signing the Athaar application executable failed."
+            }
+            & $signtool.Source verify /pa $exe
+            if ($LASTEXITCODE -ne 0) {
+              throw "The Athaar application executable signature did not verify."
+            }
+          }
+
           Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath (Join-Path $installerDir "Athaar-Windows-Portable-${{ env.ATHAAR_VERSION }}.zip") -CompressionLevel Optimal -Force
 
-          if (!(Test-Path (Join-Path $installerDir "Athaar-Setup-${{ env.ATHAAR_VERSION }}.exe"))) {
+          $setupExe = Join-Path $installerDir "Athaar-Setup-${{ env.ATHAAR_VERSION }}.exe"
+          if (!(Test-Path $setupExe)) {
             throw "Windows installer was not created."
+          }
+
+          if ($isTaggedRelease) {
+            & $signtool.Source sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD $setupExe
+            if ($LASTEXITCODE -ne 0) {
+              throw "Signing the Athaar Windows installer failed."
+            }
+            & $signtool.Source verify /pa $setupExe
+            if ($LASTEXITCODE -ne 0) {
+              throw "The Athaar Windows installer signature did not verify."
+            }
+            Remove-Item -Force $pfxPath
           }
 
       - name: Upload Windows installer and portable bundle
@@ -462,6 +506,119 @@ jobs:
             build/windows/installer/Athaar-Windows-Portable-${{ env.ATHAAR_VERSION }}.zip
           if-no-files-found: error
           retention-days: 14
+
+  ios-production-release:
+    name: Signed iOS App Store IPA
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [quality, acquire-quran-source]
+    runs-on: macos-latest
+    timeout-minutes: 50
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout tagged release
+        uses: actions/checkout@v4
+      - name: Download official Quran source
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+      - name: Stage Quran source
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Generate iOS project and code
+        run: |
+          bash tooling/bootstrap_mobile_platforms.sh
+          flutter pub get
+          dart run build_runner build
+          flutter build ios --release --no-codesign
+      - name: Import Apple distribution certificate and provisioning profile
+        shell: bash
+        env:
+          IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+          IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          : "${IOS_DISTRIBUTION_P12_BASE64:?Missing IOS_DISTRIBUTION_P12_BASE64 secret}"
+          : "${IOS_DISTRIBUTION_P12_PASSWORD:?Missing IOS_DISTRIBUTION_P12_PASSWORD secret}"
+          : "${IOS_PROVISIONING_PROFILE_BASE64:?Missing IOS_PROVISIONING_PROFILE_BASE64 secret}"
+          : "${IOS_TEAM_ID:?Missing IOS_TEAM_ID secret}"
+          KEYCHAIN_PATH="$RUNNER_TEMP/athaar-release.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          printf '%s' "$IOS_DISTRIBUTION_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/athaar-distribution.p12"
+          security import "$RUNNER_TEMP/athaar-distribution.p12" -k "$KEYCHAIN_PATH" -P "$IOS_DISTRIBUTION_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+          security default-keychain -s "$KEYCHAIN_PATH"
+          PROFILE_PATH="$RUNNER_TEMP/athaar-appstore.mobileprovision"
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/athaar-profile.plist"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$RUNNER_TEMP/athaar-profile.plist")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print Name' "$RUNNER_TEMP/athaar-profile.plist")
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          echo "IOS_PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+          echo "IOS_TEAM_ID=$IOS_TEAM_ID" >> "$GITHUB_ENV"
+          echo "IOS_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+      - name: Archive and export signed IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ios/archive build/ios/ipa
+          cat > build/ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$IOS_TEAM_ID</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.athaar.athaar</key><string>$IOS_PROFILE_NAME</string>
+            </dict>
+            <key>stripSwiftSymbols</key><true/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath "$PWD/build/ios/archive/Athaar.xcarchive" \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROFILE_NAME" \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath "$PWD/build/ios/archive/Athaar.xcarchive" \
+            -exportOptionsPlist "$PWD/build/ios/ExportOptions.plist" \
+            -exportPath "$PWD/build/ios/ipa"
+          IPA="$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -n "$IPA"
+          shasum -a 256 "$IPA"
+      - name: Upload signed iOS IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-ios-production-${{ github.ref_name }}
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 30
 
   finalize-generated-sources:
     name: Commit generated platform and formatted source
