@@ -54,6 +54,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   QuranTranslationEdition? _selectedTranslation;
   QuranAudioEdition? _selectedReciter;
   String? _loadedReciterIdentifier;
+  bool _loadedAudioIsOffline = false;
   QuranTranslationText? _translation;
   QuranTafsirText? _tafsir;
 
@@ -323,7 +324,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         throw StateError('This surah has not been downloaded.');
       }
       await _audioPlayer.setFilePath(path);
-      _loadedReciterIdentifier = 'offline:${reciter.identifier}';
+      _loadedReciterIdentifier = reciter.identifier;
+      _loadedAudioIsOffline = true;
       if (!mounted) return;
       setState(() => _audioError = null);
       unawaited(_audioPlayer.play());
@@ -395,6 +397,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
           );
       await _audioPlayer.setUrl(uri.toString());
       _loadedReciterIdentifier = reciter.identifier;
+      _loadedAudioIsOffline = false;
       if (!mounted) return;
       setState(() => _loadingAudio = false);
       unawaited(_audioPlayer.play());
@@ -626,6 +629,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               setState(() {
                 _selectedReciter = item;
                 _loadedReciterIdentifier = null;
+                _loadedAudioIsOffline = false;
                 _audioError = null;
                 _offlineError = null;
                 _downloadedSurahs = <int>{};
@@ -675,7 +679,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                                   ? _audioPlayer.pause
                                   : completed ||
                                           _loadedReciterIdentifier != selected.identifier
-                                      ? _playAyah
+                                      ? (_loadedAudioIsOffline ? _playOfflineSurah : _playAyah)
                                       : _audioPlayer.play,
                           icon: Icon(
                             playing
