@@ -118,6 +118,239 @@ class QuranStudyRepository {
         .toList(growable: false);
   }
 
+  Future<List<QuranAudioTrack>> getSurahAudioTracks({
+    required int surah,
+    required String edition,
+  }) async {
+    if (surah < 1 || surah > 114) {
+      throw RangeError.range(surah, 1, 114, 'surah');
+    }
+    _validateAudioEdition(edition);
+
+    final response = await _client.get(
+      Uri.https(_audioHost, '/v1/surah/$surah/$edition'),
+      headers: const {'Accept': 'application/json'},
+    );
+    final decoded = _decodeMap(response, 'surah recitation');
+    final data = decoded['data'];
+    if (data is! Map || data['ayahs'] is! List) {
+      throw const FormatException('AlQuran Cloud returned an invalid surah audio response.');
+    }
+
+    final tracks = <QuranAudioTrack>[];
+    for (final raw in data['ayahs'] as List) {
+      if (raw is! Map) {
+        throw const FormatException('The surah audio response contains an invalid ayah.');
+      }
+      final row = Map<String, dynamic>.from(raw);
+      final numberInSurah = _asInt(row['numberInSurah']);
+      final audio = row['audio'];
+      final uri = audio is String ? Uri.tryParse(audio) : null;
+      if (numberInSurah == null ||
+          numberInSurah < 1 ||
+          uri == null ||
+          uri.scheme != 'https' ||
+          uri.host != 'cdn.islamic.network') {
+        throw const FormatException('The surah audio response contains an unsafe or invalid track.');
+      }
+      tracks.add(QuranAudioTrack(numberInSurah: numberInSurah, uri: uri));
+    }
+
+    tracks.sort((left, right) => left.numberInSurah.compareTo(right.numberInSurah));
+    if (tracks.isEmpty) {
+      throw const FormatException('No audio tracks are available for this surah and reciter.');
+    }
+    for (var index = 0; index < tracks.length; index++) {
+      if (tracks[index].numberInSurah != index + 1) {
+        throw const FormatException('The surah audio response has missing or duplicate ayah tracks.');
+      }
+    }
+    if (tracks.length > 286) {
+      throw const FormatException('The surah audio response exceeds the valid ayah count.');
+    }
+    return tracks;
+  }
+
+  static void _validateAudioEdition(String edition) {
+    if (!RegExp(r'^[A-Za-z0-9._-]+
+    required int surah,
+    required int ayah,
+    required String edition,
+  }) async {
+    _validateAyah(surah, ayah);
+    if (edition.trim().isEmpty) {
+      throw ArgumentError.value(edition, 'edition');
+    }
+    final reference = '$surah:$ayah';
+    final response = await _client.get(
+      Uri.https(_audioHost, '/v1/ayah/$reference/$edition'),
+      headers: const {'Accept': 'application/json'},
+    );
+    final decoded = _decodeMap(response, 'recitation audio');
+    final data = decoded['data'];
+    if (data is! Map) {
+      throw const FormatException('AlQuran Cloud returned an invalid audio response.');
+    }
+    final audio = data['audio'] ?? data['url'];
+    if (audio is! String || audio.isEmpty) {
+      throw const FormatException('No audio is available for this ayah and reciter.');
+    }
+    final uri = Uri.tryParse(audio);
+    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+      throw const FormatException('The recitation source returned an unsafe audio URL.');
+    }
+    return uri;
+  }
+
+  Map<String, dynamic> _decodeMap(http.Response response, String label) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw QuranStudyException(
+        '$label request failed (HTTP ${response.statusCode}).',
+      );
+    }
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    if (decoded is! Map) {
+      throw FormatException('Invalid $label response.');
+    }
+    return Map<String, dynamic>.from(decoded);
+  }
+
+  static void _validateAyah(int surah, int ayah) {
+    if (surah < 1 || surah > 114 || ayah < 1 || ayah > 286) {
+      throw RangeError('Invalid Quran reference $surah:$ayah.');
+    }
+  }
+}
+
+class QuranTranslationEdition {
+  const QuranTranslationEdition({
+    required this.key,
+    required this.title,
+    required this.languageCode,
+    required this.version,
+    required this.description,
+    required this.direction,
+    this.lastUpdated,
+  });
+
+  final String key;
+  final String title;
+  final String languageCode;
+  final String version;
+  final String description;
+  final String direction;
+  final int? lastUpdated;
+
+  factory QuranTranslationEdition.fromJson(Map<String, dynamic> json) {
+    return QuranTranslationEdition(
+      key: _asString(json['key']),
+      title: _asString(json['title']),
+      languageCode: _asString(json['language_iso_code']),
+      version: _asString(json['version']),
+      description: _asString(json['description']),
+      direction: _asString(json['direction']).isEmpty
+          ? 'ltr'
+          : _asString(json['direction']),
+      lastUpdated: _asInt(json['last_update']),
+    );
+  }
+}
+
+class QuranTranslationText {
+  const QuranTranslationText({
+    required this.text,
+    required this.footnotes,
+    required this.surahNumber,
+    required this.ayahNumber,
+  });
+
+  final String text;
+  final String footnotes;
+  final int? surahNumber;
+  final int? ayahNumber;
+
+  factory QuranTranslationText.fromJson(Map<String, dynamic> json) {
+    return QuranTranslationText(
+      text: _asString(json['translation']),
+      footnotes: _asString(json['footnotes']),
+      surahNumber: _asInt(json['sura']),
+      ayahNumber: _asInt(json['aya']),
+    );
+  }
+}
+
+class QuranTafsirText {
+  const QuranTafsirText({
+    required this.text,
+    required this.surahNumber,
+    required this.ayahNumber,
+  });
+
+  final String text;
+  final int? surahNumber;
+  final int? ayahNumber;
+
+  factory QuranTafsirText.fromJson(Map<String, dynamic> json) {
+    return QuranTafsirText(
+      text: _asString(json['text']),
+      surahNumber: _asInt(json['surah']),
+      ayahNumber: _asInt(json['ayah']),
+    );
+  }
+}
+
+class QuranAudioTrack {
+  const QuranAudioTrack({
+    required this.numberInSurah,
+    required this.uri,
+  });
+
+  final int numberInSurah;
+  final Uri uri;
+}
+
+class QuranAudioEdition {
+  const QuranAudioEdition({
+    required this.identifier,
+    required this.name,
+    required this.englishName,
+  });
+
+  final String identifier;
+  final String name;
+  final String englishName;
+
+  factory QuranAudioEdition.fromJson(Map<String, dynamic> json) {
+    return QuranAudioEdition(
+      identifier: _asString(json['identifier']),
+      name: _asString(json['name']),
+      englishName: _asString(json['englishName']),
+    );
+  }
+
+  String get displayName => name.isNotEmpty ? name : englishName;
+}
+
+class QuranStudyException implements Exception {
+  const QuranStudyException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
+String _asString(Object? value) => value == null ? '' : value.toString();
+
+int? _asInt(Object? value) {
+  if (value is int) return value;
+  return int.tryParse(value?.toString() ?? '');
+}
+).hasMatch(edition)) {
+      throw ArgumentError.value(edition, 'edition');
+    }
+  }
+
   Future<Uri> getAyahAudioUri({
     required int surah,
     required int ayah,
