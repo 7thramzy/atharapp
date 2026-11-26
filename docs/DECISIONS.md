@@ -119,3 +119,16 @@ No real financial transaction before legal operating status, payment-provider el
 **Exit rule:** The technical integration is accepted on PR #16 after CI passed Flutter 3.50 analysis/tests and Android/iOS/Windows builds. Do not publish a store/release binary until full page-map integrity, physical-device rendering, startup/cache behavior, and the large APK size have been reviewed. The dependency is pinned to 0.1.1 and can be replaced without changing Athaar's adapter/domain contract.
 
 **Tracking:** GitHub issue #15 and `docs/experiments/qcf-quran-plus-spike.md`.
+
+## D-016 — User-requested offline recitation downloads
+
+**Status: ACCEPTED WITH PROVIDER TERMS AND PRIVATE-STORAGE RESTRICTIONS**
+
+- AlQuran Cloud / Islamic Network terms last reviewed 2026-11-27 and last updated by the provider 2026-11-13.
+- Permit user-requested streaming, embedding and downloads for personal and educational use. Recordings remain copyrighted by the reciter/rightsholder, and a reciter may request removal from a commercial product.
+- Athaar may stream a selected ayah online and download one complete surah file for offline personal/educational listening, using the documented CDN endpoint.
+- Store files only in app-private device storage. Do not export, share, upload, mirror, re-host, bundle in the installer, or use recordings for model training/evaluation.
+- Provide per-surah and per-reciter deletion controls; surface failed downloads; remove/disable withdrawn recordings.
+- Re-review the provider terms before any advertising, paid feature, subscription, commercial distribution, or use beyond personal/educational listening.
+- Web preview does not provide offline audio downloads; native Android, iOS and Windows are the target offline storage platforms. Windows playback requires a registered just_audio Windows implementation.
+- Full offline downloads can consume substantial storage. The user must explicitly initiate downloads and confirm full-Quran download.
