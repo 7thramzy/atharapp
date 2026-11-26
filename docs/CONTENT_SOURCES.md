@@ -99,7 +99,7 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 ### King Fahd Glorious Quran Printing Complex (KFGQPC)
 
-**Status: CONDITIONALLY APPROVED FOR DIGITAL APPLICATION/SOFTWARE USE.**
+**Status: EXACT ASSET/REDISTRIBUTION REVIEW REQUIRED FOR THE QCF BUNDLE CURRENTLY USED BY ATHAAR.**
 
 - Official source: https://qurancomplex.gov.sa/mushaf-printing
 - Official developer platform announcement: https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
@@ -108,6 +108,14 @@ The issues are examples of licensing questions raised by developers; an unanswer
 - Preserve original files unchanged unless the specific official terms permit a particular transformation.
 - Record exact file, version, hash, source URL, and the downloaded rights statement before bundling.
 - The official page distinguishes digital software uses from certain physical Mushaf printing/sale restrictions. Athaar is a digital app, not a printed Mushaf publishing business.
+
+### Athaar's pinned renderer package — qcf_quran_plus 0.1.1
+
+- Package software licence: MIT, as published by the package.
+- Package repository: https://github.com/hussein12347/qcf_quran_plus
+- The package includes 604 QCF Tajweed page fonts plus other fonts and page/glyph resources. Its pub.dev publisher is unverified.
+- The MIT software licence does not prove rights to redistribute every font or page-data asset. Exact resource-level source and permission remain to be captured.
+- **Do not treat this package as cleared for public/store distribution until its exact embedded font/data permissions are documented.** The About tab must state the package name/version and the difference between code licensing and asset licensing.
 
 ### QUL QPC V2/V4, SurahNameV2, glyph and page-font assets
 
