@@ -90,7 +90,7 @@ Future<void> downloadSurah({
         continue;
       }
 
-      final temporary = File(target.path + '.part');
+      final temporary = File('${target.path}.part');
       try {
         final response = await client.get(track.uri).timeout(
           const Duration(seconds: 45),
