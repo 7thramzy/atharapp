@@ -4,7 +4,6 @@ import 'package:athaar/features/about/presentation/about_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_localizations/flutter_localizations.dart' as flutter_l10n;
 
 void main() {
   testWidgets('renders the refreshed Arabic home screen on startup', (tester) async {
@@ -37,7 +36,7 @@ void main() {
         child: MaterialApp(
           locale: const Locale('ar'),
           supportedLocales: const [Locale('ar')],
-          localizationsDelegates: flutter_l10n.GlobalMaterialLocalizations.delegates,
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           home: const AboutScreen(),
         ),
       ),
