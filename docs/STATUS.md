@@ -1,8 +1,8 @@
 # Athaar project status
 
-**Last verified:** 2026-11-24  
+**Last verified:** 2026-11-27  
 **Default branch:** main  
-**Current phase:** M2/M3 local-first workflows implemented. QCF Hafs Mushaf technical integration is complete on PR #16; physical-device QA and release-size review remain open.
+**Current phase:** M2/M3 local-first workflows are implemented. PRs #16, #18 and #20 have been merged to main. Public-release preparation is on `agent/public-release-readiness`; the 604-page map test, offline recitation downloads, production signing pipeline and device validation are still being verified.
 
 ## Completed on main
 
@@ -33,7 +33,7 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 
 - GitHub Actions run 45259877678 passed formatting, static analysis, tests, Android debug build, unsigned iOS build, and generated-source persistence.
 - Cairo font binary is not bundled; system Arabic fallback is used pending the exact OFL asset and notice.
-- No Android/iOS binary is signed or published.
+- No production Android/iOS binary is signed or published yet; the release workflow now supports tag-gated signing after the owner adds platform secrets.
 - No Supabase/backend connection has been created.
 
 ## Content source decisions
@@ -69,3 +69,15 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - Complete independent review of adhkar sources before shipping a curated pre-populated catalog; user-entered entries remain explicitly unverified.
 - Implement and physically test user-scheduled local reminders.
 - Run CI on the latest main commit and complete Arabic RTL, accessibility, offline, and migration QA.
+
+
+## Public release integration snapshot (2026-11-27)
+
+- PR #16 (QCF Hafs reader), PR #18 (approved mobile visual design), and PR #20 (ayah study, tafsir, translations, streaming and ASR evaluation harness) were merged to `main` in that order.
+- Vercel Preview deployments were disabled for the `athaar-preview` project to avoid automatic preview deployments. GitHub Actions CI remains active.
+- Release branch `agent/public-release-readiness` adds the About/source-credit screen, production Android INTERNET permission, removes stale test download URLs, clarifies the privacy notice without publishing a full privacy policy, and introduces native app-private offline surah audio downloads with stream fallback.
+- A new automated test compares every QCF page range to the page assignment on every Tanzil ayah (6,236 ayahs across 604 pages). This is an acceptance gate; do not claim a complete match until CI passes.
+- The About screen distinguishes Tanzil's verbatim Uthmani text from QCF's page renderer. MIT covers the QCF package code; exact rights for the bundled QCF fonts/page data remain separately unverified and must be resolved before public redistribution.
+- AlQuran Cloud offline downloads are limited to user-requested private app storage for personal/educational use, with deletion and no upload/rehosting/export/model training. Re-check terms and reciter edition rights before launch.
+- Production signing pipelines are tag-gated for Android AAB/APK, iOS App Store IPA, and Windows installer/EXE. They require owner-managed GitHub Actions secrets and have not been run with the actual production certificates yet.
+- A full public privacy policy remains deferred at the product owner's request; it is still a mandatory gate before a public store release.
