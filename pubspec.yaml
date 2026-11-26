@@ -14,6 +14,9 @@ dependencies:
     sdk: flutter
   material_ui: ^1.11.1
 
+  # Used to decompress page-scoped QCF fonts in the browser without path_provider.
+  archive: ^4.0.9
+
   # Hafs Mushaf renderer; public asset redistribution remains a separate release gate.
   qcf_quran_plus: 0.1.1
 

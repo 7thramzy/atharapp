@@ -1,10 +1,12 @@
 name: Flutter CI
+# Browser preview is published only after quality checks pass.
 
 on:
   push:
     branches:
       - main
       - "agent/**"
+      - "design/**"
   workflow_dispatch:
 
 permissions:
@@ -452,3 +454,70 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/flutter-ci.yml/dispatches" \
             -d "{\"ref\":\"${GITHUB_REF_NAME}\"}"
+
+  web-preview:
+    name: Build browser preview artifact
+    needs: [quality, acquire-quran-source]
+    if: github.ref == 'refs/heads/design/match-athaar-reference'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download official Quran dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: athaar-tanzil-uthmani-v1.1-source
+          path: build/tanzil-acquisition
+
+      - name: Stage Quran asset
+        run: |
+          mkdir -p assets/content/quran
+          cp build/tanzil-acquisition/tanzil-uthmani-v1.1.json assets/content/quran/
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Generate web platform
+        run: flutter create --no-pub --project-name athaar --org com.athaar --platforms=web .
+
+      - name: Resolve dependencies and generate database code
+        run: |
+          flutter pub get
+          dart run build_runner build
+
+      - name: Download matching Drift browser runtime assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p web
+          curl --fail --location --retry 3 \
+            https://github.com/simolus3/drift/releases/download/drift-2.35.4/sqlite3.wasm \
+            --output web/sqlite3.wasm
+          curl --fail --location --retry 3 \
+            https://github.com/simolus3/drift/releases/download/drift-2.35.4/drift_worker.js \
+            --output web/drift_worker.js
+          echo "e7451780e78c56ff864fe9317a0fbcd6aeb2e8de3beba7f5efd963202f7ec3d9  web/sqlite3.wasm" | sha256sum --check
+          echo "48c950cd8e3bc3cddb34816c860e228be8832bef07a297c27e9907c057ff8162  web/drift_worker.js" | sha256sum --check
+
+      - name: Build browser preview
+        run: flutter build web --release
+
+      - name: Verify browser runtime files
+        run: |
+          test -s build/web/index.html
+          test -s build/web/sqlite3.wasm
+          test -s build/web/drift_worker.js
+
+      - name: Upload browser preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-browser-preview
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 14
