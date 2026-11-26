@@ -1,39 +1,56 @@
 # Recitation audio source review
 
-**Review date:** 2026-11-25  
-**Selected provider:** AlQuran Cloud / Islamic Network
+**Review date:** 2026-11-27  
+**Provider:** AlQuran Cloud / Islamic Network
 
 ## Decision
 
-<badge>Online streaming only</badge>
+**APPROVED WITH CONDITIONS for user-initiated online streaming and private offline listening in the current free/personal educational app.**
 
-AlQuran Cloud's public API exposes Arabic ayah-by-ayah recitation editions and an ayah audio endpoint. Its published terms allow audio streaming for personal and educational purposes while stating that recordings remain copyrighted by their reciters/rights holders. Reciters may request removal in commercial products.
+The provider's current terms permit streaming, embedding and downloads for personal and educational use. The recordings remain copyrighted by their reciters/rightsholders, and a rights holder may request removal. Do not interpret the provider's permission as a transfer of ownership or as blanket permission for redistribution by Athaar.
 
-Athaar may therefore expose user-initiated streaming for its current educational reading experience under the provider's terms, with the following restrictions:
+### Allowed in the current app
 
-- Do not bundle the audio files in the app or installer.
-- Do not download, mirror, or provide an offline audio cache.
-- Do not use recitation audio for model training or evaluation.
-- Do not claim ownership of any reciter's recording.
-- Show the selected reciter, edition identifier, and AlQuran Cloud / Islamic Network attribution.
-- If a reciter or rights holder withdraws an edition, remove or disable it promptly.
-- Re-review the rights before introducing subscriptions, paid features, advertising, commercial distribution, or another use beyond the current educational stream.
+- User-initiated streaming over HTTPS.
+- User-requested download of an individual surah for offline personal listening.
+- Store the downloaded tracks only under Athaar's private application-support folder on the user's device.
+- Use a saved local track first; otherwise stream the selected ayah when the device is online.
+- Allow the user to delete the saved surah from the app.
+- Resume an interrupted download by retaining only completed tracks; incomplete temporary files are removed.
+- Show the reciter name, edition identifier, provider attribution, and link to the current terms.
+- Disable a reciter/edition when access is withdrawn or the provider/rightsholder asks for removal.
 
-## API integration
+### Not allowed in Athaar's implementation
+
+- No upload, sync, sharing, exporting, re-hosting, mirroring, or bundling of the recordings in the APK/AAB/IPA/Windows installer.
+- No public link to the app-private audio files.
+- No training, fine-tuning, evaluation, voice identity, or speech-recognition use of playback recordings.
+- No sale or commercial redistribution of audio.
+- No assumption that a publicly reachable file means unrestricted redistribution rights.
+
+Before introducing subscriptions, advertisements, donations linked to access, or any commercial distribution model, re-confirm the provider's current terms and the selected reciter's rights. The provider may change availability or withdraw a recording.
+
+## API and playback implementation
 
 - Edition catalogue: `GET https://api.alquran.cloud/v1/edition?format=audio&language=ar&type=versebyverse`
 - Ayah audio metadata: `GET https://api.alquran.cloud/v1/ayah/{surah}:{ayah}/{edition}`
+- Surah ayah catalogue: `GET https://api.alquran.cloud/v1/surah/{surah}/{edition}`
+- Audio CDN by ayah: `https://cdn.islamic.network/quran/audio/{bitrate}/{edition}/{number}.mp3`
 
-The app calls the catalogue when the user opens the study screen and resolves the selected ayah's HTTPS audio URL only after the user presses play. Playback is streamed with `just_audio`; the app does not add an offline download action or ship MP3 assets.
+The study screen exposes streaming and a separate user-triggered whole-surah download. Native builds save complete ayah tracks under the app-private support directory. Web does not claim offline-file support and continues to stream online. The source host is allow-listed as `cdn.islamic.network`; non-HTTPS or unexpected hosts are rejected.
 
-## Verification status
+## Required verification before public release
 
-- The provider catalogue was reachable during the source review and returned Arabic verse-by-verse editions, including identifiers such as `ar.husary` and `ar.alafasy`.
-- The individual audio endpoints and the playback path still require CI/device verification on supported Android, iOS, and web builds.
-- Provider availability and content rights are not guaranteed by the app. Every stream failure is surfaced to the user instead of pretending playback started.
+- [ ] CI tests pass for edition parsing, complete surah track ordering, duplicate/missing ayah rejection and unsafe URL rejection.
+- [ ] Physical Android, iOS and Windows test confirms download, playback with airplane mode enabled, resume, cancellation and deletion.
+- [ ] Check app storage usage for a full surah and handle insufficient storage.
+- [ ] Confirm provider terms still allow personal/educational offline downloads on launch date.
+- [ ] Record the exact reciter edition and any provider/rightsholder notice applicable to that edition.
+- [ ] Confirm no recording is copied into the app bundle or exported through Android share/file picker.
+- [ ] Test unavailable/withdrawn edition behavior and disable path.
 
 ## Sources
 
-- AlQuran Cloud API: https://alquran.cloud/api
-- Audio edition catalogue: https://api.alquran.cloud/v1/edition?format=audio&language=ar&type=versebyverse
-- Provider terms: https://alquran.cloud/terms-and-conditions
+- API documentation: https://alquran.cloud/api
+- CDN documentation: https://alquran.cloud/cdn
+- Terms: https://alquran.cloud/terms-and-conditions
