@@ -1,5 +1,5 @@
 name: Flutter CI
-# CI builds and validates the browser preview; the linked Vercel project handles deployment.
+# CI validates app targets. Vercel Git deployments are disabled; the web job uploads an Actions artifact only.
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - main
       - "agent/**"
       - "design/**"
+      - "release/**"
   workflow_dispatch:
 
 permissions:
@@ -127,6 +128,8 @@ jobs:
         run: flutter test test/quran --reporter expanded --timeout 60s
       - name: Local Quran audio-evaluation metric tests
         run: python -m unittest discover -s tooling/audio_evaluation -p 'test_*.py' -v
+      - name: Offline recitation storage tests
+        run: flutter test test/quran_study --reporter expanded --timeout 90s
 
   android-build:
     name: Android debug and test-release builds
@@ -218,6 +221,16 @@ jobs:
           APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -x "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK"
+
+      - name: Verify INTERNET permission in the merged Android release manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          AAPT="$(find "$SDK_ROOT/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          test -x "$AAPT"
+          "$AAPT" dump permissions "$APK" | grep -F "android.permission.INTERNET"
 
       - name: Record Android arm64 test-release APK size and checksum
         shell: bash
