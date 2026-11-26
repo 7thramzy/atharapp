@@ -5,6 +5,7 @@ import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:drift/native.dart';
+import 'package:qcf_quran_plus/qcf_quran_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeHafsAdapter implements HafsRendererAdapter {
@@ -46,11 +47,30 @@ void main() {
           }),
           hafsRendererAdapterProvider.overrideWithValue(adapter),
         ],
-        child: const MaterialApp(home: HafsMushafScreen()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: [Locale('en')],
+          home: HafsMushafScreen(),
+        ),
       ),
     );
 
     await tester.pumpAndSettle();
+
+    final mushafView = find.byType(QuranPageView);
+    expect(mushafView, findsOneWidget);
+    expect(
+      find.ancestor(
+        of: mushafView,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Directionality &&
+              widget.textDirection == TextDirection.rtl,
+        ),
+      ),
+      findsOneWidget,
+      reason: 'The Hafs Mushaf must stay RTL even when the app locale is LTR.',
+    );
 
     expect(find.text('المصحف المعتمد — حفص عن عاصم'), findsOneWidget);
     expect(find.byTooltip('القراءة النصية المحلية — تنزيل'), findsOneWidget);
