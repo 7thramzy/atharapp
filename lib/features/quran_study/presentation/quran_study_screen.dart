@@ -654,8 +654,12 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 Text(
                   _studyText(
                     context,
-                    'بث مباشر للآية المحددة',
-                    'Stream the selected ayah',
+                    _loadedAudioIsOffline
+                        ? 'تشغيل السورة المحمّلة دون اتصال'
+                        : 'بث مباشر للآية المحددة',
+                    _loadedAudioIsOffline
+                        ? 'Play the downloaded surah offline'
+                        : 'Stream the selected ayah',
                   ),
                 ),
                 const SizedBox(height: 12),
