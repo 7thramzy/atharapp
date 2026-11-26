@@ -200,7 +200,7 @@ void main() {
 
         if (previousEnd != null) {
           expectSamePosition(
-            actualStart,
+            start,
             nextAyah(previousEnd),
             reason: 'Gap or overlap between the end of page ${page - 1} and page $page',
           );
