@@ -19,37 +19,43 @@ void main() {
       }
     });
 
-    test('downloads one surah privately and falls back to an available bitrate', () async {
-      final requested = <Uri>[];
-      final client = MockClient((request) async {
-        requested.add(request.url);
-        if (request.url.path.contains('/128/')) {
-          return http.Response('not found', 404);
-        }
-        return http.Response.bytes(
-          <int>[0x49, 0x44, 0x33, 0x04, 0x05],
-          200,
-          headers: const {'content-type': 'audio/mpeg'},
+    test(
+      'downloads one surah privately and falls back to an available bitrate',
+      () async {
+        final requested = <Uri>[];
+        final client = MockClient((request) async {
+          requested.add(request.url);
+          if (request.url.path.contains('/128/')) {
+            return http.Response('not found', 404);
+          }
+          return http.Response.bytes(
+            <int>[0x49, 0x44, 0x33, 0x04, 0x05],
+            200,
+            headers: const {'content-type': 'audio/mpeg'},
+          );
+        });
+        final store = OfflineRecitationStore(
+          client: client,
+          supportDirectory: () async => sandbox,
         );
-      });
-      final store = OfflineRecitationStore(
-        client: client,
-        supportDirectory: () async => sandbox,
-      );
-      addTearDown(store.close);
+        addTearDown(store.close);
 
-      final path = await store.downloadSurah(edition: 'ar.husary', surah: 1);
-      final file = File(path);
+        final path = await store.downloadSurah(edition: 'ar.husary', surah: 1);
+        final file = File(path);
 
-      expect(await file.exists(), isTrue);
-      expect(await file.length(), 5);
-      expect(requested.map((uri) => uri.path), [
-        '/quran/audio-surah/128/ar.husary/1.mp3',
-        '/quran/audio-surah/64/ar.husary/1.mp3',
-      ]);
-      expect(await store.isSurahDownloaded(edition: 'ar.husary', surah: 1), isTrue);
-      expect(await store.downloadedSurahs('ar.husary'), {1});
-    });
+        expect(await file.exists(), isTrue);
+        expect(await file.length(), 5);
+        expect(requested.map((uri) => uri.path), [
+          '/quran/audio-surah/128/ar.husary/1.mp3',
+          '/quran/audio-surah/64/ar.husary/1.mp3',
+        ]);
+        expect(
+          await store.isSurahDownloaded(edition: 'ar.husary', surah: 1),
+          isTrue,
+        );
+        expect(await store.downloadedSurahs('ar.husary'), {1});
+      },
+    );
 
     test('does not replace a downloaded file with an empty response', () async {
       final client = MockClient((request) async {
@@ -65,7 +71,10 @@ void main() {
         store.downloadSurah(edition: 'ar.husary', surah: 1),
         throwsFormatException,
       );
-      expect(await store.isSurahDownloaded(edition: 'ar.husary', surah: 1), isFalse);
+      expect(
+        await store.isSurahDownloaded(edition: 'ar.husary', surah: 1),
+        isFalse,
+      );
     });
 
     test('validates edition identifiers and surah numbers', () async {
@@ -86,7 +95,9 @@ void main() {
     });
 
     test('deletes one surah and all files for an edition', () async {
-      final client = MockClient((request) async => http.Response.bytes([1, 2, 3], 200));
+      final client = MockClient(
+        (request) async => http.Response.bytes([1, 2, 3], 200),
+      );
       final store = OfflineRecitationStore(
         client: client,
         supportDirectory: () async => sandbox,

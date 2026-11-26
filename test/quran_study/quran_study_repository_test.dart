@@ -7,79 +7,85 @@ import 'package:http/testing.dart';
 
 void main() {
   group('QuranStudyRepository', () {
-    test('parses the publisher translation catalogue and version metadata', () async {
-      final repository = QuranStudyRepository(
-        client: MockClient((request) async {
-          expect(request.url.host, 'quranenc.com');
-          expect(request.url.path, '/api/v1/translations/list/');
-          expect(request.url.queryParameters['localization'], 'ar');
-          return http.Response(
-            jsonEncode({
-              'translations': [
-                {
-                  'key': 'english_rwwad',
-                  'title': 'English Translation - Rowwad',
-                  'language_iso_code': 'en',
-                  'version': '1.0.21',
-                  'description': 'Translated by Rowwad Translation Center',
-                  'direction': 'ltr',
-                  'last_update': 1772061267,
-                }
-              ],
-            }),
-            200,
-            headers: {'content-type': 'application/json'},
-          );
-        }),
-      );
-      addTearDown(repository.close);
+    test(
+      'parses the publisher translation catalogue and version metadata',
+      () async {
+        final repository = QuranStudyRepository(
+          client: MockClient((request) async {
+            expect(request.url.host, 'quranenc.com');
+            expect(request.url.path, '/api/v1/translations/list/');
+            expect(request.url.queryParameters['localization'], 'ar');
+            return http.Response(
+              jsonEncode({
+                'translations': [
+                  {
+                    'key': 'english_rwwad',
+                    'title': 'English Translation - Rowwad',
+                    'language_iso_code': 'en',
+                    'version': '1.0.21',
+                    'description': 'Translated by Rowwad Translation Center',
+                    'direction': 'ltr',
+                    'last_update': 1772061267,
+                  },
+                ],
+              }),
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }),
+        );
+        addTearDown(repository.close);
 
-      final editions = await repository.getTranslations();
+        final editions = await repository.getTranslations();
 
-      expect(editions, hasLength(1));
-      expect(editions.single.key, 'english_rwwad');
-      expect(editions.single.version, '1.0.21');
-      expect(editions.single.languageCode, 'en');
-      expect(editions.single.direction, 'ltr');
-      expect(editions.single.description, contains('Rowwad'));
-    });
+        expect(editions, hasLength(1));
+        expect(editions.single.key, 'english_rwwad');
+        expect(editions.single.version, '1.0.21');
+        expect(editions.single.languageCode, 'en');
+        expect(editions.single.direction, 'ltr');
+        expect(editions.single.description, contains('Rowwad'));
+      },
+    );
 
-    test('parses translation text and footnotes without rewriting either', () async {
-      const translation = 'In the name of Allah.[1]';
-      const footnotes = '[1] Publisher footnote.';
-      final repository = QuranStudyRepository(
-        client: MockClient((request) async {
-          expect(
-            request.url.path,
-            '/api/v1/translation/aya/english_rwwad/1/1',
-          );
-          return http.Response(
-            jsonEncode({
-              'result': {
-                'id': '1',
-                'sura': '1',
-                'aya': '1',
-                'translation': translation,
-                'footnotes': footnotes,
-              },
-            }),
-            200,
-          );
-        }),
-      );
-      addTearDown(repository.close);
+    test(
+      'parses translation text and footnotes without rewriting either',
+      () async {
+        const translation = 'In the name of Allah.[1]';
+        const footnotes = '[1] Publisher footnote.';
+        final repository = QuranStudyRepository(
+          client: MockClient((request) async {
+            expect(
+              request.url.path,
+              '/api/v1/translation/aya/english_rwwad/1/1',
+            );
+            return http.Response(
+              jsonEncode({
+                'result': {
+                  'id': '1',
+                  'sura': '1',
+                  'aya': '1',
+                  'translation': translation,
+                  'footnotes': footnotes,
+                },
+              }),
+              200,
+            );
+          }),
+        );
+        addTearDown(repository.close);
 
-      final result = await repository.getTranslation(
-        key: 'english_rwwad',
-        surah: 1,
-        ayah: 1,
-      );
+        final result = await repository.getTranslation(
+          key: 'english_rwwad',
+          surah: 1,
+          ayah: 1,
+        );
 
-      expect(result.text, translation);
-      expect(result.footnotes, footnotes);
-      expect(result.surahNumber, 1);
-      expect(result.ayahNumber, 1);
-    });
+        expect(result.text, translation);
+        expect(result.footnotes, footnotes);
+        expect(result.surahNumber, 1);
+        expect(result.ayahNumber, 1);
+      },
+    );
 
     test('loads the Arabic Al-Jami Al-Wajiz tafsir verbatim from the pinned edition', () async {
       const tafsirText = 'نص التفسير كما ورد من المؤلف دون تعديل.';
@@ -92,11 +98,7 @@ void main() {
           );
           return http.Response.bytes(
             utf8.encode(
-              jsonEncode({
-                'text': tafsirText,
-                'surah': 1,
-                'ayah': 1,
-              }),
+              jsonEncode({'text': tafsirText, 'surah': 1, 'ayah': 1}),
             ),
             200,
             headers: {'content-type': 'application/json; charset=utf-8'},
@@ -132,7 +134,7 @@ void main() {
                     'englishName': 'Husary',
                     'format': 'audio',
                     'type': 'versebyverse',
-                  }
+                  },
                 ],
               }),
             ),
@@ -159,7 +161,7 @@ void main() {
               'code': 200,
               'status': 'OK',
               'data': {
-                'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3'
+                'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
               },
             }),
             200,
@@ -187,7 +189,8 @@ void main() {
       addTearDown(repository.close);
 
       expect(
-        () => repository.getTranslation(key: 'english_rwwad', surah: 0, ayah: 1),
+        () =>
+            repository.getTranslation(key: 'english_rwwad', surah: 0, ayah: 1),
         throwsRangeError,
       );
     });
@@ -197,7 +200,7 @@ void main() {
         client: MockClient((request) async {
           return http.Response(
             jsonEncode({
-              'data': {'audio': 'http://example.com/audio.mp3'}
+              'data': {'audio': 'http://example.com/audio.mp3'},
             }),
             200,
           );
@@ -206,11 +209,8 @@ void main() {
       addTearDown(repository.close);
 
       expect(
-        () => repository.getAyahAudioUri(
-          surah: 1,
-          ayah: 1,
-          edition: 'ar.husary',
-        ),
+        () =>
+            repository.getAyahAudioUri(surah: 1, ayah: 1, edition: 'ar.husary'),
         throwsFormatException,
       );
     });

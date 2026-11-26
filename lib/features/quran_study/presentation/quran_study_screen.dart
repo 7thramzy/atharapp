@@ -112,10 +112,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
 
   Future<void> _loadTafsir() async {
     try {
-      final text = await ref.read(quranStudyRepositoryProvider).getTafsir(
-            surah: widget.surahNumber,
-            ayah: widget.ayahNumber,
-          );
+      final text = await ref
+          .read(quranStudyRepositoryProvider)
+          .getTafsir(surah: widget.surahNumber, ayah: widget.ayahNumber);
       if (!mounted) return;
       setState(() {
         _tafsir = text;
@@ -140,10 +139,10 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       final selected = preferred.isNotEmpty
           ? preferred.first
           : english.isNotEmpty
-              ? english.first
-              : items.isNotEmpty
-                  ? items.first
-                  : null;
+          ? english.first
+          : items.isNotEmpty
+          ? items.first
+          : null;
       if (!mounted) return;
       setState(() {
         _translations = items;
@@ -195,14 +194,12 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       final items = await ref
           .read(quranStudyRepositoryProvider)
           .getAudioEditions();
-      final preferred = items.where(
-        (item) => item.identifier == 'ar.husary',
-      );
+      final preferred = items.where((item) => item.identifier == 'ar.husary');
       final selected = preferred.isNotEmpty
           ? preferred.first
           : items.isNotEmpty
-              ? items.first
-              : null;
+          ? items.first
+          : null;
       if (!mounted) return;
       setState(() {
         _reciters = items;
@@ -223,7 +220,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     final reciter = _selectedReciter;
     if (reciter == null || !_offlineStore.isSupported) return;
     try {
-      final downloaded = await _offlineStore.downloadedSurahs(reciter.identifier);
+      final downloaded = await _offlineStore.downloadedSurahs(
+        reciter.identifier,
+      );
       if (!mounted) return;
       setState(() => _downloadedSurahs = downloaded);
     } catch (error) {
@@ -258,12 +257,20 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_studyText(context, 'تنزيل المصحف الصوتي كاملاً؟', 'Download the full Quran audio?')),
-        content: Text(_studyText(
-          context,
-          'سيتم تنزيل 114 ملفاً صوتياً إلى مساحة التطبيق الخاصة لهذا القارئ. قد يحتاج ذلك مساحة تخزين كبيرة واتصالاً مستقراً. يمكن حذف التنزيلات من هنا لاحقاً.',
-          'This downloads 114 surah audio files into Athaar private storage for this reciter. It may use substantial storage and a stable connection. You can remove the downloads here later.',
-        )),
+        title: Text(
+          _studyText(
+            context,
+            'تنزيل المصحف الصوتي كاملاً؟',
+            'Download the full Quran audio?',
+          ),
+        ),
+        content: Text(
+          _studyText(
+            context,
+            'سيتم تنزيل 114 ملفاً صوتياً إلى مساحة التطبيق الخاصة لهذا القارئ. قد يحتاج ذلك مساحة تخزين كبيرة واتصالاً مستقراً. يمكن حذف التنزيلات من هنا لاحقاً.',
+            'This downloads 114 surah audio files into Athaar private storage for this reciter. It may use substantial storage and a stable connection. You can remove the downloads here later.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -353,12 +360,16 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_studyText(context, 'حذف كل التنزيلات؟', 'Delete all downloads?')),
-        content: Text(_studyText(
-          context,
-          'سيتم حذف ملفات هذا القارئ المحفوظة على هذا الجهاز فقط.',
-          'This removes this reciter’s downloaded files from this device only.',
-        )),
+        title: Text(
+          _studyText(context, 'حذف كل التنزيلات؟', 'Delete all downloads?'),
+        ),
+        content: Text(
+          _studyText(
+            context,
+            'سيتم حذف ملفات هذا القارئ المحفوظة على هذا الجهاز فقط.',
+            'This removes this reciter’s downloaded files from this device only.',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -411,10 +422,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   }
 
   Future<void> _openSource(Uri uri) async {
-    final opened = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -454,10 +462,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 _tafsir!.text,
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.start,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      height: 1.95,
-                      fontSize: 16,
-                    ),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(height: 1.95, fontSize: 16),
               ),
             ),
           ),
@@ -519,10 +525,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 .map(
                   (item) => DropdownMenuItem<QuranTranslationEdition>(
                     value: item,
-                    child: Text(
-                      item.title,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Text(item.title, overflow: TextOverflow.ellipsis),
                   ),
                 )
                 .toList(),
@@ -555,10 +558,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                     ? TextDirection.rtl
                     : TextDirection.ltr,
                 textAlign: TextAlign.start,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      height: 1.8,
-                      fontSize: 16,
-                    ),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(height: 1.8, fontSize: 16),
               ),
             ),
           ),
@@ -568,10 +569,11 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               padding: const EdgeInsets.all(16),
               child: SelectableText(
                 _translation!.footnotes,
-                textDirection: selected?.direction == 'rtl' ? TextDirection.rtl : TextDirection.ltr,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      height: 1.6,
-                    ),
+                textDirection: selected?.direction == 'rtl'
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(height: 1.6),
               ),
             ),
           ),
@@ -580,9 +582,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             title: selected.title,
             description: selected.description,
             version: selected.version,
-            onOpen: () => _openSource(
-              Uri.https('quranenc.com', '/ar/home/api'),
-            ),
+            onOpen: () =>
+                _openSource(Uri.https('quranenc.com', '/ar/home/api')),
           ),
       ],
     );
@@ -680,11 +681,14 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                           onPressed: _loadingAudio || selected == null
                               ? null
                               : playing
-                                  ? _audioPlayer.pause
-                                  : completed ||
-                                          _loadedReciterIdentifier != selected.identifier
-                                      ? (_loadedAudioIsOffline ? _playOfflineSurah : _playAyah)
-                                      : _audioPlayer.play,
+                              ? _audioPlayer.pause
+                              : completed ||
+                                    _loadedReciterIdentifier !=
+                                        selected.identifier
+                              ? (_loadedAudioIsOffline
+                                    ? _playOfflineSurah
+                                    : _playAyah)
+                              : _audioPlayer.play,
                           icon: Icon(
                             playing
                                 ? Icons.pause_rounded
@@ -723,9 +727,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                         final value = max <= 0
                             ? 0.0
                             : position.inMilliseconds
-                                .toDouble()
-                                .clamp(0.0, max)
-                                .toDouble();
+                                  .toDouble()
+                                  .clamp(0.0, max)
+                                  .toDouble();
                         return Column(
                           children: [
                             Slider(
@@ -735,8 +739,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                               onChanged: max <= 0
                                   ? null
                                   : (next) => _audioPlayer.seek(
-                                        Duration(milliseconds: next.round()),
-                                      ),
+                                      Duration(milliseconds: next.round()),
+                                    ),
                             ),
                             Text(
                               '${_formatDuration(position)} / ${_formatDuration(duration)}',
@@ -765,8 +769,13 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    _studyText(context, 'التشغيل دون اتصال', 'Offline listening'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    _studyText(
+                      context,
+                      'التشغيل دون اتصال',
+                      'Offline listening',
+                    ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -775,7 +784,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                       'تنزيل السورة الحالية أو المصحف الصوتي كاملاً للقارئ المختار. الملفات تحفظ داخل التطبيق ولا تُرفع أو تُصدّر.',
                       'Download the current surah or all 114 surahs for the selected reciter. Files stay in app-private storage and are not uploaded or exported.',
                     ),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.5),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(height: 1.5),
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -789,7 +799,10 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                     const SizedBox(height: 8),
                     LinearProgressIndicator(value: _offlineProgress / 114),
                     const SizedBox(height: 4),
-                    Text('$_offlineProgress / 114', textAlign: TextAlign.center),
+                    Text(
+                      '$_offlineProgress / 114',
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                   const SizedBox(height: 10),
                   Wrap(
@@ -797,41 +810,78 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                     runSpacing: 8,
                     children: [
                       FilledButton.icon(
-                        onPressed: _offlineBusy || selected == null || _downloadedSurahs.contains(widget.surahNumber)
+                        onPressed:
+                            _offlineBusy ||
+                                selected == null ||
+                                _downloadedSurahs.contains(widget.surahNumber)
                             ? null
                             : _downloadCurrentSurah,
                         icon: const Icon(Icons.download_rounded),
-                        label: Text(_studyText(context, 'تنزيل هذه السورة', 'Download this surah')),
+                        label: Text(
+                          _studyText(
+                            context,
+                            'تنزيل هذه السورة',
+                            'Download this surah',
+                          ),
+                        ),
                       ),
                       OutlinedButton.icon(
-                        onPressed: _offlineBusy || selected == null || !_downloadedSurahs.contains(widget.surahNumber)
+                        onPressed:
+                            _offlineBusy ||
+                                selected == null ||
+                                !_downloadedSurahs.contains(widget.surahNumber)
                             ? null
                             : _playOfflineSurah,
                         icon: const Icon(Icons.play_arrow_rounded),
-                        label: Text(_studyText(context, 'تشغيل السورة دون اتصال', 'Play offline surah')),
+                        label: Text(
+                          _studyText(
+                            context,
+                            'تشغيل السورة دون اتصال',
+                            'Play offline surah',
+                          ),
+                        ),
                       ),
                       if (_downloadedSurahs.contains(widget.surahNumber))
                         TextButton.icon(
-                          onPressed: _offlineBusy ? null : _deleteCurrentSurahDownload,
+                          onPressed: _offlineBusy
+                              ? null
+                              : _deleteCurrentSurahDownload,
                           icon: const Icon(Icons.delete_outline_rounded),
-                          label: Text(_studyText(context, 'حذف السورة', 'Delete surah')),
+                          label: Text(
+                            _studyText(context, 'حذف السورة', 'Delete surah'),
+                          ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   OutlinedButton.icon(
-                    onPressed: _offlineBusy || selected == null || _downloadedSurahs.length == 114
+                    onPressed:
+                        _offlineBusy ||
+                            selected == null ||
+                            _downloadedSurahs.length == 114
                         ? null
                         : _downloadWholeQuranAudio,
                     icon: const Icon(Icons.library_music_outlined),
-                    label: Text(_studyText(context, 'تنزيل المصحف الصوتي كاملاً', 'Download all 114 surahs')),
+                    label: Text(
+                      _studyText(
+                        context,
+                        'تنزيل المصحف الصوتي كاملاً',
+                        'Download all 114 surahs',
+                      ),
+                    ),
                   ),
                   TextButton.icon(
                     onPressed: _offlineBusy || _downloadedSurahs.isEmpty
                         ? null
                         : _deleteAllAudioDownloads,
                     icon: const Icon(Icons.delete_sweep_outlined),
-                    label: Text(_studyText(context, 'حذف تنزيلات هذا القارئ', 'Remove this reciter’s downloads')),
+                    label: Text(
+                      _studyText(
+                        context,
+                        'حذف تنزيلات هذا القارئ',
+                        'Remove this reciter’s downloads',
+                      ),
+                    ),
                   ),
                   if (_offlineError != null) ...[
                     const SizedBox(height: 6),
@@ -844,15 +894,10 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         const SizedBox(height: 8),
         _SourceAttribution(
           title: 'AlQuran Cloud / Islamic Network',
-          description: _studyText(
-            context,
-            'تلاوة قرآنية',
-            'Quran recitation',
-          ),
+          description: _studyText(context, 'تلاوة قرآنية', 'Quran recitation'),
           version: 'API v1 · ${selected?.identifier ?? '—'}',
-          onOpen: () => _openSource(
-            Uri.https('alquran.cloud', '/terms-and-conditions'),
-          ),
+          onOpen: () =>
+              _openSource(Uri.https('alquran.cloud', '/terms-and-conditions')),
           extraNote: _studyText(
             context,
             'تسمح شروط AlQuran Cloud بالتنزيل الذي يطلبه المستخدم للاستماع الشخصي والتعليمي. تحفظ أثَر الملفات داخل مساحة التطبيق الخاصة فقط، ولا تصدّرها أو تعيد استضافتها أو تستخدمها للتدريب. حقوق التسجيل تبقى للقارئ أو صاحب الحق، ويجب حذف الملف إذا سُحبت إتاحته. راجع الشروط قبل أي استخدام تجاري.',
@@ -890,44 +935,43 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         body: _loadingAyah
             ? const Center(child: CircularProgressIndicator())
             : _ayahError != null
-                ? _InfoError(message: _ayahError!)
-                : Column(
-                    children: [
-                      Card(
-                        margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                '$_surahName · ${widget.surahNumber}:${widget.ayahNumber}',
-                                style: Theme.of(context).textTheme.labelLarge,
-                              ),
-                              const SizedBox(height: 10),
-                              SelectableText(
-                                _ayahText,
-                                textDirection: TextDirection.rtl,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      height: 2,
-                                    ),
-                              ),
-                            ],
+            ? _InfoError(message: _ayahError!)
+            : Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            '$_surahName · ${widget.surahNumber}:${widget.ayahNumber}',
+                            style: Theme.of(context).textTheme.labelLarge,
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          SelectableText(
+                            _ayahText,
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(height: 2),
+                          ),
+                        ],
                       ),
-                      Expanded(
-                        child: TabBarView(
-                          children: [
-                            _buildTafsirTab(context),
-                            _buildTranslationTab(context),
-                            _buildRecitationTab(context),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildTafsirTab(context),
+                        _buildTranslationTab(context),
+                        _buildRecitationTab(context),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -958,7 +1002,11 @@ class _SourceAttribution extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _studyText(context, 'المصدر وحقوق المحتوى', 'Source and content rights'),
+              _studyText(
+                context,
+                'المصدر وحقوق المحتوى',
+                'Source and content rights',
+              ),
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 6),

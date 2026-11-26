@@ -18,7 +18,9 @@ class OfflineRecitationStore {
     required String edition,
     required int surah,
   }) async {
-    throw UnsupportedError('Offline recitation downloads are not available on this platform.');
+    throw UnsupportedError(
+      'Offline recitation downloads are not available on this platform.',
+    );
   }
 
   Future<void> deleteSurah({

@@ -3,20 +3,23 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('QCF font platform routing', () {
-    test('uses the browser memory loader for the current and next page', () async {
-      final webPages = <int>[];
-      final nativePages = <int>[];
-      final adapter = QcfQuranPlusHafsRendererAdapter(
-        isWebOverride: true,
-        webPageFontLoader: (page) async => webPages.add(page),
-        nativePageFontLoader: (page) async => nativePages.add(page),
-      );
+    test(
+      'uses the browser memory loader for the current and next page',
+      () async {
+        final webPages = <int>[];
+        final nativePages = <int>[];
+        final adapter = QcfQuranPlusHafsRendererAdapter(
+          isWebOverride: true,
+          webPageFontLoader: (page) async => webPages.add(page),
+          nativePageFontLoader: (page) async => nativePages.add(page),
+        );
 
-      await adapter.ensurePageFonts(12);
+        await adapter.ensurePageFonts(12);
 
-      expect(webPages, [12, 13]);
-      expect(nativePages, isEmpty);
-    });
+        expect(webPages, [12, 13]);
+        expect(nativePages, isEmpty);
+      },
+    );
 
     test('retains the package disk loader on native platforms', () async {
       final webPages = <int>[];
@@ -92,16 +95,120 @@ void main() {
 
     test('validates every ayah and both boundaries of all 604 Mushaf pages', () {
       const ayahCounts = <int>[
-        7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111,
-        43, 52, 99, 128, 111, 110, 98, 135, 112, 78, 118, 64,
-        77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83,
-        182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29,
-        18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
-        14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28,
-        20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36, 25,
-        22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19,
-        5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3,
-        6, 3, 5, 4, 5, 6,
+        7,
+        286,
+        200,
+        176,
+        120,
+        165,
+        206,
+        75,
+        129,
+        109,
+        123,
+        111,
+        43,
+        52,
+        99,
+        128,
+        111,
+        110,
+        98,
+        135,
+        112,
+        78,
+        118,
+        64,
+        77,
+        227,
+        93,
+        88,
+        69,
+        60,
+        34,
+        30,
+        73,
+        54,
+        45,
+        83,
+        182,
+        88,
+        75,
+        85,
+        54,
+        53,
+        89,
+        59,
+        37,
+        35,
+        38,
+        29,
+        18,
+        45,
+        60,
+        49,
+        62,
+        55,
+        78,
+        96,
+        29,
+        22,
+        24,
+        13,
+        14,
+        11,
+        11,
+        18,
+        12,
+        12,
+        30,
+        52,
+        52,
+        44,
+        28,
+        28,
+        20,
+        56,
+        40,
+        31,
+        50,
+        40,
+        46,
+        42,
+        29,
+        19,
+        36,
+        25,
+        22,
+        17,
+        19,
+        26,
+        30,
+        20,
+        15,
+        21,
+        11,
+        8,
+        8,
+        19,
+        5,
+        8,
+        8,
+        11,
+        11,
+        8,
+        3,
+        9,
+        5,
+        4,
+        7,
+        3,
+        6,
+        3,
+        5,
+        4,
+        5,
+        6,
       ];
 
       expect(ayahCounts, hasLength(114));
@@ -116,8 +223,16 @@ void main() {
         expect(expected, isNotNull, reason: reason);
         final actualPosition = actual!;
         final expectedPosition = expected!;
-        expect(actualPosition.surahNumber, expectedPosition.surahNumber, reason: reason);
-        expect(actualPosition.ayahNumber, expectedPosition.ayahNumber, reason: reason);
+        expect(
+          actualPosition.surahNumber,
+          expectedPosition.surahNumber,
+          reason: reason,
+        );
+        expect(
+          actualPosition.ayahNumber,
+          expectedPosition.ayahNumber,
+          reason: reason,
+        );
       }
 
       HafsPageStart? nextAyah(HafsPageStart current) {
@@ -178,8 +293,16 @@ void main() {
         final actualStart = adapter.pageStart(page);
         final actualEnd = adapter.pageEnd(page);
 
-        expect(actualStart, isNotNull, reason: 'Page $page has no start coordinate');
-        expect(actualEnd, isNotNull, reason: 'Page $page has no end coordinate');
+        expect(
+          actualStart,
+          isNotNull,
+          reason: 'Page $page has no start coordinate',
+        );
+        expect(
+          actualEnd,
+          isNotNull,
+          reason: 'Page $page has no end coordinate',
+        );
         final start = actualStart!;
         final end = actualEnd!;
         expectSamePosition(
@@ -202,7 +325,8 @@ void main() {
           expectSamePosition(
             start,
             nextAyah(previousEnd),
-            reason: 'Gap or overlap between the end of page ${page - 1} and page $page',
+            reason:
+                'Gap or overlap between the end of page ${page - 1} and page $page',
           );
         }
 
@@ -225,6 +349,5 @@ void main() {
         reason: 'Mushaf must end at An-Nas 114:6',
       );
     });
-
   });
 }

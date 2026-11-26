@@ -140,12 +140,11 @@ class AthaarFeatureStore {
     int surah,
     int ayah, {
     String readingMode = 'surah',
-  }) =>
-      db.saveReadingPosition(
-        surahNumber: surah,
-        ayahNumber: ayah,
-        readingMode: readingMode,
-      );
+  }) => db.saveReadingPosition(
+    surahNumber: surah,
+    ayahNumber: ayah,
+    readingMode: readingMode,
+  );
 
   Future<void> addBookmark(int surah, int ayah) => db.customStatement(
     'INSERT OR IGNORE INTO quran_bookmarks(id, surah_number, ayah_number, created_at) VALUES(?, ?, ?, ?)',

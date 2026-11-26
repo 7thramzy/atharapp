@@ -25,7 +25,11 @@ class OfflineRecitationStore {
   String _validatedEdition(String edition) {
     final value = edition.trim();
     if (!RegExp(r'^[a-zA-Z0-9._-]{1,80}$').hasMatch(value)) {
-      throw ArgumentError.value(edition, 'edition', 'Invalid audio edition identifier.');
+      throw ArgumentError.value(
+        edition,
+        'edition',
+        'Invalid audio edition identifier.',
+      );
     }
     return value;
   }
@@ -73,12 +77,14 @@ class OfflineRecitationStore {
     final result = <int>{};
     await for (final entity in directory.list(followLinks: false)) {
       if (entity is! File) continue;
-      final match = RegExp(r'^surah-(\d{3})\.mp3$').firstMatch(
-        entity.uri.pathSegments.last,
-      );
+      final match = RegExp(r'^surah-(\d{3})\.mp3$')
+          .firstMatch(entity.uri.pathSegments.last);
       if (match == null) continue;
       final number = int.tryParse(match.group(1)!);
-      if (number != null && number >= 1 && number <= 114 && await entity.length() > 0) {
+      if (number != null &&
+          number >= 1 &&
+          number <= 114 &&
+          await entity.length() > 0) {
         result.add(number);
       }
     }
@@ -131,7 +137,9 @@ class OfflineRecitationStore {
         }
 
         if (!await partial.exists() || await partial.length() == 0) {
-          throw const FormatException('The audio provider returned an empty file.');
+          throw const FormatException(
+            'The audio provider returned an empty file.',
+          );
         }
 
         if (await target.exists()) await target.delete();

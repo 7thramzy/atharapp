@@ -80,12 +80,13 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
               ayahNumber: requestedAyah,
             )
           : savedPosition != null && savedPage != null
-              ? _SelectedAyah(
-                  surahNumber: savedPosition.surahNumber,
-                  ayahNumber: savedPosition.ayahNumber,
-                )
-              : null;
-      final positionToPersist = restoredPosition ??
+          ? _SelectedAyah(
+              surahNumber: savedPosition.surahNumber,
+              ayahNumber: savedPosition.ayahNumber,
+            )
+          : null;
+      final positionToPersist =
+          restoredPosition ??
           _SelectedAyah(
             surahNumber: pageStart?.surahNumber ?? 1,
             ayahNumber: pageStart?.ayahNumber ?? 1,
@@ -178,7 +179,9 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
       );
     });
     unawaited(
-      ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+      ref
+          .read(athaarFeatureStoreProvider)
+          .saveReadingPosition(
             surahNumber,
             ayahNumber,
             readingMode: 'hafs_mushaf',
@@ -194,7 +197,9 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
       );
     });
     unawaited(
-      ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+      ref
+          .read(athaarFeatureStoreProvider)
+          .saveReadingPosition(
             surahNumber,
             ayahNumber,
             readingMode: 'hafs_mushaf',
@@ -208,18 +213,24 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
 
   Future<void> _openDownloadedText() async {
     final adapter = ref.read(hafsRendererAdapterProvider);
-    final saved = await ref.read(athaarFeatureStoreProvider).getReadingPosition();
+    final saved = await ref
+        .read(athaarFeatureStoreProvider)
+        .getReadingPosition();
     final pageStart = adapter.pageStart(_currentPage);
-    final surahNumber = _selectedAyah?.surahNumber ??
+    final surahNumber =
+        _selectedAyah?.surahNumber ??
         saved?.surahNumber ??
         pageStart?.surahNumber ??
         1;
-    final ayahNumber = _selectedAyah?.ayahNumber ??
+    final ayahNumber =
+        _selectedAyah?.ayahNumber ??
         saved?.ayahNumber ??
         pageStart?.ayahNumber ??
         1;
 
-    await ref.read(athaarFeatureStoreProvider).saveReadingPosition(
+    await ref
+        .read(athaarFeatureStoreProvider)
+        .saveReadingPosition(
           surahNumber,
           ayahNumber,
           readingMode: 'hafs_mushaf',
@@ -326,10 +337,12 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
           ];
     final selectedAyahPage = _selectedAyah == null
         ? null
-        : ref.read(hafsRendererAdapterProvider).pageForAyah(
-            _selectedAyah!.surahNumber,
-            _selectedAyah!.ayahNumber,
-          );
+        : ref
+              .read(hafsRendererAdapterProvider)
+              .pageForAyah(
+                _selectedAyah!.surahNumber,
+                _selectedAyah!.ayahNumber,
+              );
     final verseHighlights = _selectedAyah == null
         ? const <HighlightVerse>[]
         : [
@@ -337,9 +350,7 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
               surah: _selectedAyah!.surahNumber,
               verseNumber: _selectedAyah!.ayahNumber,
               page: selectedAyahPage ?? _currentPage,
-              color: Theme.of(context)
-                  .colorScheme
-                  .secondaryContainer
+              color: Theme.of(context).colorScheme.secondaryContainer
                   .withValues(alpha: 0.38),
             ),
           ];
@@ -440,19 +451,19 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                             // when the surrounding application UI is English.
                             textDirection: TextDirection.rtl,
                             child: QuranPageView(
-                            pageController: _pageController!,
-                            highlights: verseHighlights,
-                            wordHighlights: wordHighlights,
-                            onWordTap: _onWordTap,
-                            onLongPress: (surahNumber, ayahNumber, details) =>
-                                _onVerseTap(surahNumber, ayahNumber),
-                            onPageChanged: _onPageChanged,
-                            isDarkMode: isDark,
-                            isTajweed: _tajweedEnabled,
-                            enableTwoPageLayout: _twoPageLayoutEnabled,
-                            pageBackgroundColor: isDark
-                                ? const Color(0xFF202529)
-                                : const Color(0xFFFFFCF4),
+                              pageController: _pageController!,
+                              highlights: verseHighlights,
+                              wordHighlights: wordHighlights,
+                              onWordTap: _onWordTap,
+                              onLongPress: (surahNumber, ayahNumber, details) =>
+                                  _onVerseTap(surahNumber, ayahNumber),
+                              onPageChanged: _onPageChanged,
+                              isDarkMode: isDark,
+                              isTajweed: _tajweedEnabled,
+                              enableTwoPageLayout: _twoPageLayoutEnabled,
+                              pageBackgroundColor: isDark
+                                  ? const Color(0xFF202529)
+                                  : const Color(0xFFFFFCF4),
                             ),
                           ),
                         ),

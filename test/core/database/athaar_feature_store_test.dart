@@ -15,19 +15,18 @@ void main() {
 
   tearDown(() async => database.close());
 
-  test('reading position stores its coordinate and explicit reading mode', () async {
-    await store.saveReadingPosition(
-      2,
-      255,
-      readingMode: 'hafs_mushaf',
-    );
+  test(
+    'reading position stores its coordinate and explicit reading mode',
+    () async {
+      await store.saveReadingPosition(2, 255, readingMode: 'hafs_mushaf');
 
-    final position = await store.getReadingPosition();
+      final position = await store.getReadingPosition();
 
-    expect(position?.surahNumber, 2);
-    expect(position?.ayahNumber, 255);
-    expect(position?.readingMode, 'hafs_mushaf');
-  });
+      expect(position?.surahNumber, 2);
+      expect(position?.ayahNumber, 255);
+      expect(position?.readingMode, 'hafs_mushaf');
+    },
+  );
 
   test('unspecified reading mode retains the legacy surah default', () async {
     await store.saveReadingPosition(3, 8);

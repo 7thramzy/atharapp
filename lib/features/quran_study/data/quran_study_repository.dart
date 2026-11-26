@@ -10,7 +10,8 @@ final quranStudyRepositoryProvider = Provider<QuranStudyRepository>((ref) {
 });
 
 class QuranStudyRepository {
-  QuranStudyRepository({http.Client? client}) : _client = client ?? http.Client();
+  QuranStudyRepository({http.Client? client})
+    : _client = client ?? http.Client();
 
   final http.Client _client;
 
@@ -35,13 +36,16 @@ class QuranStudyRepository {
     final decoded = _decodeMap(response, 'translation catalogue');
     final rows = decoded['translations'];
     if (rows is! List) {
-      throw const FormatException('QuranEnc returned an invalid translation catalogue.');
+      throw const FormatException(
+        'QuranEnc returned an invalid translation catalogue.',
+      );
     }
     return rows
         .whereType<Map<dynamic, dynamic>>()
-        .map((row) => QuranTranslationEdition.fromJson(
-              Map<String, dynamic>.from(row),
-            ))
+        .map(
+          (row) =>
+              QuranTranslationEdition.fromJson(Map<String, dynamic>.from(row)),
+        )
         .where((edition) => edition.key.isNotEmpty)
         .toList(growable: false);
   }
@@ -56,20 +60,17 @@ class QuranStudyRepository {
       throw ArgumentError.value(key, 'key');
     }
     final response = await _client.get(
-      Uri.https(
-        _quranEncHost,
-        '/api/v1/translation/aya/$key/$surah/$ayah',
-      ),
+      Uri.https(_quranEncHost, '/api/v1/translation/aya/$key/$surah/$ayah'),
       headers: const {'Accept': 'application/json'},
     );
     final decoded = _decodeMap(response, 'translation');
     final result = decoded['result'];
     if (result is! Map) {
-      throw const FormatException('QuranEnc returned an invalid ayah translation.');
+      throw const FormatException(
+        'QuranEnc returned an invalid ayah translation.',
+      );
     }
-    return QuranTranslationText.fromJson(
-      Map<String, dynamic>.from(result),
-    );
+    return QuranTranslationText.fromJson(Map<String, dynamic>.from(result));
   }
 
   Future<QuranTafsirText> getTafsir({
@@ -87,10 +88,14 @@ class QuranStudyRepository {
     final decoded = _decodeMap(response, 'tafsir');
     final tafsir = QuranTafsirText.fromJson(decoded);
     if (tafsir.text.isEmpty) {
-      throw const FormatException('The selected edition returned empty tafsir text.');
+      throw const FormatException(
+        'The selected edition returned empty tafsir text.',
+      );
     }
     if (tafsir.surahNumber != surah || tafsir.ayahNumber != ayah) {
-      throw const FormatException('The tafsir source returned a mismatched ayah reference.');
+      throw const FormatException(
+        'The tafsir source returned a mismatched ayah reference.',
+      );
     }
     return tafsir;
   }
@@ -107,13 +112,15 @@ class QuranStudyRepository {
     final decoded = _decodeMap(response, 'recitation catalogue');
     final rows = decoded['data'];
     if (rows is! List) {
-      throw const FormatException('AlQuran Cloud returned an invalid recitation catalogue.');
+      throw const FormatException(
+        'AlQuran Cloud returned an invalid recitation catalogue.',
+      );
     }
     return rows
         .whereType<Map<dynamic, dynamic>>()
-        .map((row) => QuranAudioEdition.fromJson(
-              Map<String, dynamic>.from(row),
-            ))
+        .map(
+          (row) => QuranAudioEdition.fromJson(Map<String, dynamic>.from(row)),
+        )
         .where((edition) => edition.identifier.isNotEmpty)
         .toList(growable: false);
   }
@@ -135,15 +142,21 @@ class QuranStudyRepository {
     final decoded = _decodeMap(response, 'recitation audio');
     final data = decoded['data'];
     if (data is! Map) {
-      throw const FormatException('AlQuran Cloud returned an invalid audio response.');
+      throw const FormatException(
+        'AlQuran Cloud returned an invalid audio response.',
+      );
     }
     final audio = data['audio'] ?? data['url'];
     if (audio is! String || audio.isEmpty) {
-      throw const FormatException('No audio is available for this ayah and reciter.');
+      throw const FormatException(
+        'No audio is available for this ayah and reciter.',
+      );
     }
     final uri = Uri.tryParse(audio);
     if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
-      throw const FormatException('The recitation source returned an unsafe audio URL.');
+      throw const FormatException(
+        'The recitation source returned an unsafe audio URL.',
+      );
     }
     return uri;
   }

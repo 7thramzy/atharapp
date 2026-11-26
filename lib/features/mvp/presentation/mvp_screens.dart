@@ -144,28 +144,51 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
                     onTap: () => context.push<void>('/quran/mushaf'),
-                    child: Row(children: [
-                      Container(
-                        width: 66, height: 76,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .12),
-                          borderRadius: BorderRadius.circular(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 66,
+                          height: 76,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .12),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.menu_book_rounded,
+                            color: Color(0xFFE1C78E),
+                            size: 42,
+                          ),
                         ),
-                        child: const Icon(Icons.menu_book_rounded, color: Color(0xFFE1C78E), size: 42),
-                      ),
-                      const SizedBox(width: 14),
-                      const Expanded(child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('فتح المصحف المعتمد — حفص عن عاصم',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
-                          SizedBox(height: 7),
-                          Text('المصحف المرجعي في أثَر · 604 صفحات · تجويد وتظليل',
-                            style: TextStyle(color: Colors.white70, fontSize: 12)),
-                        ],
-                      )),
-                      const Icon(Icons.chevron_left_rounded, color: Colors.white),
-                    ]),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'فتح المصحف المعتمد — حفص عن عاصم',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 17,
+                                ),
+                              ),
+                              SizedBox(height: 7),
+                              Text(
+                                'المصحف المرجعي في أثَر · 604 صفحات · تجويد وتظليل',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_left_rounded,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

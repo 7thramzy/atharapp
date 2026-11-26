@@ -7,7 +7,8 @@ class AboutScreen extends StatelessWidget {
   static const _tanzilUrl = 'https://tanzil.net/docs/Text_License';
   static const _qcfUrl = 'https://github.com/hussein12347/qcf_quran_plus';
   static const _kfgqpcUrl = 'https://qurancomplex.gov.sa/mushaf-printing';
-  static const _tafsirUrl = 'https://github.com/yamanamr/quran-tafsir-jami-wajiz/blob/main/LICENSE';
+  static const _tafsirUrl =
+      'https://github.com/yamanamr/quran-tafsir-jami-wajiz/blob/main/LICENSE';
   static const _quranEncUrl = 'https://quranenc.com/en/home/about/conditions';
   static const _audioTermsUrl = 'https://alquran.cloud/terms-and-conditions';
 
@@ -15,9 +16,9 @@ class AboutScreen extends StatelessWidget {
     final uri = Uri.parse(url);
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تعذّر فتح رابط المصدر.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تعذّر فتح رابط المصدر.')));
     }
   }
 
@@ -31,7 +32,9 @@ class AboutScreen extends StatelessWidget {
         children: [
           Text(
             'أثَر',
-            style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
+            style: textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -43,8 +46,7 @@ class AboutScreen extends StatelessWidget {
             title: 'نص القرآن الكريم — Tanzil Uthmani v1.1',
             status: 'معتمد للنص العربي المعروض دون تعديل',
             statusColor: Colors.green,
-            description:
-                'المصدر المرجعي للنص العربي داخل أثَر هو مشروع Tanzil، رواية/رسم Uthmani، الإصدار 1.1. حجم ملف المصدر 1,384,612 بايت، وبصمة SHA-256: 4b91f9e6e8ac645d039e4ed85b3be492e795232a31cd22d668ac58238722e26f. يجب إبقاء النص كما ورد، ونسبه إلى Tanzil Project، وإظهار رابط المصدر. أي تطبيع للبحث يجب أن يكون منفصلاً عن النص القرآني الأصلي.',
+            description: 'المصدر المرجعي للنص العربي داخل أثَر هو مشروع Tanzil، رواية/رسم Uthmani، الإصدار 1.1. حجم ملف المصدر 1,384,612 بايت، وبصمة SHA-256: 4b91f9e6e8ac645d039e4ed85b3be492e795232a31cd22d668ac58238722e26f. يجب إبقاء النص كما ورد، ونسبه إلى Tanzil Project، وإظهار رابط المصدر. أي تطبيع للبحث يجب أن يكون منفصلاً عن النص القرآني الأصلي.',
             attribution: 'Tanzil Project · Uthmani v1.1 · CC BY 3.0 مع شروط Tanzil الإضافية',
             onOpen: () => _open(context, _tanzilUrl),
           ),
@@ -52,10 +54,8 @@ class AboutScreen extends StatelessWidget {
             title: 'عرض المصحف — qcf_quran_plus 0.1.1',
             status: 'المجمع يجيز استخدام نسخته الرقمية في البرمجيات؛ مطابقة أصول الحزمة تحتاج إثباتاً',
             statusColor: Colors.orange,
-            description:
-                'تستخدم أثَر الحزمة qcf_quran_plus 0.1.1 لعرض مصحف حفص ذي الصفحات الـ604. يعلن مجمع الملك فهد رسمياً إتاحة نسخته الرقمية برواية حفص للاستخدام في البرامج الحاسوبية والنشر الرقمي، مجاناً وداخل المملكة وخارجها. هذا الإذن يخص النسخة الرقمية الصادرة من المجمع؛ أما ملفات الخطوط وبيانات الصفحات المرفقة داخل إصدار الحزمة فيجب مطابقة مصدرها ونسختها مع الأصول الرسمية قبل الجزم بأنها هي نفسها المشمولة بالإذن. رخصة MIT تخص كود الحزمة ولا تمنح وحدها حقوق الأصول. نعرض هذه الحدود بوضوح ولا ننسب الحزمة إلى المجمع على أنها حزمة رسمية. يظل نص Tanzil هو المرجع العربي المستقل ولا يُعدّل بواسطة محرك العرض.',
-            attribution:
-                'qcf_quran_plus 0.1.1 · مستودع المطوّر · إذن المجمع للنسخة الرقمية الرسمية',
+            description: 'تستخدم أثَر الحزمة qcf_quran_plus 0.1.1 لعرض مصحف حفص ذي الصفحات الـ604. يعلن مجمع الملك فهد رسمياً إتاحة نسخته الرقمية برواية حفص للاستخدام في البرامج الحاسوبية والنشر الرقمي، مجاناً وداخل المملكة وخارجها. هذا الإذن يخص النسخة الرقمية الصادرة من المجمع؛ أما ملفات الخطوط وبيانات الصفحات المرفقة داخل إصدار الحزمة فيجب مطابقة مصدرها ونسختها مع الأصول الرسمية قبل الجزم بأنها هي نفسها المشمولة بالإذن. رخصة MIT تخص كود الحزمة ولا تمنح وحدها حقوق الأصول. نعرض هذه الحدود بوضوح ولا ننسب الحزمة إلى المجمع على أنها حزمة رسمية. يظل نص Tanzil هو المرجع العربي المستقل ولا يُعدّل بواسطة محرك العرض.',
+            attribution: 'qcf_quran_plus 0.1.1 · مستودع المطوّر · إذن المجمع للنسخة الرقمية الرسمية',
             onOpen: () => _open(context, _qcfUrl),
             secondaryUrl: _kfgqpcUrl,
             secondaryLabel: 'الموقع الرسمي لمجمع الملك فهد',
@@ -64,8 +64,7 @@ class AboutScreen extends StatelessWidget {
             title: 'التفسير — الجامع الوجيز',
             status: 'يُعرض من المصدر دون تعديل',
             statusColor: Colors.green,
-            description:
-                'الجامع الوجيز في تفسير آي الكتاب العزيز، تأليف الشيخ الدكتور أيمن فاتح آل عامر. النسخة المستخدمة مثبتة عند spa5k/tafsir_api v1.2.3. النص يُعرض حرفياً مع نسبة المؤلف والمصدر، ولا يُعاد صياغته أو تعديله.',
+            description: 'الجامع الوجيز في تفسير آي الكتاب العزيز، تأليف الشيخ الدكتور أيمن فاتح آل عامر. النسخة المستخدمة مثبتة عند spa5k/tafsir_api v1.2.3. النص يُعرض حرفياً مع نسبة المؤلف والمصدر، ولا يُعاد صياغته أو تعديله.',
             attribution: 'Dr. Ayman Fathih Al-Amer · CC BY-ND 4.0 · v1.2.3',
             onOpen: () => _open(context, _tafsirUrl),
           ),
@@ -73,8 +72,7 @@ class AboutScreen extends StatelessWidget {
             title: 'ترجمات معاني القرآن — QuranEnc',
             status: 'اتصال مباشر؛ الحقوق حسب كل طبعة',
             statusColor: Colors.orange,
-            description:
-                'تُحمّل قائمة الترجمات والنصوص والحواشي عند طلبها من QuranEnc. يُعرض اسم الطبعة وإصدارها ووصفها كما يقدّمها الناشر. لا يعني توفر الترجمة أن كل الترجمات لها رخصة واحدة، ولا تُضمّن قاعدة ترجمات كاملة دون مراجعة رخصة كل طبعة.',
+            description: 'تُحمّل قائمة الترجمات والنصوص والحواشي عند طلبها من QuranEnc. يُعرض اسم الطبعة وإصدارها ووصفها كما يقدّمها الناشر. لا يعني توفر الترجمة أن كل الترجمات لها رخصة واحدة، ولا تُضمّن قاعدة ترجمات كاملة دون مراجعة رخصة كل طبعة.',
             attribution: 'QuranEnc · Attribution and edition terms apply',
             onOpen: () => _open(context, _quranEncUrl),
           ),
@@ -82,8 +80,7 @@ class AboutScreen extends StatelessWidget {
             title: 'التلاوات — AlQuran Cloud / Islamic Network',
             status: 'بث مباشر وتنزيل يطلبه المستخدم للاستماع الشخصي/التعليمي',
             statusColor: Colors.green,
-            description:
-                'يمكن للمستخدم تشغيل التلاوة عبر الإنترنت أو تنزيل ملف السورة إلى مساحة أثَر الخاصة على جهازه للاستماع دون اتصال. لا يرفع التطبيق الملفات ولا يعيد استضافتها ولا يتيح تصديرها من مساحة التطبيق. حقوق التسجيل تبقى للقارئ أو صاحب الحق؛ يجب إظهار اسم القارئ والمصدر، وحذف الملف إذا سُحبت إتاحته. يجب مراجعة الشروط مجدداً قبل أي اشتراك أو إعلان أو نشاط تجاري.',
+            description: 'يمكن للمستخدم تشغيل التلاوة عبر الإنترنت أو تنزيل ملف السورة إلى مساحة أثَر الخاصة على جهازه للاستماع دون اتصال. لا يرفع التطبيق الملفات ولا يعيد استضافتها ولا يتيح تصديرها من مساحة التطبيق. حقوق التسجيل تبقى للقارئ أو صاحب الحق؛ يجب إظهار اسم القارئ والمصدر، وحذف الملف إذا سُحبت إتاحته. يجب مراجعة الشروط مجدداً قبل أي اشتراك أو إعلان أو نشاط تجاري.',
             attribution: 'AlQuran Cloud / Islamic Network · Reciter retains recording copyright',
             onOpen: () => _open(context, _audioTermsUrl),
           ),
@@ -144,7 +141,12 @@ class _SourceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,9 +165,17 @@ class _SourceCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Text(description, style: theme.textTheme.bodyMedium?.copyWith(height: 1.65)),
+            Text(
+              description,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.65),
+            ),
             const SizedBox(height: 8),
-            Text(attribution, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)),
+            Text(
+              attribution,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: Wrap(
