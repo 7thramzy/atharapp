@@ -27,4 +27,5 @@ class OfflineRecitationStore {
   }) async {}
 
   Future<void> deleteAllForEdition(String edition) async {}
+  void close() {}
 }
