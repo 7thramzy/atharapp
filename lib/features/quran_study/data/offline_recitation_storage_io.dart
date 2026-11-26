@@ -24,7 +24,7 @@ void _validate(String edition, int surah, [int? ayah]) {
 Future<Directory> _surahDirectory(String edition, int surah) async {
   _validate(edition, surah);
   final root = await getApplicationSupportDirectory();
-  return Directory(p.join(root.path, 'athaar', 'recitations', edition, 'surah_' + surah.toString()));
+  return Directory(p.join(root.path, 'athaar', 'recitations', edition, 'surah_$surah'));
 }
 
 Future<String?> findAyah({
@@ -34,7 +34,7 @@ Future<String?> findAyah({
 }) async {
   _validate(edition, surah, ayah);
   final directory = await _surahDirectory(edition, surah);
-  final file = File(p.join(directory.path, 'ayah_' + ayah.toString() + '.mp3'));
+  final file = File(p.join(directory.path, 'ayah_$ayah.mp3'));
   return await file.exists() ? file.path : null;
 }
 
@@ -82,7 +82,7 @@ Future<void> downloadSurah({
 
       final target = File(p.join(
         directory.path,
-        'ayah_' + track.numberInSurah.toString() + '.mp3',
+        'ayah_${track.numberInSurah}.mp3',
       ));
       if (await target.exists() && await target.length() > 0) {
         completed++;
@@ -97,9 +97,7 @@ Future<void> downloadSurah({
         );
         if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
           throw HttpException(
-            'Audio download failed for ayah ' +
-                track.numberInSurah.toString() +
-                ' (HTTP ' + response.statusCode.toString() + ').',
+            'Audio download failed for ayah ${track.numberInSurah} (HTTP ${response.statusCode}).',
             uri: track.uri,
           );
         }
