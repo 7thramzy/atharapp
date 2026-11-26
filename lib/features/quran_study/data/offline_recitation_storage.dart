@@ -1,5 +1,4 @@
 import 'package:athaar/features/quran_study/data/quran_study_repository.dart';
-import 'offline_recitation_errors.dart';
 import 'offline_recitation_storage_stub.dart'
     if (dart.library.io) 'offline_recitation_storage_io.dart' as platform;
 
