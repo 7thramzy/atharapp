@@ -1,9 +1,11 @@
 import 'package:athaar/core/database/app_database.dart';
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late AppDatabase database;
   late AthaarFeatureStore store;
 
@@ -52,6 +54,11 @@ void main() {
   });
 
   test('memorization session updates every ayah atomically', () async {
+    final source = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(source);
+
     await store.recordMemorizationSession(
       surah: 1,
       startAyah: 1,
@@ -62,7 +69,38 @@ void main() {
     expect(summary['stable'], 3);
   });
 
+  test(
+    'rejects memorization references outside canonical surah bounds',
+    () async {
+      final source = await rootBundle.loadString(
+        'assets/content/quran/tanzil-uthmani-v1.1.json',
+      );
+      await store.importQuranJson(source);
+
+      await expectLater(
+        store.setMemorizationStatus(1, 8, 'stable'),
+        throwsRangeError,
+      );
+      await expectLater(
+        store.recordMemorizationSession(
+          surah: 13,
+          startAyah: 1,
+          endAyah: 44,
+          outcome: 'learning',
+        ),
+        throwsRangeError,
+      );
+      expect((await store.memorizationSummary())['stable'], 0);
+      expect((await store.personalImpactSummary())['sessions'], 0);
+    },
+  );
+
   test('personal impact is derived from saved local activity', () async {
+    final source = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(source);
+
     await store.recordMemorizationSession(
       surah: 2,
       startAyah: 1,
