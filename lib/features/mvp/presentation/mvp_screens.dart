@@ -861,7 +861,7 @@ class PersonalImpactScreen extends ConsumerWidget {
                 await const AthaarShareCardService().share(
                   title: 'إنجازي في أثَر',
                   subtitle: 'رحلة قراءة وحفظ ومراجعة',
-                  body: 'سجلت ${points['points'] ?? 0} نقطة نشاط في أثَر.\nكل خطوة صغيرة تقرّبني من الاستمرار.',
+                  body: 'إجمالي النقاط: ${points['points'] ?? 0}\nنقاط القراءة: ${points['reading_points'] ?? 0} من ${points['reading_events'] ?? 0} مواضع\nنقاط الحفظ: ${points['memorization_points'] ?? 0} من ${points['memorization_events'] ?? 0} جلسات\nكل خطوة صغيرة تقرّبني من الاستمرار.',
                   footer: 'النقاط للنشاط المسجل فقط · لا تمثل حكماً على جودة التلاوة',
                 );
               },
