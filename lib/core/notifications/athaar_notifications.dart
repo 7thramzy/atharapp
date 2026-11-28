@@ -27,7 +27,9 @@ class AthaarNotifications {
   );
 
   static Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized) {
+      return;
+    }
     if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
       _initialized = true;
       return;
@@ -45,7 +47,9 @@ class AthaarNotifications {
   }
 
   static Future<bool> requestPermission() async {
-    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return false;
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+      return false;
+    }
     await initialize();
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -99,13 +103,17 @@ class AthaarNotifications {
   }
 
   static Future<void> cancel(int id) async {
-    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return;
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+      return;
+    }
     await initialize();
     await _plugin.cancel(id: id);
   }
 
   static Future<List<PendingNotificationRequest>> pending() async {
-    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return const [];
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+      return const [];
+    }
     await initialize();
     return _plugin.pendingNotificationRequests();
   }
