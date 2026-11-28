@@ -430,7 +430,6 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
     }
   }
 
-
   Future<void> _playAyahRange(int startAyah, int endAyah) async {
     final reciter = _selectedReciter;
     if (reciter == null) return;
@@ -481,8 +480,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         .getSurahAyahs(widget.surahNumber);
     if (!mounted || rows.isEmpty) return;
     final count = rows.length;
-    var start = widget.ayahNumber.clamp(1, count);
-    var end = (start + 4).clamp(start, count);
+    var start = widget.ayahNumber.clamp(1, count).toInt();
+    var end = (start + 4).clamp(start, count).toInt();
     final selected = await showDialog<(int, int)>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
