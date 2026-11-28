@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:athaar/core/database/athaar_feature_store.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AdhkarLibraryScreen extends ConsumerStatefulWidget {
@@ -28,14 +28,12 @@ class _AdhkarLibraryScreenState extends ConsumerState<AdhkarLibraryScreen> {
   Future<void> _load() async {
     try {
       final store = ref.read(athaarFeatureStoreProvider);
-      final results = await Future.wait([
-        store.listAdhkar(),
-        store.listAdhkarCategories(),
-      ]);
+      final items = await store.listAdhkar();
+      final categories = await store.listAdhkarCategories();
       if (!mounted) return;
       setState(() {
-        _items = results[0] as List<Map<String, Object?>>;
-        _categories = results[1] as List<Map<String, Object?>>;
+        _items = items;
+        _categories = categories;
         _loading = false;
         _error = null;
       });
