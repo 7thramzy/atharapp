@@ -1,83 +1,64 @@
 # Athaar project status
 
-**Last verified:** 2026-11-27  
-**Default branch:** main  
-**Current phase:** M2/M3 local-first workflows implemented. QCF Hafs Mushaf technical integration is complete on PR #16; physical-device QA and release-size review remain open.
+**Last verified:** 2026-11-28  
+**Default branch:** `main`  
+**Current phase:** Integration and release-gate closure. Core local-first Flutter workflows are on `main`; the latest Quran/audio/memorization integration is under review in PR #37 and is not yet merged.
 
 ## Completed on main
 
-- M1 Flutter foundation merged through PR #5; CI passed quality, Android debug, and unsigned iOS build jobs.
-- M2 reader/search/bookmark/note/import foundation and M3 local adhkar/memorization/personal-impact workflows added.
-- Drift schema upgraded to v2 with a migration path and local feature tables.
-- Independent Athaar repository and initial product/engineering documents.
-- Source-level audit of Quran Offline Mobile and Flutter Boilerplate.
-- Selective-reuse decision; no full upstream app fork.
-- Flutter + Riverpod + GoRouter + Drift/SQLite architecture.
-- Backend integration deferred until after the local MVP.
-- Content-source policy and parallel-agent workflow.
-- GitHub issues #1–#4 created for M1 and independent content-rights reviews.
+- Flutter foundation, Arabic-first UI, Riverpod, GoRouter, Drift/SQLite and local-first workflows.
+- Reader/search/bookmark/note/import foundation and local adhkar/memorization/personal-impact workflows.
+- Drift schema v2 and migration coverage.
+- PR #36 merged: privacy-policy draft and release acceptance checklist. The privacy policy is an internal draft only; it is not published or legally approved.
+- Official Tanzil Uthmani v1.1 source acquisition/provenance work is maintained with a source manifest. Canonical Quran payload must remain verbatim.
 
-## M1 implementation
+## Current integration candidate — PR #37
 
-Merged to main through PR #5. CI run 45259877678 passed all four jobs.
-- Flutter package manifest with Flutter 3.50.0 / Dart 3.14 compatibility.
-- Riverpod, GoRouter, Drift, and generated localization wiring.
-- Arabic-first home screen and settings screen with English switching.
-- Athaar light/dark color scheme.
-- Drift schema v1: local settings, reading position, app metadata.
-- Database repository and persistence tests.
-- GitHub Codespaces Dev Container setup and native platform bootstrap script.
-- GitHub Actions format/analyze/test plus Android and unsigned iOS build jobs.
+PR: https://github.com/7thramzy/atharapp/pull/37  
+Branch: `agent/release/integrated-quran-audio-candidate`  
+Current head: `0a0ed45e398508b47ce4ac7bdbc53086fee39691`
 
-## M1 validation state
+The integration candidate consolidates:
+- QCF Hafs renderer ayah-order correction and regression coverage across cached parsed lines.
+- Standalone basmala in the local text reader, preserving Al-Fatihah and At-Tawbah exceptions and canonical source text.
+- Audio playback controls, reciter identifier validation, trusted HTTPS audio-host validation, and Quran reference bounds.
+- Memorization range validation and local-store safeguards.
+- Structural Hafs Mushaf and boundary regression tests.
 
-- GitHub Actions run 45259877678 passed formatting, static analysis, tests, Android debug build, unsigned iOS build, and generated-source persistence.
-- Cairo font binary is not bundled; system Arabic fallback is used pending the exact OFL asset and notice.
-- No Android/iOS binary is signed or published.
-- No Supabase/backend connection has been created.
+### Exact-head CI status
 
-## Content source decisions
+- CI run `46154459793` passed on parent commit `fac079d07d21c467f54d7e21b7499f687671ecf8`: Tanzil acquisition, format/analyze/tests, Android debug and ARM64 test-release builds, Windows release/installer, and unsigned iOS simulator build.
+- The Android ARM64 test APK was signed with a CI Debug certificate, not a production key. It is not a public release.
+- The current PR head `0a0ed45e398508b47ce4ac7bdbc53086fee39691` changes only `retrieved_at_utc` metadata in the Tanzil source manifest; the Quran payload is unchanged.
+- Workflow run `46155196272` for the current head is `action_required` and returned no jobs. Exact-head CI is therefore NOT green. A repository owner must approve/allow the workflow in GitHub Actions or otherwise resolve the required approval; do not merge until the current head has a successful run.
+- PR #37 remains Draft and unmerged. Do not distribute its CI artifacts as a finished release.
 
-- Tanzil Uthmani v1.1: selected for verbatim offline Arabic Quran text with the required notice and link; exact downloaded file/hash still needs to be recorded before bundling.
-- Quran Foundation API content: not selected as a static app bundle.
-- QUL: discovery catalogue only; each translation/tafsir/font/audio item requires resource-level review.
-- Cairo UI font: OFL 1.1; exact file and notice still to be added.
-- KFGQPC Quran font/Mushaf resources: conditional on exact file and official digital-use notice.
-- Tafsir and translations: no exact dataset is approved yet.
-- Recitations: no MP3 bundle in MVP; provider/reciter rights tasks remain open.
+## Release blockers — do not mark complete without evidence
 
+1. **QCF assets:** the package's MIT code licence does not establish redistribution rights for its bundled font/page-data assets. Exact provenance and applicable official permissions must be demonstrated, or the assets replaced with a rights-cleared alternative.
+2. **Physical Mushaf QA:** compare representative pages, RTL ordering, glyph shaping, basmala and navigation on real Android hardware against an approved reference. CI structural tests are not visual QA.
+3. **Full page verification:** complete independent 604-page boundary/content mapping checks and a documented human review sample.
+4. **Audio rights and offline behavior:** verify the exact reciter/recording permissions for streaming, caching and offline downloads. Exercise background playback, lock screen, Bluetooth, audio focus, interruptions and offline transitions on physical devices.
+5. **Automated tasmee / ASR:** no production ASR-based verse recognition, omission/repetition detection, or Tajweed assessment is approved. The current candidate is research-only; local recording/playback is not automated tasmee.
+6. **Word-by-word Arabic meanings:** no Arabic lexical edition is approved for bundling. Do not invent meanings or treat an English morphology/gloss resource as an Arabic dictionary.
+7. **Privacy:** complete owner/legal identity, jurisdiction, support contact, public HTTPS policy, actual data flows, retention/deletion behavior and legal review. PR #36 only added a draft and checklist.
+8. **Production signing:** configure Android production signing and produce a signed AAB; configure Apple signing and a device IPA/archive; decide and verify Windows Authenticode or Store distribution. Never commit signing secrets.
+9. **Store and device acceptance:** complete clean-device install/upgrade, accessibility, localization, offline/network failure, performance, backup/deletion and store metadata checks.
 
-## QCF Hafs Mushaf integration (PR #16)
+## Current product scope boundary
 
-- Pinned `qcf_quran_plus: 0.1.1` behind an Athaar-owned `HafsRendererAdapter`; no QCF package types leak into the Drift/domain contract.
-- Added the 604-page Hafs reader at `/quran/mushaf`, including page jump/navigation, Tajweed toggle, responsive two-page layout, word tap/highlighting, long-press ayah selection, Drift bookmarks, and last-reading-position restore.
-- Fonts are loaded page-by-page (current page + next page); the all-pages `setupFontsAtStartup` helper is not called.
-- CI run [45471585911](https://github.com/7thramzy/atharapp/actions/runs/45471585911) passed source acquisition, static analysis, all tests, Android debug build, unsigned iOS simulator build, Windows release/installer, and generated-source persistence.
-- Android debug APK measured **251,830,435 bytes (240.16 MiB)**. This is a large debug build; release packaging and size optimization review is still required.
-- Physical-device visual QA and full 604-page mapping verification are not yet complete. The integration is on PR #16 and has not been merged to main.
+Do not advertise features as shipped unless they are merged and tested. In particular, automated tasmee/Tajweed scoring, family/community groups, cloud sync, donations, and unlicensed offline recitation bundles are not approved for the first public release.
 
-## Public release preparation branch — release/public-readiness
+## Related tracking
 
-- Added the About screen with exact Tanzil Uthmani v1.1 provenance/hash and QCF package/version/code licence versus unresolved embedded-asset rights distinction.
-- Added private offline surah audio downloads for native platforms, full 114-surah download with progress/retry and deletion, and automated store unit tests. Online ayah streaming remains available. The web build intentionally has no offline audio download store.
-- Added a 6,236-ayah / 114-surah / 604-page structural test. It verifies every ayah maps to a page, all 604 pages are populated, page start/end coordinates round-trip, adjacent page boundaries are contiguous, and the full Mushaf begins at 1:1 and ends at 114:6. This is not a substitute for visual, device, or independent manuscript review.
-- Added production INTERNET permission and a release-manifest CI assertion.
-- Added Android, Windows and iOS production-signing workflows. They require owner-provided platform secrets; no production key/certificate is present in Git.
-- Disabled Vercel preview deployments at project level and set `git.deploymentEnabled=false` in the candidate vercel.json. Project-wide deployment policies are unavailable on the current Vercel Hobby plan.
-- This branch is not merged to main. No signed production artifact or physical-device QA has been completed.
-- **Public-distribution gate:** exact QCF font/page-data redistribution permission remains unverified. The qcf_quran_plus MIT code licence does not by itself grant rights to the bundled font/data assets.
-- The detailed privacy policy remains deferred at the owner's request and is still required before store submission.
+- PR #36 — merged privacy draft and release acceptance checklist.
+- PR #37 — current integrated Quran/audio/memorization candidate; Draft, exact-head CI blocked by `action_required`.
+- Issue #21 — public release readiness master checklist.
+- Issue #26 — Mushaf ordering and 604-page integrity / physical QA.
+- Issue #31 — standalone basmala behavior.
+- Issue #34 — Arabic word-by-word meaning rights and alignment.
+- Issue #4 — recitation audio licensing.
+- Issue #23 — privacy disclosures, source/license screen and removal of stale test download links.
+- PR #13 / issue #6 — local recording foundation only; not an ASR/tasmee engine.
 
-## Active GitHub work
-
-- #1 M1: Flutter app shell, Arabic RTL, Drift, Codespaces and CI.
-- #2 Quran text and Mushaf font rights dossier.
-- #3 Tafsir and translation rights dossier.
-- #4 Recitation audio rights dossier.
-
-## M2/M3 acceptance gates
-
-- Verify the exact Tanzil Uthmani v1.1 file SHA-256 and required attribution notice before importing the text.
-- Complete independent review of adhkar sources before shipping a curated pre-populated catalog; user-entered entries remain explicitly unverified.
-- Implement and physically test user-scheduled local reminders.
-- Run CI on the latest main commit and complete Arabic RTL, accessibility, offline, and migration QA.
+**Release rule:** no APK/EXE/IPA handoff or public release until the integration is merged after exact-head CI, rights and privacy gates are closed, physical-device QA passes, and production signing is verified.
