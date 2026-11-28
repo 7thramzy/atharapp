@@ -141,7 +141,9 @@ class AthaarFeatureStore {
          WHERE a.surah_number = ? AND a.ayah_number = ?''',
       variables: [Variable.withInt(surah), Variable.withInt(ayah)],
     ).get();
-    if (rows.isEmpty) return null;
+    if (rows.isEmpty) {
+      return null;
+    }
     return {
       'text': rows.single.read<String>('text_uthmani'),
       'surah_name': rows.single.read<String>('name_arabic'),
@@ -374,7 +376,9 @@ class AthaarFeatureStore {
 
   Future<void> recordReadingCompletion(String reference) async {
     final normalized = reference.trim();
-    if (normalized.isEmpty) throw ArgumentError('A Quran reference is required.');
+    if (normalized.isEmpty) {
+      throw ArgumentError('A Quran reference is required.');
+    }
     final eventId = 'reading:$normalized:$_today';
     await db.customStatement(
       "INSERT OR IGNORE INTO activity_events(event_id, event_type, reference, points, created_at) VALUES(?, 'reading_completed', ?, 1, ?)",
