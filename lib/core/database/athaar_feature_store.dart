@@ -134,6 +134,22 @@ class AthaarFeatureStore {
         .toList();
   }
 
+  Future<Map<String, Object?>?> getAyahForShare(int surah, int ayah) async {
+    final rows = await db.customSelect(
+      '''SELECT a.text_uthmani, s.name_arabic
+         FROM quran_ayahs a JOIN quran_surahs s USING(surah_number)
+         WHERE a.surah_number = ? AND a.ayah_number = ?''',
+      variables: [Variable.withInt(surah), Variable.withInt(ayah)],
+    ).get();
+    if (rows.isEmpty) return null;
+    return {
+      'text': rows.single.read<String>('text_uthmani'),
+      'surah_name': rows.single.read<String>('name_arabic'),
+      'surah': surah,
+      'ayah': ayah,
+    };
+  }
+
   Future<ReadingPosition?> getReadingPosition() => db.getReadingPosition();
 
   Future<void> saveReadingPosition(
