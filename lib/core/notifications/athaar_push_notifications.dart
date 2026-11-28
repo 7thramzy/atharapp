@@ -11,16 +11,18 @@ class AthaarPushNotifications {
 
   static const String _topic = 'athaar_all';
   static bool _ready = false;
-  static StreamSubscription<RemoteMessage>? _foregroundSubscription;
-  static StreamSubscription<String>? _tokenSubscription;
 
   static Future<bool> initialize() async {
     if (kIsWeb ||
         ![TargetPlatform.android, TargetPlatform.iOS]
-            .contains(defaultTargetPlatform)) return false;
+            .contains(defaultTargetPlatform)) {
+      return false;
+    }
     if (_ready) return true;
     try {
-      if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
       final messaging = FirebaseMessaging.instance;
       await messaging.setForegroundNotificationPresentationOptions(
         alert: false,
@@ -29,13 +31,14 @@ class AthaarPushNotifications {
       );
       FirebaseMessaging.onMessage.listen((message) {
         final notification = message.notification;
-        if (notification == null) return;
+        if (notification == null) {
+          return;
+        }
         unawaited(AthaarNotifications.showAdminBroadcast(
           title: notification.title ?? 'إشعار من أثَر',
           body: notification.body ?? '',
         ));
       });
-      _tokenSubscription ??= messaging.onTokenRefresh.listen((_) {});
       _ready = true;
       return true;
     } catch (_) {
