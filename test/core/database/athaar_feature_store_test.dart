@@ -53,6 +53,48 @@ void main() {
     expect(items.single['count'], 1);
   });
 
+  test('bundled Quranic adhkar seed is offline and idempotent', () async {
+    final quran = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(quran);
+    final seed = await rootBundle.loadString(
+      'assets/content/adhkar/seed-v1.json',
+    );
+
+    await store.importBundledAdhkar(seed);
+    await store.importBundledAdhkar(seed);
+
+    final items = await store.listAdhkar();
+    expect(items, hasLength(8));
+    expect(items.where((item) => item['category_id'] == 'morning'), hasLength(4));
+    expect(items.where((item) => item['category_id'] == 'evening'), hasLength(4));
+    expect(items.every((item) => item['verified'] == true), isTrue);
+    expect(items.every((item) => item['review_status'] == 'reviewed'), isTrue);
+  });
+
+  test('reading completion awards points once per ayah per local day', () async {
+    await store.recordReadingCompletion('2:255');
+    await store.recordReadingCompletion('2:255');
+    final summary = await store.activityPointsSummary();
+    expect(summary['points'], 1);
+    expect(summary['events'], 1);
+  });
+
+  test('favorite toggle is persisted in the adhkar library', () async {
+    await store.createAdhkarItem(
+      textArabic: 'ذكر اختباري',
+      targetCount: 1,
+      sourceReference: 'اختبار',
+    );
+    final item = (await store.listAdhkar()).single;
+    final id = item['id']! as String;
+    await store.toggleAdhkarFavorite(id);
+    expect((await store.listAdhkar()).single['favorite'], isTrue);
+    await store.toggleAdhkarFavorite(id);
+    expect((await store.listAdhkar()).single['favorite'], isFalse);
+  });
+
   test('memorization session updates every ayah atomically', () async {
     final source = await rootBundle.loadString(
       'assets/content/quran/tanzil-uthmani-v1.1.json',
