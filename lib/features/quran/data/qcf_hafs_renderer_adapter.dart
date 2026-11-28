@@ -1,6 +1,13 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qcf_quran_plus/qcf_quran_plus.dart';
+// Keep QCF's parsed-line cache correction isolated in this adapter. The
+// package parser reverses ayah segments, while QuranLine renders them inside
+// an RTL RichText; the outer paragraph then places the reversed first segment
+// at the right edge, visibly reversing the Mushaf reading order.
+// ignore: implementation_imports
+import 'package:qcf_quran_plus/src/widgets/quran_page/parsed_quran_data.dart'
+    show ParsedAyahData, ParsedLineCache, parsedLineKey;
 
 import 'qcf_web_font_loader.dart';
 
@@ -67,9 +74,34 @@ class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
 
   @override
   Future<void> initialize() {
-    return _initialization ??= QuranRepository.instance.ensureLoaded(
-      totalPagesCount,
-    );
+    return _initialization ??= _initializeRepository();
+  }
+
+  Future<void> _initializeRepository() async {
+    final repository = QuranRepository.instance;
+    await repository.ensureLoaded(totalPagesCount);
+
+    // qcf_quran_plus 0.1.1 pre-parses each line in reverse ayah order.
+    // QuranLine then embeds each ayah as a WidgetSpan in an RTL RichText.
+    // That outer RTL paragraph already positions the first span at the right,
+    // so the parser reversal makes multi-ayah lines read backwards. Restore
+    // the canonical source order in the cached presentation list only; never
+    // modify Quran text, QCF glyph data, or page metadata.
+    final correctedLines = <int, List<ParsedAyahData>>{};
+    for (var pageNumber = 1; pageNumber <= totalPagesCount; pageNumber++) {
+      final page = repository.pages[pageNumber - 1];
+      for (var lineIndex = 0; lineIndex < page.lines.length; lineIndex++) {
+        final parsed = ParsedLineCache.instance.tryGet(pageNumber, lineIndex);
+        if (parsed == null) {
+          throw StateError(
+            'Missing pre-parsed QCF line: page $pageNumber, line $lineIndex',
+          );
+        }
+        correctedLines[parsedLineKey(pageNumber, lineIndex)] =
+            parsed.reversed.toList(growable: false);
+      }
+    }
+    ParsedLineCache.instance.prefill(correctedLines);
   }
 
   @override
