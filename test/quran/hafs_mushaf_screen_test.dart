@@ -95,7 +95,8 @@ void main() {
     expect(verse, contains('تِلْكَ آيَاتُ الْكِتَابِ'));
 
     final pageNumber = getPageNumber(13, 1);
-    final surahSegment = getPageData(pageNumber).singleWhere(
+    final pageSegments = getPageData(pageNumber).cast<Map<String, dynamic>>();
+    final surahSegment = pageSegments.singleWhere(
       (segment) => segment['surah'] == 13,
     );
     expect(surahSegment['start'], 1);
@@ -109,7 +110,8 @@ void main() {
   test('surah-opening pages retain their canonical first ayah boundaries', () {
     for (final surah in [2, 3, 13, 18, 95, 97, 114, 9]) {
       final pageNumber = getPageNumber(surah, 1);
-      final segment = getPageData(pageNumber).singleWhere(
+      final pageSegments = getPageData(pageNumber).cast<Map<String, dynamic>>();
+      final segment = pageSegments.singleWhere(
         (entry) => entry['surah'] == surah,
       );
 
