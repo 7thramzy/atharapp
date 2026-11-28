@@ -18,6 +18,7 @@ Future<void> main() async {
   final database = AppDatabase();
   await database.initializeDefaults();
   await _ensureBundledQuran(database);
+  await _ensureBundledAdhkar(database);
   final storedSettings = await database.getLocalSettings();
 
   final initialLocale = Locale(storedSettings?.locale ?? 'ar');
@@ -62,4 +63,13 @@ Future<void> _ensureBundledQuran(AppDatabase database) async {
     return;
   }
   await store.importQuranJson(sourceJson);
+}
+
+
+/// Seeds a small offline Quranic recitation collection from the already
+/// checksum-verified local Quran dataset. Hadith-based items are not inferred.
+Future<void> _ensureBundledAdhkar(AppDatabase database) async {
+  const assetPath = 'assets/content/adhkar/seed-v1.json';
+  final sourceJson = await rootBundle.loadString(assetPath);
+  await AthaarFeatureStore(database).importBundledAdhkar(sourceJson);
 }
