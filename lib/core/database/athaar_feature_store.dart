@@ -447,7 +447,7 @@ class AthaarFeatureStore {
       );
       await db.customStatement(
         "INSERT OR IGNORE INTO activity_events(event_id, event_type, reference, points, created_at) VALUES(?, 'memorization_session_recorded', ?, 5, ?)",
-        ['memorization:$sessionId', '$surah:$startAyah-$endAyah', _now],
+        ['memorization:$surah:$startAyah-$endAyah:$_today', '$surah:$startAyah-$endAyah', _now],
       );
     });
   }
