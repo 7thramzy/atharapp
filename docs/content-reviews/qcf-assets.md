@@ -39,3 +39,33 @@ A package-maintainer statement should be retained in the repository with its dat
 ## Audit limitation
 
 This review inspected the public repository tree and published manifest/license text. It did not download and compare all 608 binary assets against an official KFGQPC archive. Therefore it is a provenance review, not a byte-for-byte authenticity certification.
+
+
+## Official King Fahd Complex source verification — 2026-11-28
+
+The official Complex publication page was rechecked on 2026-11-28:
+
+- Official page: https://qurancomplex.gov.sa/mushaf-printing
+- Edition: Madinah Mushaf, Hafs narration, digital vector edition (Illustrator)
+- Published size: 423.3 MB
+- Published SHA-256: `C2FA8D93A7C4F689B58EB32756E1AE56CD1B7CE4826F63E09723BE8B092224FB`
+- The Complex's published usage section explicitly permits free use of this digital edition for personal work, government/private/non-profit institutions, print publishing, desktop publishing, media, websites, computer programs and similar uses, inside and outside Saudi Arabia.
+- The Complex states that this approved digital production was reviewed by its scientific and Sharia committees and supervised by the Complex calligrapher; this is a statement about the Complex's source edition, not a certification of Athaar itself.
+- Official computer-publishing product page: https://qurancomplex.gov.sa/mushaf-computer-publishing (version 3.16; published SHA-256 `16E7DC5E91C6118F9FCEB87244862AFAC2A616ADC6472ADAC84E2836AC39E28A`). It describes the Hafs/Warsh computer fonts but is a Windows publishing application, not a ready-made Flutter asset bundle.
+- Official computer-font catalogue: https://qurancomplex.gov.sa/fonts
+- Developer platform announcement: https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
+
+### Updated decision
+
+The official digital vector edition has a published permission broad enough to cover use in computer programs worldwide. This is a strong official source route for Athaar. However, the 604 QCF page-font files and three additional TTFs currently shipped by `qcf_quran_plus 0.1.1` are not thereby authenticated: no file-by-file binary mapping to the official archive has been established.
+
+Do not state that the existing QCF package assets are now cleared. To close the existing dependency gate, either:
+
+1. obtain and preserve an official package/source mapping for each embedded asset; or
+2. implement a renderer that consumes files directly from the official Complex edition, with an explicit redistribution/packaging decision, and validate all 604 pages plus RTL, basmala, surah boundaries, and device rendering.
+
+The official vector archive is 423.3 MB and is an Illustrator vector edition. It is not a drop-in replacement for the QCF page-font assets. A separate engineering conversion/rendering step and a full visual regression suite are required. Keep this release gate OPEN until that work and its tests are complete.
+
+### Contact request
+
+A clarification request is being prepared for the Complex at `info@qurancomplex.gov.sa`, asking whether redistribution of extracted official font/data assets inside Android, iOS, and Windows installers is covered by the published terms, whether attribution is required, and whether Athaar can be submitted for a separate scientific/technical review. A sent email or official approval must not be claimed until a response is received.
