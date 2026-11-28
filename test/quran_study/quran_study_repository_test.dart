@@ -188,11 +188,25 @@ void main() {
       );
       addTearDown(repository.close);
 
-      expect(
-        () =>
-            repository.getTranslation(key: 'english_rwwad', surah: 0, ayah: 1),
-        throwsRangeError,
-      );
+      for (final reference in [
+        (surah: 0, ayah: 1),
+        (surah: 115, ayah: 1),
+        (surah: 1, ayah: 8),
+        (surah: 2, ayah: 287),
+        (surah: 13, ayah: 44),
+        (surah: 114, ayah: 7),
+      ]) {
+        await expectLater(
+          repository.getTranslation(
+            key: 'english_rwwad',
+            surah: reference.surah,
+            ayah: reference.ayah,
+          ),
+          throwsRangeError,
+          reason:
+              'Surah ${reference.surah} has no ayah ${reference.ayah}.',
+        );
+      }
     });
 
     test('rejects a non-HTTPS audio source', () async {
