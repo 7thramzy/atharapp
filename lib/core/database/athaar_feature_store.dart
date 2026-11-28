@@ -221,9 +221,15 @@ class AthaarFeatureStore {
     final rows = await db
         .customSelect(
           '''SELECT i.id, i.text_ar, i.target_count, i.source_reference, i.source_verified,
-         COALESCE(p.count, 0) AS today_count
-         FROM adhkar_items i LEFT JOIN adhkar_progress p
-         ON p.item_id = i.id AND p.local_date = ? ORDER BY i.created_at''',
+         COALESCE(p.count, 0) AS today_count, i.category_id,
+         c.name_ar AS category_name,
+         COALESCE(m.is_favorite, 0) AS is_favorite,
+         COALESCE(m.review_status, 'unreviewed') AS review_status
+         FROM adhkar_items i
+         JOIN adhkar_categories c ON c.id = i.category_id
+         LEFT JOIN adhkar_item_metadata m ON m.item_id = i.id
+         LEFT JOIN adhkar_progress p ON p.item_id = i.id AND p.local_date = ?
+         ORDER BY COALESCE(m.sort_order, 9999), i.created_at''',
           variables: [Variable.withString(_today)],
         )
         .get();
@@ -235,6 +241,10 @@ class AthaarFeatureStore {
             'target': r.read<int>('target_count'),
             'source': r.read<String>('source_reference'),
             'verified': r.read<int>('source_verified') == 1,
+            'category_id': r.read<String>('category_id'),
+            'category': r.read<String>('category_name'),
+            'favorite': r.read<int>('is_favorite') == 1,
+            'review_status': r.read<String>('review_status'),
             'count': r.read<int>('today_count'),
           },
         )
@@ -256,6 +266,85 @@ class AthaarFeatureStore {
         [id, _today, count + 1, _now],
       );
     });
+  }
+
+  Future<void> importBundledAdhkar(String sourceJson) async {
+    final decoded = jsonDecode(sourceJson) as Map<String, dynamic>;
+    if (decoded['schemaVersion'] != 1 || decoded['source'] != 'Quran') {
+      throw const FormatException('Unsupported adhkar seed manifest.');
+    }
+    final entries = (decoded['entries'] as List).cast<Map<String, dynamic>>();
+    await db.transaction(() async {
+      for (final entry in entries) {
+        final id = entry['id'] as String;
+        final categoryId = entry['categoryId'] as String;
+        final categoryAr = entry['categoryAr'] as String;
+        final categoryEn = entry['categoryEn'] as String;
+        final surah = entry['surah'] as int;
+        final ayah = entry['ayah'] as int;
+        final target = entry['target'] as int;
+        final order = entry['order'] as int;
+        final sourceRows = await db.customSelect(
+          'SELECT a.text_uthmani, s.name_arabic FROM quran_ayahs a JOIN quran_surahs s USING(surah_number) WHERE a.surah_number = ? AND a.ayah_number = ?',
+          variables: [Variable.withInt(surah), Variable.withInt(ayah)],
+        ).get();
+        if (sourceRows.length != 1) {
+          throw FormatException('Missing Quran reference $surah:$ayah in adhkar seed.');
+        }
+        final text = sourceRows.single.read<String>('text_uthmani');
+        final surahName = sourceRows.single.read<String>('name_arabic');
+        await db.customStatement(
+          'INSERT OR IGNORE INTO adhkar_categories(id, name_ar, name_en) VALUES(?, ?, ?)',
+          [categoryId, categoryAr, categoryEn],
+        );
+        await db.customStatement(
+          'INSERT OR IGNORE INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 1, ?)',
+          [id, categoryId, text, target, 'القرآن الكريم — سورة $surahName، الآية $ayah', _now],
+        );
+        await db.customStatement(
+          "INSERT OR IGNORE INTO adhkar_item_metadata(item_id, source_dataset, source_version, sort_order, is_favorite, review_status) VALUES(?, 'Tanzil Quran text', 'Uthmani v1.1', ?, 0, 'reviewed')",
+          [id, order],
+        );
+      }
+    });
+  }
+
+  Future<List<Map<String, Object?>>> listAdhkarCategories() async {
+    final rows = await db.customSelect(
+      'SELECT id, name_ar, name_en FROM adhkar_categories ORDER BY name_ar',
+    ).get();
+    return rows.map((r) => <String, Object?>{
+      'id': r.read<String>('id'),
+      'name': r.read<String>('name_ar'),
+      'name_en': r.read<String>('name_en'),
+    }).toList();
+  }
+
+  Future<void> toggleAdhkarFavorite(String id) async {
+    await db.customStatement(
+      'UPDATE adhkar_item_metadata SET is_favorite = CASE WHEN is_favorite = 1 THEN 0 ELSE 1 END WHERE item_id = ?',
+      [id],
+    );
+  }
+
+  Future<void> recordReadingCompletion(String reference) async {
+    final normalized = reference.trim();
+    if (normalized.isEmpty) throw ArgumentError('A Quran reference is required.');
+    final eventId = 'reading:$normalized:$_today';
+    await db.customStatement(
+      "INSERT OR IGNORE INTO activity_events(event_id, event_type, reference, points, created_at) VALUES(?, 'reading_completed', ?, 1, ?)",
+      [eventId, normalized, _now],
+    );
+  }
+
+  Future<Map<String, int>> activityPointsSummary() async {
+    final rows = await db.customSelect(
+      'SELECT COALESCE(SUM(points), 0) AS points, COUNT(*) AS events FROM activity_events',
+    ).get();
+    return {
+      'points': rows.first.read<int>('points'),
+      'events': rows.first.read<int>('events'),
+    };
   }
 
   Future<int> _ayahCountForSurah(int surah) async {
@@ -319,9 +408,14 @@ class AthaarFeatureStore {
       for (var ayah = startAyah; ayah <= endAyah; ayah++) {
         await _writeMemorizationStatus(surah, ayah, outcome);
       }
+      final sessionId = _id();
       await db.customStatement(
         'INSERT INTO memorization_sessions(id, surah_number, start_ayah, end_ayah, outcome, notes, started_at, completed_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
-        [_id(), surah, startAyah, endAyah, outcome, notes, _now, _now],
+        [sessionId, surah, startAyah, endAyah, outcome, notes, _now, _now],
+      );
+      await db.customStatement(
+        "INSERT OR IGNORE INTO activity_events(event_id, event_type, reference, points, created_at) VALUES(?, 'memorization_session_recorded', ?, 5, ?)",
+        ['memorization:$sessionId', '$surah:$startAyah-$endAyah', _now],
       );
     });
   }
@@ -377,6 +471,7 @@ class AthaarFeatureStore {
       'adhkar_counts': adhkar,
       'stable_ayahs': progress['stable'] ?? 0,
       'learning_ayahs': progress['learning'] ?? 0,
+      'points': (await activityPointsSummary())['points'] ?? 0,
     };
   }
 
