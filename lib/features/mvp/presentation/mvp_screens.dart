@@ -476,11 +476,17 @@ class MemorizationScreen extends ConsumerStatefulWidget {
 }
 
 class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
-  final _surah = TextEditingController(text: '1');
-  final _start = TextEditingController(text: '1');
-  final _end = TextEditingController(text: '1');
+  List<Map<String, Object?>> _surahs = const [];
+  int _selectedSurah = 1;
+  int _ayahCount = 7;
+  int _startAyah = 1;
+  int _endAyah = 1;
   String _status = 'learning';
   Map<String, int> _summary = {};
+  bool _loading = true;
+  bool _saving = false;
+  String? _error;
+
   @override
   void initState() {
     super.initState();
@@ -488,136 +494,227 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
   }
 
   Future<void> _load() async {
-    final data = await ref
-        .read(athaarFeatureStoreProvider)
-        .memorizationSummary();
-    if (mounted) {
-      setState(() => _summary = data);
+    try {
+      final store = ref.read(athaarFeatureStoreProvider);
+      final results = await Future.wait([
+        store.listSurahs(),
+        store.memorizationSummary(),
+      ]);
+      if (!mounted) return;
+      final surahs = results[0] as List<Map<String, Object?>>;
+      final summary = results[1] as Map<String, int>;
+      final selected = surahs.where((item) => item['number'] == _selectedSurah);
+      final count = selected.isEmpty
+          ? 7
+          : selected.first['ayah_count'] as int;
+      setState(() {
+        _surahs = surahs;
+        _summary = summary;
+        _ayahCount = count;
+        _startAyah = _startAyah.clamp(1, count).toInt();
+        _endAyah = _endAyah.clamp(_startAyah, count).toInt();
+        _loading = false;
+        _error = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = error.toString();
+      });
+    }
+  }
+
+  void _selectSurah(int? number) {
+    if (number == null) return;
+    final selected = _surahs.where((item) => item['number'] == number);
+    if (selected.isEmpty) return;
+    final count = selected.first['ayah_count'] as int;
+    setState(() {
+      _selectedSurah = number;
+      _ayahCount = count;
+      _startAyah = 1;
+      _endAyah = 1;
+    });
+  }
+
+  Future<void> _saveSession() async {
+    if (_startAyah < 1 ||
+        _endAyah < _startAyah ||
+        _endAyah > _ayahCount) {
+      setState(() => _error = _t(
+        context,
+        'نطاق الآيات غير صحيح لهذه السورة.',
+        'The ayah range is invalid for this surah.',
+      ));
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await ref.read(athaarFeatureStoreProvider).recordMemorizationSession(
+        surah: _selectedSurah,
+        startAyah: _startAyah,
+        endAyah: _endAyah,
+        outcome: _status,
+      );
+      await _load();
+    } catch (error) {
+      if (mounted) setState(() => _error = error.toString());
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
   @override
-  void dispose() {
-    _surah.dispose();
-    _start.dispose();
-    _end.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(_t(context, 'الحفظ والمراجعة', 'Memorization'))),
-    body: ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          _t(
-            context,
-            'سجّل نطاق الحفظ الذي راجعته',
-            'Record the range you reviewed',
-          ),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _surah,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: _t(context, 'رقم السورة', 'Surah number'),
-          ),
-        ),
-        TextField(
-          controller: _start,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: _t(context, 'من الآية', 'From ayah'),
-          ),
-        ),
-        TextField(
-          controller: _end,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: _t(context, 'إلى الآية', 'To ayah'),
-          ),
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _status,
-          items: [
-            DropdownMenuItem(
-              value: 'learning',
-              child: Text(_t(context, 'قيد الحفظ', 'Learning')),
-            ),
-            DropdownMenuItem(
-              value: 'needs_revision',
-              child: Text(_t(context, 'يحتاج مراجعة', 'Needs revision')),
-            ),
-            DropdownMenuItem(
-              value: 'stable',
-              child: Text(
-                _t(context, 'متقن حسب تقييمك', 'Stable by your own review'),
-              ),
-            ),
-          ],
-          onChanged: (value) => setState(() => _status = value ?? 'learning'),
-          decoration: InputDecoration(
-            labelText: _t(context, 'الحالة', 'Status'),
-          ),
-        ),
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: () async {
-            final s = int.tryParse(_surah.text) ?? 0;
-            final a = int.tryParse(_start.text) ?? 0;
-            final b = int.tryParse(_end.text) ?? 0;
-            if (s < 1 || s > 114 || a < 1 || b < a) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    _t(
-                      context,
-                      'تحقق من أرقام السورة والآيات',
-                      'Check the surah and ayah numbers',
+  Widget build(BuildContext context) {
+    final recorded = (_summary['learning'] ?? 0) +
+        (_summary['needs_revision'] ?? 0) +
+        (_summary['stable'] ?? 0);
+    return Scaffold(
+      appBar: AppBar(title: Text(_t(context, 'الحفظ والمراجعة', 'Memorization'))),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null && _surahs.isEmpty
+          ? Center(child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(_error!, textAlign: TextAlign.center),
+            ))
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(
+                  _t(context, 'جلسة حفظ ومراجعة', 'Memorization and revision session'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _t(
+                    context,
+                    'اختر السورة ونطاق الآيات من بيانات المصحف المستوردة؛ لن نقبل نطاقًا يتجاوز عدد آيات السورة.',
+                    'Choose a surah and ayah range from the imported Mushaf data. Ranges beyond the surah length are rejected.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<int>(
+                  initialValue: _selectedSurah,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: _t(context, 'السورة', 'Surah'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _surahs.map((item) => DropdownMenuItem<int>(
+                    value: item['number'] as int,
+                    child: Text('${item['number']} — ${item['name']}'),
+                  )).toList(),
+                  onChanged: _selectSurah,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        initialValue: _startAyah,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: _t(context, 'من الآية', 'From ayah'),
+                          border: const OutlineInputBorder(),
+                        ),
+                        items: List.generate(_ayahCount, (index) =>
+                          DropdownMenuItem(value: index + 1, child: Text('${index + 1}')),
+                        ),
+                        onChanged: (value) => setState(() {
+                          if (value == null) return;
+                          _startAyah = value;
+                          if (_endAyah < value) _endAyah = value;
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        initialValue: _endAyah,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: _t(context, 'إلى الآية', 'To ayah'),
+                          border: const OutlineInputBorder(),
+                        ),
+                        items: List.generate(_ayahCount - _startAyah + 1, (index) =>
+                          DropdownMenuItem(
+                            value: _startAyah + index,
+                            child: Text('${_startAyah + index}'),
+                          ),
+                        ),
+                        onChanged: (value) => setState(() {
+                          if (value != null) _endAyah = value;
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: _status,
+                  decoration: InputDecoration(
+                    labelText: _t(context, 'نتيجة المراجعة', 'Review outcome'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: 'learning', child: Text(_t(context, 'قيد الحفظ', 'Learning'))),
+                    DropdownMenuItem(value: 'needs_revision', child: Text(_t(context, 'يحتاج مراجعة', 'Needs revision'))),
+                    DropdownMenuItem(value: 'stable', child: Text(_t(context, 'مستقر حسب تقييمك', 'Stable by your own review'))),
+                  ],
+                  onChanged: (value) => setState(() => _status = value ?? 'learning'),
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: _saving || _surahs.isEmpty ? null : _saveSession,
+                  icon: _saving
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.save_outlined),
+                  label: Text(_t(context, 'حفظ جلسة المراجعة', 'Save revision session')),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                ],
+                const SizedBox(height: 24),
+                Text(_t(context, 'ملخص تقدمك', 'Your progress'), style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 6),
+                Text(_t(context, 'آيات لها حالة محفوظة: $recorded من 6236', 'Ayahs with a saved status: $recorded of 6236')),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(value: (recorded / 6236).clamp(0.0, 1.0)),
+                const SizedBox(height: 12),
+                ...[
+                  ('learning', _t(context, 'قيد الحفظ', 'Learning'), Icons.menu_book_outlined),
+                  ('needs_revision', _t(context, 'تحتاج مراجعة', 'Needs revision'), Icons.replay_rounded),
+                  ('stable', _t(context, 'مستقرة حسب تقييمك', 'Stable by your review'), Icons.check_circle_outline_rounded),
+                ].map((entry) => Card(
+                  child: ListTile(
+                    leading: Icon(entry.$3),
+                    title: Text(entry.$2),
+                    trailing: Text(
+                      '${_summary[entry.$1] ?? 0}',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
+                )),
+                const SizedBox(height: 8),
+                Text(
+                  _t(
+                    context,
+                    'الحالة «مستقر» تعكس تقييمك الشخصي للمراجعة، وليست حكمًا آليًا على صحة التلاوة أو الإتقان.',
+                    '“Stable” reflects your own review, not an automated judgement of recitation accuracy or mastery.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-              );
-              return;
-            }
-            await ref
-                .read(athaarFeatureStoreProvider)
-                .recordMemorizationSession(
-                  surah: s,
-                  startAyah: a,
-                  endAyah: b,
-                  outcome: _status,
-                );
-            await _load();
-          },
-          icon: const Icon(Icons.save_outlined),
-          label: Text(
-            _t(context, 'حفظ جلسة المراجعة', 'Save revision session'),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          _t(context, 'ملخص تقدمك', 'Your progress'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 12),
-        ...[
-          ('learning', _t(context, 'قيد الحفظ', 'Learning')),
-          ('needs_revision', _t(context, 'يحتاج مراجعة', 'Needs revision')),
-          ('stable', _t(context, 'مستقر', 'Stable')),
-        ].map(
-          (entry) => ListTile(
-            title: Text(entry.$2),
-            trailing: Text('${_summary[entry.$1] ?? 0}'),
-          ),
-        ),
-      ],
-    ),
-  );
+              ],
+            ),
+    );
+  }
 }
 
 class PersonalImpactScreen extends ConsumerWidget {
