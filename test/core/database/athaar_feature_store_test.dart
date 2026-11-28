@@ -69,28 +69,31 @@ void main() {
     expect(summary['stable'], 3);
   });
 
-  test('rejects memorization references outside canonical surah bounds', () async {
-    final source = await rootBundle.loadString(
-      'assets/content/quran/tanzil-uthmani-v1.1.json',
-    );
-    await store.importQuranJson(source);
+  test(
+    'rejects memorization references outside canonical surah bounds',
+    () async {
+      final source = await rootBundle.loadString(
+        'assets/content/quran/tanzil-uthmani-v1.1.json',
+      );
+      await store.importQuranJson(source);
 
-    await expectLater(
-      store.setMemorizationStatus(1, 8, 'stable'),
-      throwsRangeError,
-    );
-    await expectLater(
-      store.recordMemorizationSession(
-        surah: 13,
-        startAyah: 1,
-        endAyah: 44,
-        outcome: 'learning',
-      ),
-      throwsRangeError,
-    );
-    expect((await store.memorizationSummary())['stable'], 0);
-    expect((await store.personalImpactSummary())['sessions'], 0);
-  });
+      await expectLater(
+        store.setMemorizationStatus(1, 8, 'stable'),
+        throwsRangeError,
+      );
+      await expectLater(
+        store.recordMemorizationSession(
+          surah: 13,
+          startAyah: 1,
+          endAyah: 44,
+          outcome: 'learning',
+        ),
+        throwsRangeError,
+      );
+      expect((await store.memorizationSummary())['stable'], 0);
+      expect((await store.personalImpactSummary())['sessions'], 0);
+    },
+  );
 
   test('personal impact is derived from saved local activity', () async {
     final source = await rootBundle.loadString(

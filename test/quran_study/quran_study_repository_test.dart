@@ -188,8 +188,7 @@ void main() {
           return http.Response(
             jsonEncode({
               'data': {
-                'audio':
-                    'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
+                'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
               },
             }),
             200,
@@ -212,27 +211,15 @@ void main() {
 
       expect(requested, hasLength(3));
       await expectLater(
-        repository.getAyahAudioUri(
-          surah: 76,
-          ayah: 32,
-          edition: 'ar.husary',
-        ),
+        repository.getAyahAudioUri(surah: 76, ayah: 32, edition: 'ar.husary'),
         throwsRangeError,
       );
       await expectLater(
-        repository.getAyahAudioUri(
-          surah: 77,
-          ayah: 51,
-          edition: 'ar.husary',
-        ),
+        repository.getAyahAudioUri(surah: 77, ayah: 51, edition: 'ar.husary'),
         throwsRangeError,
       );
       await expectLater(
-        repository.getAyahAudioUri(
-          surah: 78,
-          ayah: 41,
-          edition: 'ar.husary',
-        ),
+        repository.getAyahAudioUri(surah: 78, ayah: 41, edition: 'ar.husary'),
         throwsRangeError,
       );
       expect(requested, hasLength(3));
@@ -261,8 +248,7 @@ void main() {
             ayah: reference.ayah,
           ),
           throwsRangeError,
-          reason:
-              'Surah ${reference.surah} has no ayah ${reference.ayah}.',
+          reason: 'Surah ${reference.surah} has no ayah ${reference.ayah}.',
         );
       }
     });
@@ -286,22 +272,27 @@ void main() {
       );
     });
 
-    test('rejects unsafe reciter identifiers before sending a request', () async {
-      final repository = QuranStudyRepository(
-        client: MockClient((request) async {
-          fail('No request should be sent for an invalid edition identifier.');
-        }),
-      );
-      addTearDown(repository.close);
+    test(
+      'rejects unsafe reciter identifiers before sending a request',
+      () async {
+        final repository = QuranStudyRepository(
+          client: MockClient((request) async {
+            fail(
+              'No request should be sent for an invalid edition identifier.',
+            );
+          }),
+        );
+        addTearDown(repository.close);
 
-      await expectLater(
-        repository.getAyahAudioUri(
-          surah: 1,
-          ayah: 1,
-          edition: '../unexpected',
-        ),
-        throwsArgumentError,
-      );
-    });
+        await expectLater(
+          repository.getAyahAudioUri(
+            surah: 1,
+            ayah: 1,
+            edition: '../unexpected',
+          ),
+          throwsArgumentError,
+        );
+      },
+    );
   });
 }
