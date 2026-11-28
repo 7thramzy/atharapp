@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:athaar/core/database/database_providers.dart';
 import 'package:athaar/core/notifications/athaar_notifications.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -23,14 +24,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    unawaited(_loadPreferences());
   }
 
   Future<void> _loadPreferences() async {
     try {
       final raw = await ref.read(appDatabaseProvider)
           .readMetadata('notifications.preferences.v1');
-      if (raw == null || !mounted) return;
+      if (raw == null || !mounted) {
+        return;
+      }
       final value = jsonDecode(raw) as Map<String, dynamic>;
       setState(() {
         _morningEnabled = value['morningEnabled'] == true;
@@ -54,7 +57,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       context: context,
       initialTime: morning ? _morning : _evening,
     );
-    if (selected == null || !mounted) return;
+    if (selected == null || !mounted) {
+      return;
+    }
     setState(() {
       if (morning) {
         _morning = selected;
@@ -109,11 +114,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           'eveningMinute': _evening.minute,
         }),
       );
-      if (mounted) setState(() => _message = 'تم تحديث تذكيرات هذا الجهاز.');
+      if (mounted) {
+        setState(() => _message = 'تم تحديث تذكيرات هذا الجهاز.');
+      }
     } catch (error) {
-      if (mounted) setState(() => _message = 'تعذر إعداد التذكيرات: $error');
+      if (mounted) {
+        setState(() => _message = 'تعذر إعداد التذكيرات: $error');
+      }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
