@@ -209,12 +209,12 @@ void main() {
       }
     });
 
-    test('rejects a non-HTTPS audio source', () async {
+    test('rejects an untrusted audio host', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
           return http.Response(
             jsonEncode({
-              'data': {'audio': 'http://example.com/audio.mp3'},
+              'data': {'audio': 'https://example.com/audio.mp3'},
             }),
             200,
           );
@@ -222,10 +222,27 @@ void main() {
       );
       addTearDown(repository.close);
 
-      expect(
-        () =>
-            repository.getAyahAudioUri(surah: 1, ayah: 1, edition: 'ar.husary'),
+      await expectLater(
+        repository.getAyahAudioUri(surah: 1, ayah: 1, edition: 'ar.husary'),
         throwsFormatException,
+      );
+    });
+
+    test('rejects unsafe reciter identifiers before sending a request', () async {
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          fail('No request should be sent for an invalid edition identifier.');
+        }),
+      );
+      addTearDown(repository.close);
+
+      await expectLater(
+        repository.getAyahAudioUri(
+          surah: 1,
+          ayah: 1,
+          edition: '../unexpected',
+        ),
+        throwsArgumentError,
       );
     });
   });
