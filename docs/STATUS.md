@@ -81,3 +81,12 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - Complete independent review of adhkar sources before shipping a curated pre-populated catalog; user-entered entries remain explicitly unverified.
 - Implement and physically test user-scheduled local reminders.
 - Run CI on the latest main commit and complete Arabic RTL, accessibility, offline, and migration QA.
+
+
+## Approved product direction and next execution
+
+- On 2026-11-28, the project owner approved a consolidated product direction and phased execution plan: [docs/engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md](engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md).
+- This is a documentation/requirements approval only. It does **not** mean the new requirements have been implemented, tested, merged, deployed, or device-verified.
+- Next priority: P0 Quran integrity and release safety. Reproduce the supplied Mushaf ordering/rendering symptom, determine the actual cause (source mapping, parser, bidi layout, adapter, or navigation), add deterministic and golden tests, verify all 604 pages, complete human/device review, recheck QCF asset rights, and measure release performance/size.
+- Then proceed in dependency order: P1 word meanings/tafsir/translations; P2 unified audio and offline reliability; P3 memorization, daily wird and private progress; P4 accessibility and release QA.
+- Existing source-rights restrictions, D-015 QCF release gates, D-016 audio restrictions, and agent ownership rules remain in force.
