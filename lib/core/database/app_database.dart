@@ -264,6 +264,12 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  Future<String?> readMetadata(String key) async {
+    final row = await (select(appMetadata)..where((item) => item.key.equals(key)))
+        .getSingleOrNull();
+    return row?.value;
+  }
+
   Future<void> saveMetadata({required String key, required String value}) =>
       into(appMetadata).insertOnConflictUpdate(
         AppMetadataCompanion.insert(
