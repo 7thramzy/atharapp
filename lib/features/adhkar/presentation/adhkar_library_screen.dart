@@ -30,7 +30,9 @@ class _AdhkarLibraryScreenState extends ConsumerState<AdhkarLibraryScreen> {
       final store = ref.read(athaarFeatureStoreProvider);
       final items = await store.listAdhkar();
       final categories = await store.listAdhkarCategories();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _items = items;
         _categories = categories;
