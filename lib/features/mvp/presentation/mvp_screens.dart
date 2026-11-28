@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:athaar/core/database/athaar_feature_store.dart';
+import 'package:athaar/features/sharing/athaar_share_card_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -304,12 +305,25 @@ class _QuranScreenState extends ConsumerState<QuranScreen> {
                             ayahNumber: v['ayah_number'] as int,
                           ),
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.bookmark_add_outlined),
-                          onPressed: () => store.addBookmark(
-                            v['surah_number'] as int,
-                            v['ayah_number'] as int,
-                          ),
+                        trailing: Wrap(
+                          spacing: 0,
+                          children: [
+                            IconButton(
+                              tooltip: 'مشاركة الآية',
+                              icon: const Icon(Icons.image_outlined),
+                              onPressed: () => context.push(
+                                '/share-ayah/${v['surah_number']}/${v['ayah_number']}',
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'حفظ',
+                              icon: const Icon(Icons.bookmark_add_outlined),
+                              onPressed: () => store.addBookmark(
+                                v['surah_number'] as int,
+                                v['ayah_number'] as int,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -825,19 +839,48 @@ class PersonalImpactScreen extends ConsumerWidget {
         };
         return ListView(
           padding: const EdgeInsets.all(16),
-          children: labels.entries
-              .map(
-                (e) => Card(
-                  child: ListTile(
-                    title: Text(e.value),
-                    trailing: Text(
-                      '${values[e.key] ?? 0}',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+          children: [
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.stars_rounded, color: Color(0xFFB58A35)),
+                title: const Text('نقاط النشاط'),
+                subtitle: const Text('نقاط القراءة وجلسات الحفظ المسجلة، وليست تقييماً لصحة التلاوة.'),
+                trailing: FutureBuilder<Map<String, int>>(
+                  future: ref.read(athaarFeatureStoreProvider).activityPointsSummary(),
+                  builder: (context, pointsSnapshot) => Text(
+                    '${pointsSnapshot.data?['points'] ?? 0}',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
-              )
-              .toList(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: () async {
+                final points = await ref.read(athaarFeatureStoreProvider).activityPointsSummary();
+                await const AthaarShareCardService().share(
+                  title: 'إنجازي في أثَر',
+                  subtitle: 'رحلة قراءة وحفظ ومراجعة',
+                  body: 'إجمالي النقاط: ${points['points'] ?? 0}\nنقاط القراءة: ${points['reading_points'] ?? 0} من ${points['reading_events'] ?? 0} مواضع\nنقاط الحفظ: ${points['memorization_points'] ?? 0} من ${points['memorization_events'] ?? 0} جلسات\nكل خطوة صغيرة تقرّبني من الاستمرار.',
+                  footer: 'النقاط للنشاط المسجل فقط · لا تمثل حكماً على جودة التلاوة',
+                );
+              },
+              icon: const Icon(Icons.share_outlined),
+              label: const Text('مشاركة إنجازي ونقاطي'),
+            ),
+            const SizedBox(height: 8),
+            ...labels.entries.map(
+              (e) => Card(
+                child: ListTile(
+                  title: Text(e.value),
+                  trailing: Text(
+                    '${values[e.key] ?? 0}',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     ),

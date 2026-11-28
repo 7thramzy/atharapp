@@ -320,6 +320,25 @@ class _DownloadedQuranReaderScreenState
                                       ),
                                     ),
                                     IconButton(
+                                      tooltip: 'تسجيل إتمام القراءة',
+                                      onPressed: () async {
+                                        await ref.read(athaarFeatureStoreProvider)
+                                            .recordReadingCompletion('${widget.surahNumber}:$number');
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('تم تسجيل القراءة لهذا اليوم')),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.check_circle_outline),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'مشاركة الآية',
+                                      onPressed: () => context.push<void>(
+                                        '/share-ayah/${widget.surahNumber}/$number',
+                                      ),
+                                      icon: const Icon(Icons.image_outlined),
+                                    ),
+                                    IconButton(
                                       tooltip: 'إضافة ملاحظة',
                                       onPressed: () => _addNote(number),
                                       icon: const Icon(Icons.note_add_outlined),

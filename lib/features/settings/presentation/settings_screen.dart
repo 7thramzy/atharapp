@@ -114,12 +114,8 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _SettingsRow(
             icon: Icons.notifications_none_rounded,
-            title: 'الإشعارات',
-            onTap: () => _showInfo(
-              context,
-              'الإشعارات',
-              'إعدادات الإشعارات قيد الإعداد.',
-            ),
+            title: 'الإشعارات والتذكيرات',
+            onTap: () => context.push('/notifications'),
           ),
           _SettingsRow(
             icon: Icons.verified_user_outlined,

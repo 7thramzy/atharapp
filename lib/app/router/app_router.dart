@@ -1,4 +1,7 @@
 import 'package:athaar/features/home/presentation/home_screen.dart';
+import 'package:athaar/features/adhkar/presentation/adhkar_library_screen.dart';
+import 'package:athaar/features/notifications/presentation/notifications_screen.dart';
+import 'package:athaar/features/sharing/presentation/ayah_share_screen.dart';
 import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
 import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:athaar/features/quran/presentation/downloaded_quran_reader_screen.dart';
@@ -56,9 +59,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/share-ayah/:surah/:ayah',
+        name: 'share-ayah',
+        builder: (context, state) => AyahShareScreen(
+          surahNumber: int.tryParse(state.pathParameters['surah'] ?? '') ?? 1,
+          ayahNumber: int.tryParse(state.pathParameters['ayah'] ?? '') ?? 1,
+        ),
+      ),
+      GoRoute(
         path: '/adhkar',
         name: 'adhkar',
-        builder: (context, state) => const AdhkarScreen(),
+        builder: (context, state) => const AdhkarLibraryScreen(),
       ),
       GoRoute(
         path: '/memorization',

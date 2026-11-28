@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "source": "Quran",
+  "sourceVersion": "Tanzil Uthmani v1.1 local dataset",
+  "entries": [
+    {
+      "id": "morning-ayat-al-kursi",
+      "categoryId": "morning",
+      "categoryAr": "أذكار الصباح",
+      "categoryEn": "Morning adhkar",
+      "surah": 2,
+      "ayahStart": 255,
+      "ayahEnd": 255,
+      "target": 1,
+      "order": 1,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "morning-ikhlas",
+      "categoryId": "morning",
+      "categoryAr": "أذكار الصباح",
+      "categoryEn": "Morning adhkar",
+      "surah": 112,
+      "ayahStart": 1,
+      "ayahEnd": 4,
+      "target": 3,
+      "order": 2,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "morning-falaq",
+      "categoryId": "morning",
+      "categoryAr": "أذكار الصباح",
+      "categoryEn": "Morning adhkar",
+      "surah": 113,
+      "ayahStart": 1,
+      "ayahEnd": 5,
+      "target": 3,
+      "order": 3,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "morning-nas",
+      "categoryId": "morning",
+      "categoryAr": "أذكار الصباح",
+      "categoryEn": "Morning adhkar",
+      "surah": 114,
+      "ayahStart": 1,
+      "ayahEnd": 6,
+      "target": 3,
+      "order": 4,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "evening-ayat-al-kursi",
+      "categoryId": "evening",
+      "categoryAr": "أذكار المساء",
+      "categoryEn": "Evening adhkar",
+      "surah": 2,
+      "ayahStart": 255,
+      "ayahEnd": 255,
+      "target": 1,
+      "order": 1,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "evening-ikhlas",
+      "categoryId": "evening",
+      "categoryAr": "أذكار المساء",
+      "categoryEn": "Evening adhkar",
+      "surah": 112,
+      "ayahStart": 1,
+      "ayahEnd": 4,
+      "target": 3,
+      "order": 2,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "evening-falaq",
+      "categoryId": "evening",
+      "categoryAr": "أذكار المساء",
+      "categoryEn": "Evening adhkar",
+      "surah": 113,
+      "ayahStart": 1,
+      "ayahEnd": 5,
+      "target": 3,
+      "order": 3,
+      "reviewStatus": "reviewed"
+    },
+    {
+      "id": "evening-nas",
+      "categoryId": "evening",
+      "categoryAr": "أذكار المساء",
+      "categoryEn": "Evening adhkar",
+      "surah": 114,
+      "ayahStart": 1,
+      "ayahEnd": 6,
+      "target": 3,
+      "order": 4,
+      "reviewStatus": "reviewed"
+    }
+  ],
+  "notice": "This initial offline seed contains the complete Quranic recitations of Ayat al-Kursi and the three Quls for morning/evening. It is not a complete Sunnah adhkar collection. Hadith-based items are only to be added after exact source text and grading are checked against primary sources."
+}

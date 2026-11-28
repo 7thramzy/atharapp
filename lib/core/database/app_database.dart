@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,6 +56,9 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await _createFeatureTables();
+      }
+      if (from < 3) {
+        await _createEngagementTables();
       }
     },
     beforeOpen: (details) async {
@@ -146,6 +149,7 @@ class AppDatabase extends _$AppDatabase {
         FOREIGN KEY (item_id) REFERENCES adhkar_items(id) ON DELETE CASCADE
       )
     ''');
+    await _createEngagementTables();
     await customStatement('''
       CREATE TABLE IF NOT EXISTS memorization_progress (
         surah_number INTEGER NOT NULL,
@@ -165,6 +169,29 @@ class AppDatabase extends _$AppDatabase {
         notes TEXT NOT NULL DEFAULT '',
         started_at TEXT NOT NULL,
         completed_at TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _createEngagementTables() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS adhkar_item_metadata (
+        item_id TEXT PRIMARY KEY,
+        source_dataset TEXT NOT NULL DEFAULT 'manual',
+        source_version TEXT NOT NULL DEFAULT 'local',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+        review_status TEXT NOT NULL DEFAULT 'unreviewed' CHECK (review_status IN ('unreviewed', 'reviewed', 'excluded')),
+        FOREIGN KEY (item_id) REFERENCES adhkar_items(id) ON DELETE CASCADE
+      )
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS activity_events (
+        event_id TEXT PRIMARY KEY,
+        event_type TEXT NOT NULL CHECK (event_type IN ('reading_completed', 'memorization_session_recorded')),
+        reference TEXT NOT NULL,
+        points INTEGER NOT NULL CHECK (points >= 0),
+        created_at TEXT NOT NULL
       )
     ''');
   }
@@ -190,7 +217,7 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       await into(appMetadata).insertOnConflictUpdate(
-        AppMetadataCompanion.insert(key: 'schema_version', value: '2'),
+        AppMetadataCompanion.insert(key: 'schema_version', value: '3'),
       );
     });
   }
@@ -235,6 +262,12 @@ class AppDatabase extends _$AppDatabase {
         updatedAt: Value(DateTime.now().toUtc()),
       ),
     );
+  }
+
+  Future<String?> readMetadata(String key) async {
+    final row = await (select(appMetadata)..where((item) => item.key.equals(key)))
+        .getSingleOrNull();
+    return row?.value;
   }
 
   Future<void> saveMetadata({required String key, required String value}) =>

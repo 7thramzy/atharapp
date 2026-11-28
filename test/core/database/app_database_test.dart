@@ -34,7 +34,7 @@ void main() {
     test(
       'creates default settings, reading position and schema metadata',
       () async {
-        expect(database.schemaVersion, 2);
+        expect(database.schemaVersion, 3);
 
         final settings = await database.getLocalSettings();
         final position = await database.getReadingPosition();
@@ -51,7 +51,7 @@ void main() {
         expect(position.ayahNumber, 1);
         expect(position.readingMode, 'surah');
 
-        expect(metadata.value, '2');
+        expect(metadata.value, '3');
       },
     );
 

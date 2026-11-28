@@ -4,6 +4,10 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val productionKeystorePath = System.getenv("ATHAAR_KEYSTORE_PATH")
 val productionKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
 val productionKeystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
@@ -16,10 +20,11 @@ if (requireProductionSigning && productionKeystorePath.isNullOrBlank()) {
 
 android {
     namespace = "com.athaar.athaar"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = "28.2.13676358"
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -68,4 +73,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

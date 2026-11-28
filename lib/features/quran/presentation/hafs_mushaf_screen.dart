@@ -437,6 +437,9 @@ class _HafsMushafScreenState extends ConsumerState<HafsMushafScreen> {
                     _SelectedAyahPanel(
                       selection: _selectedAyah!,
                       onBookmark: _bookmarkSelectedAyah,
+                      onShare: () => context.push<void>(
+                        '/share-ayah/${_selectedAyah!.surahNumber}/${_selectedAyah!.ayahNumber}',
+                      ),
                       onStudy: () => context.push<void>(
                         '/quran/study/${_selectedAyah!.surahNumber}/${_selectedAyah!.ayahNumber}',
                       ),
@@ -513,12 +516,14 @@ class _SelectedAyahPanel extends StatelessWidget {
   const _SelectedAyahPanel({
     required this.selection,
     required this.onBookmark,
+    required this.onShare,
     required this.onStudy,
     required this.onClear,
   });
 
   final _SelectedAyah selection;
   final VoidCallback onBookmark;
+  final VoidCallback onShare;
   final VoidCallback onStudy;
   final VoidCallback onClear;
 
@@ -552,6 +557,11 @@ class _SelectedAyahPanel extends StatelessWidget {
               tooltip: 'التفسير والترجمة والتلاوة',
               onPressed: onStudy,
               icon: const Icon(Icons.menu_book_outlined),
+            ),
+            IconButton.filledTonal(
+              tooltip: 'مشاركة الآية',
+              onPressed: onShare,
+              icon: const Icon(Icons.image_outlined),
             ),
             IconButton.filledTonal(
               tooltip: 'حفظ علامة للآية',

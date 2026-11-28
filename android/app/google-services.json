@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1085177733718",
+    "project_id": "qrcode-4be6b",
+    "storage_bucket": "qrcode-4be6b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085177733718:android:87e5911016417e938b11f7",
+        "android_client_info": {
+          "package_name": "com.athaar.athaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoqpxkYUeLIf5EZc_9vrLYLIAiY6yh8dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085177733718:android:b013216c9a40cd588b11f7",
+        "android_client_info": {
+          "package_name": "com.example.arkanapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoqpxkYUeLIf5EZc_9vrLYLIAiY6yh8dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085177733718:android:f9b8bf13f85acd9b8b11f7",
+        "android_client_info": {
+          "package_name": "com.example.firebase_auth_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoqpxkYUeLIf5EZc_9vrLYLIAiY6yh8dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

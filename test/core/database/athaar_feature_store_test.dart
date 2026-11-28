@@ -53,6 +53,82 @@ void main() {
     expect(items.single['count'], 1);
   });
 
+  test('bundled Quranic adhkar seed is offline and idempotent', () async {
+    final quran = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(quran);
+    final seed = await rootBundle.loadString(
+      'assets/content/adhkar/seed-v1.json',
+    );
+
+    await store.importBundledAdhkar(seed);
+    await store.importBundledAdhkar(seed);
+
+    final items = await store.listAdhkar();
+    expect(items, hasLength(8));
+    expect(items.where((item) => item['category_id'] == 'morning'), hasLength(4));
+    expect(items.where((item) => item['category_id'] == 'evening'), hasLength(4));
+    expect(items.every((item) => item['verified'] == true), isTrue);
+    expect(items.every((item) => item['review_status'] == 'reviewed'), isTrue);
+  });
+
+  test('reading completion awards points once per ayah per local day', () async {
+    await store.recordReadingCompletion('2:255');
+    await store.recordReadingCompletion('2:255');
+    final summary = await store.activityPointsSummary();
+    expect(summary['points'], 1);
+    expect(summary['events'], 1);
+  });
+
+  test('activity points summary separates reading and memorization', () async {
+    final source = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(source);
+    await store.recordReadingCompletion('1:1');
+    await store.recordMemorizationSession(
+      surah: 1,
+      startAyah: 1,
+      endAyah: 2,
+      outcome: 'learning',
+    );
+
+    final summary = await store.activityPointsSummary();
+    expect(summary['points'], 6);
+    expect(summary['reading_points'], 1);
+    expect(summary['reading_events'], 1);
+    expect(summary['memorization_points'], 5);
+    expect(summary['memorization_events'], 1);
+  });
+
+  test('personal adhkar are saved as unverified custom entries', () async {
+    await store.createAdhkarItem(
+      textArabic: 'نص شخصي للاختبار',
+      targetCount: 2,
+      sourceReference: 'مرجع أدخله المستخدم',
+    );
+    final item = (await store.listAdhkar()).single;
+    expect(item['category_id'], 'personal');
+    expect(item['verified'], isFalse);
+    expect(item['review_status'], 'unreviewed');
+    expect(item['source'], 'مرجع أدخله المستخدم');
+  });
+
+  test('favorite toggle is persisted in the adhkar library', () async {
+    await store.createAdhkarItem(
+      textArabic: 'ذكر اختباري',
+      targetCount: 1,
+      sourceReference: 'اختبار',
+    );
+    final item = (await store.listAdhkar()).single;
+    final id = item['id']! as String;
+    await store.toggleAdhkarFavorite(id);
+    expect((await store.listAdhkar()).single['favorite'], isTrue);
+    await store.toggleAdhkarFavorite(id);
+    expect((await store.listAdhkar()).single['favorite'], isFalse);
+  });
+
   test('memorization session updates every ayah atomically', () async {
     final source = await rootBundle.loadString(
       'assets/content/quran/tanzil-uthmani-v1.1.json',
