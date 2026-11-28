@@ -8,11 +8,28 @@ import 'package:material_ui/material_ui.dart';
 class SurahBasmalaHeader extends StatelessWidget {
   const SurahBasmalaHeader({super.key});
 
-  static const text = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+  static const text = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 
   static bool shouldDisplay(int surahNumber) =>
       surahNumber >= 1 && surahNumber <= 114 &&
       surahNumber != 1 && surahNumber != 9;
+
+  /// Removes a basmala prefix from the displayed first ayah only.
+  ///
+  /// The canonical stored ayah is never modified. Some surah-opening ayahs
+  /// contain the basmala in the imported Tanzil text; when it is rendered as
+  /// a separate heading, remove that exact prefix from the presentation copy
+  /// to avoid showing it twice. Surah 27 and other ayahs without the prefix
+  /// remain unchanged.
+  static String displayAyahText({
+    required int surahNumber,
+    required int ayahNumber,
+    required String text,
+  }) {
+    if (!shouldDisplay(surahNumber) || ayahNumber != 1) return text;
+    if (!text.startsWith(SurahBasmalaHeader.text)) return text;
+    return text.substring(SurahBasmalaHeader.text.length).trimLeft();
+  }
 
   @override
   Widget build(BuildContext context) {
