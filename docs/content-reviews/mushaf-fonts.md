@@ -1,6 +1,6 @@
 # Quran and UI font rights dossier
 
-**Review date:** 2026-11-24  
+**Review date:** 2026-11-27  
 **GitHub issue:** #2  
 **Scope:** Official KFGQPC Quran-font resources and Cairo UI font. No font binaries were downloaded or committed in this task.
 
@@ -8,7 +8,7 @@
 
 ### Decision
 
-**CONDITIONALLY APPROVED in principle for an exact official digital asset; current asset acquisition is BLOCKED.** Do not bundle a font or Mushaf-layout asset until the exact file, official rights statement, version, and checksum have been captured.
+**Official digital edition: approved for software use under the published grant. qcf_quran_plus embedded font/page asset mapping: pending verification.** Do not bundle a font or Mushaf-layout asset until the exact file, official rights statement, version, and checksum have been captured.
 
 ### Official source review
 
@@ -16,7 +16,7 @@
 - Official computer-fonts section: https://qurancomplex.gov.sa/ (navigate to “الخطوط الحاسوبية”).
 - Official digital developer-platform announcement: https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
 
-The official website describes Unicode computer fonts for Quranic text and lists a digital Quran developer platform intended for application/software development. However, the live official website currently labels the font and digital-service sections “قريباً” (coming soon); it does not expose a downloadable exact font file or a resource-specific license/notice in the reviewed page.
+The official KFGQPC digital developer platform announcement describes Unicode Quranic text and computer fonts for application/software development. Its current live page still marks the developer platform as “قريباً”. Separately, the official digital Hafs Madinah Mushaf page expressly permits use of that exact digital edition in computer programs, websites and digital publishing, free of charge in and outside Saudi Arabia. The published digital-edition asset on that page is an AI vector file with SHA-256 C2FA8D93A7C4F689B58EB32756E1AE56CD1B7CE4826F63E09723BE8B092224FB. Athaar has not downloaded or integrated that AI file. We have not yet verified that each embedded file in qcf_quran_plus 0.1.1 (HafsSmart_08.ttf, QCF4_BSML, arsura.ttf and the 604 files in qcf_tajweed) is byte-identical to, derived from, or separately covered by that specific official grant.
 
 ### Conditions before bundling
 
@@ -34,7 +34,8 @@ The official website describes Unicode computer fonts for Quranic text and lists
 |---|---|
 | Official KFGQPC site reviewed | PASS |
 | Official site identifies Quran computer-font resources | PASS |
-| Exact downloadable file identified and acquired | BLOCKED — official page currently says coming soon |
+| Exact official digital Hafs edition download identified | PASS — separate official AI vector edition is published with a checksum |
+| qcf_quran_plus embedded files matched to the official edition and covered by the grant | PENDING — no per-file provenance/rights manifest supplied by the package |
 | Exact file/version/hash recorded | PENDING |
 | Exact asset rights notice captured | PENDING |
 | App redistribution and commercial-use terms confirmed for exact file | PENDING |
@@ -83,6 +84,32 @@ The upstream project states that the font software is licensed under SIL OFL 1.1
 | Exact binary acquired and hashed | PENDING |
 | Full license/notice copied into Athaar | PENDING |
 | Flutter integration and device rendering QA | NOT RUN |
+
+## 3. Pinned QCF renderer package — qcf_quran_plus 0.1.1
+
+### Exact package record
+
+- Package: `qcf_quran_plus` version `0.1.1`.
+- Pub.dev: https://pub.dev/packages/qcf_quran_plus
+- Source repository: https://github.com/hussein12347/qcf_quran_plus
+- The repository's `pubspec.yaml` declares the font assets under `assets/fonts/` and `assets/fonts/qcf_tajweed/`.
+- The package README describes the renderer as powered by the official QCF/Hafs font and its MIT licence covers the package's software.
+- The package uploader is marked **unverified** by pub.dev.
+
+### Rights decision
+
+**CODE: MIT. EMBEDDED QCF FONT/PAGE DATA: NOT CLEARED FOR ATHAAR PUBLIC REDISTRIBUTION UNTIL THE ASSET-SPECIFIC NOTICE OR PERMISSION IS OBTAINED.**
+
+The MIT file in the package repository is a software licence. It does not, by itself, establish that the individual page fonts, surah-header fonts, page/glyph data, or other third-party assets may be redistributed in a public application. The package identifies its source as official QCF but does not provide a separately verified per-file rights schedule in the records examined for Athaar.
+
+### Required release gate
+
+1. Obtain from the package maintainer and/or KFGQPC the exact written licence/permission covering the font files and page data packaged by version 0.1.1, including mobile/desktop distribution and any limits on commercial use.
+2. Record each asset family, source, version, licence/permission, attribution, and SHA-256; retain the original rights notice in the repository and About screen.
+3. If rights cannot be confirmed, do not distribute this package's QCF assets in the public app. Replace the renderer/font set with an alternative whose exact page fonts and layout data have documented redistribution rights, or ship the independently approved Tanzil Arabic text reader without the unresolved QCF bundle.
+4. Do not infer rights from a logo, package description, public availability, the MIT software licence, or permission to use a digital Mushaf in general.
+
+**Current disposition:** the code may remain in the release-candidate branch for engineering validation. The QCF binary assets remain a hard public-distribution gate until the exact grant is documented.
 
 ## Overall font decision
 

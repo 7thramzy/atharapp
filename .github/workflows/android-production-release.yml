@@ -1,0 +1,106 @@
+name: Android production signed release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skip-non-production:
+    if: github.ref != 'refs/heads/main' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain that production signing is manual and main-only
+        run: echo "No production signing was requested. Run this workflow manually from main after configuring the production secrets."
+
+  signed-release:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ATHAAR_KEYSTORE_PATH: ${{ runner.temp }}/athaar-upload.jks
+      ATHAAR_REQUIRE_PRODUCTION_SIGNING: "true"
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate and import production keystore
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_PASSWORD"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ATHAAR_KEYSTORE_PATH"
+          chmod 600 "$ATHAAR_KEYSTORE_PATH"
+          keytool -list -keystore "$ATHAAR_KEYSTORE_PATH" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.50.0"
+          channel: stable
+          cache: true
+
+      - name: Resolve and generate
+        run: |
+          flutter --version
+          dart --version
+          flutter pub get
+          dart run build_runner build
+
+      - name: Run release acceptance tests
+        run: |
+          flutter analyze --fatal-infos
+          flutter test test/core/database --reporter expanded --timeout 60s
+          flutter test test/app/athaar_app_test.dart --reporter expanded --timeout 60s
+          flutter test test/quran --reporter expanded --timeout 90s
+          flutter test test/quran_study --reporter expanded --timeout 90s
+
+      - name: Build signed Android App Bundle
+        run: flutter build appbundle --release
+
+      - name: Build signed ARM64 APK
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Verify signatures and production network permission
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          AAPT="$(find "$SDK_ROOT/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          test -s "$APK"
+          test -s "$AAB"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          jarsigner -verify -verbose -certs "$AAB"
+          "$AAPT" dump permissions "$APK" | grep -F "android.permission.INTERNET"
+          sha256sum "$APK" "$AAB"
+
+      - name: Upload signed release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: athaar-android-production-signed
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove temporary signing key
+        if: always()
+        shell: bash
+        run: rm -f "$ATHAAR_KEYSTORE_PATH"

@@ -96,9 +96,12 @@ void main() {
             request.url.path,
             '/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/1/1.json',
           );
-          return http.Response(
-            jsonEncode({'text': tafsirText, 'surah': 1, 'ayah': 1}),
+          return http.Response.bytes(
+            utf8.encode(
+              jsonEncode({'text': tafsirText, 'surah': 1, 'ayah': 1}),
+            ),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         }),
       );
@@ -119,21 +122,24 @@ void main() {
           expect(request.url.queryParameters['format'], 'audio');
           expect(request.url.queryParameters['language'], 'ar');
           expect(request.url.queryParameters['type'], 'versebyverse');
-          return http.Response(
-            jsonEncode({
-              'code': 200,
-              'status': 'OK',
-              'data': [
-                {
-                  'identifier': 'ar.husary',
-                  'name': 'محمود خليل الحصري',
-                  'englishName': 'Husary',
-                  'format': 'audio',
-                  'type': 'versebyverse',
-                },
-              ],
-            }),
+          return http.Response.bytes(
+            utf8.encode(
+              jsonEncode({
+                'code': 200,
+                'status': 'OK',
+                'data': [
+                  {
+                    'identifier': 'ar.husary',
+                    'name': 'محمود خليل الحصري',
+                    'englishName': 'Husary',
+                    'format': 'audio',
+                    'type': 'versebyverse',
+                  },
+                ],
+              }),
+            ),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         }),
       );
