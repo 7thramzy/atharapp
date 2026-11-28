@@ -388,11 +388,23 @@ class AthaarFeatureStore {
 
   Future<Map<String, int>> activityPointsSummary() async {
     final rows = await db.customSelect(
-      'SELECT COALESCE(SUM(points), 0) AS points, COUNT(*) AS events FROM activity_events',
+      '''SELECT
+         COALESCE(SUM(points), 0) AS points,
+         COUNT(*) AS events,
+         COALESCE(SUM(CASE WHEN event_type = 'reading_completed' THEN points ELSE 0 END), 0) AS reading_points,
+         COALESCE(SUM(CASE WHEN event_type = 'reading_completed' THEN 1 ELSE 0 END), 0) AS reading_events,
+         COALESCE(SUM(CASE WHEN event_type = 'memorization_session_recorded' THEN points ELSE 0 END), 0) AS memorization_points,
+         COALESCE(SUM(CASE WHEN event_type = 'memorization_session_recorded' THEN 1 ELSE 0 END), 0) AS memorization_events
+         FROM activity_events''',
     ).get();
+    final row = rows.first;
     return {
-      'points': rows.first.read<int>('points'),
-      'events': rows.first.read<int>('events'),
+      'points': row.read<int>('points'),
+      'events': row.read<int>('events'),
+      'reading_points': row.read<int>('reading_points'),
+      'reading_events': row.read<int>('reading_events'),
+      'memorization_points': row.read<int>('memorization_points'),
+      'memorization_events': row.read<int>('memorization_events'),
     };
   }
 
