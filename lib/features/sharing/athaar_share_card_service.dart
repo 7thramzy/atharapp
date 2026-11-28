@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:cross_file/cross_file.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:share_plus/share_plus.dart';
 
 class AthaarShareCardService {
@@ -173,7 +172,7 @@ class AthaarShareCardService {
       ShareParams(
         title: title,
         files: [file],
-        fileNameOverrides: [await file.name],
+        fileNameOverrides: [file.name],
       ),
     );
   }
