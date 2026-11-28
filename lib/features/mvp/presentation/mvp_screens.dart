@@ -504,9 +504,7 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
       final surahs = results[0] as List<Map<String, Object?>>;
       final summary = results[1] as Map<String, int>;
       final selected = surahs.where((item) => item['number'] == _selectedSurah);
-      final count = selected.isEmpty
-          ? 7
-          : selected.first['ayah_count'] as int;
+      final count = selected.isEmpty ? 7 : selected.first['ayah_count'] as int;
       setState(() {
         _surahs = surahs;
         _summary = summary;
@@ -539,14 +537,14 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
   }
 
   Future<void> _saveSession() async {
-    if (_startAyah < 1 ||
-        _endAyah < _startAyah ||
-        _endAyah > _ayahCount) {
-      setState(() => _error = _t(
-        context,
-        'نطاق الآيات غير صحيح لهذه السورة.',
-        'The ayah range is invalid for this surah.',
-      ));
+    if (_startAyah < 1 || _endAyah < _startAyah || _endAyah > _ayahCount) {
+      setState(
+        () => _error = _t(
+          context,
+          'نطاق الآيات غير صحيح لهذه السورة.',
+          'The ayah range is invalid for this surah.',
+        ),
+      );
       return;
     }
     setState(() {
@@ -554,12 +552,14 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
       _error = null;
     });
     try {
-      await ref.read(athaarFeatureStoreProvider).recordMemorizationSession(
-        surah: _selectedSurah,
-        startAyah: _startAyah,
-        endAyah: _endAyah,
-        outcome: _status,
-      );
+      await ref
+          .read(athaarFeatureStoreProvider)
+          .recordMemorizationSession(
+            surah: _selectedSurah,
+            startAyah: _startAyah,
+            endAyah: _endAyah,
+            outcome: _status,
+          );
       await _load();
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
@@ -570,30 +570,40 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final recorded = (_summary['learning'] ?? 0) +
+    final recorded =
+        (_summary['learning'] ?? 0) +
         (_summary['needs_revision'] ?? 0) +
         (_summary['stable'] ?? 0);
     return Scaffold(
-      appBar: AppBar(title: Text(_t(context, 'الحفظ والمراجعة', 'Memorization'))),
+      appBar: AppBar(
+        title: Text(_t(context, 'الحفظ والمراجعة', 'Memorization')),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _surahs.isEmpty
-          ? Center(child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                _error ?? _t(
-                  context,
-                  'استورد نص القرآن المعتمد أولاً لتفعيل جلسات الحفظ.',
-                  'Import the approved Quran dataset to enable memorization sessions.',
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  _error ??
+                      _t(
+                        context,
+                        'استورد نص القرآن المعتمد أولاً لتفعيل جلسات الحفظ.',
+                        'Import the approved Quran dataset to enable memorization sessions.',
+                      ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ))
+            )
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
-                  _t(context, 'جلسة حفظ ومراجعة', 'Memorization and revision session'),
+                  _t(
+                    context,
+                    'جلسة حفظ ومراجعة',
+                    'Memorization and revision session',
+                  ),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 6),
@@ -613,10 +623,14 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
                     labelText: _t(context, 'السورة', 'Surah'),
                     border: const OutlineInputBorder(),
                   ),
-                  items: _surahs.map((item) => DropdownMenuItem<int>(
-                    value: item['number'] as int,
-                    child: Text('${item['number']} — ${item['name']}'),
-                  )).toList(),
+                  items: _surahs
+                      .map(
+                        (item) => DropdownMenuItem<int>(
+                          value: item['number'] as int,
+                          child: Text('${item['number']} — ${item['name']}'),
+                        ),
+                      )
+                      .toList(),
                   onChanged: _selectSurah,
                 ),
                 const SizedBox(height: 12),
@@ -630,8 +644,12 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
                           labelText: _t(context, 'من الآية', 'From ayah'),
                           border: const OutlineInputBorder(),
                         ),
-                        items: List.generate(_ayahCount, (index) =>
-                          DropdownMenuItem(value: index + 1, child: Text('${index + 1}')),
+                        items: List.generate(
+                          _ayahCount,
+                          (index) => DropdownMenuItem(
+                            value: index + 1,
+                            child: Text('${index + 1}'),
+                          ),
                         ),
                         onChanged: (value) => setState(() {
                           if (value == null) return;
@@ -649,8 +667,9 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
                           labelText: _t(context, 'إلى الآية', 'To ayah'),
                           border: const OutlineInputBorder(),
                         ),
-                        items: List.generate(_ayahCount - _startAyah + 1, (index) =>
-                          DropdownMenuItem(
+                        items: List.generate(
+                          _ayahCount - _startAyah + 1,
+                          (index) => DropdownMenuItem(
                             value: _startAyah + index,
                             child: Text('${_startAyah + index}'),
                           ),
@@ -670,45 +689,99 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   items: [
-                    DropdownMenuItem(value: 'learning', child: Text(_t(context, 'قيد الحفظ', 'Learning'))),
-                    DropdownMenuItem(value: 'needs_revision', child: Text(_t(context, 'يحتاج مراجعة', 'Needs revision'))),
-                    DropdownMenuItem(value: 'stable', child: Text(_t(context, 'مستقر حسب تقييمك', 'Stable by your own review'))),
+                    DropdownMenuItem(
+                      value: 'learning',
+                      child: Text(_t(context, 'قيد الحفظ', 'Learning')),
+                    ),
+                    DropdownMenuItem(
+                      value: 'needs_revision',
+                      child: Text(
+                        _t(context, 'يحتاج مراجعة', 'Needs revision'),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'stable',
+                      child: Text(
+                        _t(
+                          context,
+                          'مستقر حسب تقييمك',
+                          'Stable by your own review',
+                        ),
+                      ),
+                    ),
                   ],
-                  onChanged: (value) => setState(() => _status = value ?? 'learning'),
+                  onChanged: (value) =>
+                      setState(() => _status = value ?? 'learning'),
                 ),
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: _saving || _surahs.isEmpty ? null : _saveSession,
                   icon: _saving
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.save_outlined),
-                  label: Text(_t(context, 'حفظ جلسة المراجعة', 'Save revision session')),
+                  label: Text(
+                    _t(context, 'حفظ جلسة المراجعة', 'Save revision session'),
+                  ),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 8),
-                  Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                ],
-                const SizedBox(height: 24),
-                Text(_t(context, 'ملخص تقدمك', 'Your progress'), style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 6),
-                Text(_t(context, 'آيات لها حالة محفوظة: $recorded من 6236', 'Ayahs with a saved status: $recorded of 6236')),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(value: (recorded / 6236).clamp(0.0, 1.0)),
-                const SizedBox(height: 12),
-                ...[
-                  ('learning', _t(context, 'قيد الحفظ', 'Learning'), Icons.menu_book_outlined),
-                  ('needs_revision', _t(context, 'تحتاج مراجعة', 'Needs revision'), Icons.replay_rounded),
-                  ('stable', _t(context, 'مستقرة حسب تقييمك', 'Stable by your review'), Icons.check_circle_outline_rounded),
-                ].map((entry) => Card(
-                  child: ListTile(
-                    leading: Icon(entry.$3),
-                    title: Text(entry.$2),
-                    trailing: Text(
-                      '${_summary[entry.$1] ?? 0}',
-                      style: Theme.of(context).textTheme.titleMedium,
+                  Text(
+                    _error!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-                )),
+                ],
+                const SizedBox(height: 24),
+                Text(
+                  _t(context, 'ملخص تقدمك', 'Your progress'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _t(
+                    context,
+                    'آيات لها حالة محفوظة: $recorded من 6236',
+                    'Ayahs with a saved status: $recorded of 6236',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: (recorded / 6236).clamp(0.0, 1.0),
+                ),
+                const SizedBox(height: 12),
+                ...[
+                  (
+                    'learning',
+                    _t(context, 'قيد الحفظ', 'Learning'),
+                    Icons.menu_book_outlined,
+                  ),
+                  (
+                    'needs_revision',
+                    _t(context, 'تحتاج مراجعة', 'Needs revision'),
+                    Icons.replay_rounded,
+                  ),
+                  (
+                    'stable',
+                    _t(context, 'مستقرة حسب تقييمك', 'Stable by your review'),
+                    Icons.check_circle_outline_rounded,
+                  ),
+                ].map(
+                  (entry) => Card(
+                    child: ListTile(
+                      leading: Icon(entry.$3),
+                      title: Text(entry.$2),
+                      trailing: Text(
+                        '${_summary[entry.$1] ?? 0}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   _t(
