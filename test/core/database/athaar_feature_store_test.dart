@@ -81,6 +81,40 @@ void main() {
     expect(summary['events'], 1);
   });
 
+  test('activity points summary separates reading and memorization', () async {
+    final source = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(source);
+    await store.recordReadingCompletion('1:1');
+    await store.recordMemorizationSession(
+      surah: 1,
+      startAyah: 1,
+      endAyah: 2,
+      outcome: 'learning',
+    );
+
+    final summary = await store.activityPointsSummary();
+    expect(summary['points'], 6);
+    expect(summary['reading_points'], 1);
+    expect(summary['reading_events'], 1);
+    expect(summary['memorization_points'], 5);
+    expect(summary['memorization_events'], 1);
+  });
+
+  test('personal adhkar are saved as unverified custom entries', () async {
+    await store.createAdhkarItem(
+      textArabic: 'نص شخصي للاختبار',
+      targetCount: 2,
+      sourceReference: 'مرجع أدخله المستخدم',
+    );
+    final item = (await store.listAdhkar()).single;
+    expect(item['category_id'], 'personal');
+    expect(item['verified'], isFalse);
+    expect(item['review_status'], 'unreviewed');
+    expect(item['source'], 'مرجع أدخله المستخدم');
+  });
+
   test('favorite toggle is persisted in the adhkar library', () async {
     await store.createAdhkarItem(
       textArabic: 'ذكر اختباري',
