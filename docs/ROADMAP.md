@@ -117,3 +117,12 @@ Before Google Play or App Store submission:
 - physical-device testing for audio, notifications, offline transitions, and migrations;
 - signed Android App Bundle and iOS TestFlight archive;
 - support contact, store listing, screenshots, and account/policy requirements.
+
+
+## Approved product execution plan (2026-11-28)
+
+The detailed owner-approved requirements and acceptance gates are recorded in [APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md](engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md).
+
+Immediate priority is **P0 Quran integrity and release safety**: reproduce and diagnose the reported Mushaf ayah-ordering/rendering symptom; verify canonical text, parser/bidi behavior, and all 604 page mappings; complete golden/reference and physical-device QA; resolve QCF resource rights; and measure release size/startup/cache behavior. Do not make speculative RTL/array-order changes or modify canonical Quran text.
+
+Follow-on phases are P1 word-level meanings, tafsir/translations and source attribution; P2 unified local-first audio player and robust offline downloads; P3 memorization/revision, configurable daily wird and private progress; P4 accessibility, integration and release gates. Cloud sync, recitation assessment, donations, and social/community expansion remain separately gated or deferred as described in the approved plan.
