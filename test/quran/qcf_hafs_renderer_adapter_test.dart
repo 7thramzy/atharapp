@@ -54,7 +54,6 @@ void main() {
     });
   });
 
-
   group('QCF visual ayah ordering', () {
     test(
       'keeps every parsed line in canonical Mushaf source order',
@@ -107,12 +106,13 @@ void main() {
 
         final firstLineOnPageTwo = ParsedLineCache.instance.tryGet(2, 0);
         expect(
-          firstLineOnPageTwo?.map((ayah) => '${ayah.surahNumber}:${ayah.ayahNumber}').toList(),
-          contains('2:1'),
+          firstLineOnPageTwo?.first.surahNumber,
+          2,
+          reason: 'Al-Baqarah page 2 must begin with Surah 2.',
         );
         expect(
-          firstLineOnPageTwo!.first.surahNumber,
-          2,
+          firstLineOnPageTwo?.first.ayahNumber,
+          1,
           reason: 'Al-Baqarah page 2 must begin with ayah 2:1 at the right edge.',
         );
       },
