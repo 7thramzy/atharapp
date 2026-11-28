@@ -93,26 +93,31 @@ The current runtime is online and user-initiated. For future offline translation
 
 ## 4. Tafsir and Quranic commentary
 
-**Status: RESEARCH REQUIRED — NO TAfsir DATASET APPROVED YET.**
+**Status: ONE EXACT EDITION APPROVED FOR LIVE, VERBATIM IN-APP DISPLAY; NO TAFSIR DATASET APPROVED FOR OFFLINE BUNDLING.**
 
-Potential discovery catalogue: https://qul.tarteel.ai/resources/tafsir
+### Selected live edition — Al-Jami' Al-Wajiz
 
-Rules:
+- Work: Al-Jami' Al-Wajiz fi Tafsir Ay al-Kitab al-Aziz.
+- Author: Sheikh Dr. Ayman Fathih Al-Amer.
+- Author's source repository and explicit text licence: https://github.com/yamanamr/quran-tafsir-jami-wajiz
+- Licence: CC BY-ND 4.0, as published by the author.
+- Pinned data distribution: `spa5k/tafsir_api@v1.2.3`, edition `ar-tafsir-al-jami-al-wajiz`.
+- Runtime endpoint: `https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/{surah}/{ayah}.json`.
+- Athaar requests one selected ayah at a time; it does not bundle or persist a tafsir corpus offline.
+- The app verifies the returned surah/ayah coordinates and displays the text verbatim.
+- The study screen identifies the work, author, pinned version and CC BY-ND 4.0, and links to the author's licence.
+- Do not modify, paraphrase, normalize, or redistribute a modified version of this text. Preserve attribution and licence information.
 
-- QUL is a resource management/download platform, not a blanket license for all tafsir.
-- Review each exact record and edition separately, including language, editor/translator, rights holder, resource license, attribution, commercial use, and offline distribution.
-- Do not copy tafsir databases from Quran Offline Mobile until their exact QUL resource records and terms are checked.
-- The MIT license in the QUL software repository covers the software under that repository's license; it does not automatically cover third-party tafsir data.
-- Do not convert a commentary into AI-generated religious guidance without a reviewed content policy and reliable citations.
-- A missing license field or “copyright information unavailable” means BLOCKED for bundling until the rights holder gives permission.
+### Other editions and offline use
 
-Relevant QUL guidance:
-- https://qul.tarteel.ai/faq
-- https://qul.tarteel.ai/docs/getting-started
-- https://github.com/TarteelAI/quranic-universal-library/issues/891
-- https://github.com/TarteelAI/quranic-universal-library/issues/957
+- QUL is a resource discovery catalogue, not a blanket license for every tafsir.
+- QUL Tafsir Muyassar Arabic (resource 38), Tafseer Al-Saadi Arabic (resource 24), and Arabic Al-Mukhtasar (resource 251) remain BLOCKED for embedding because their resource-specific pages do not provide adequate copyright information.
+- Do not copy tafsir databases from Quran Offline Mobile until the exact QUL resource records and terms are checked.
+- The MIT licence in the QUL software repository covers its software, not third-party tafsir text.
+- No tafsir corpus is approved for offline app bundling in the current release.
+- Do not turn commentary into AI-generated religious guidance. Any future explanatory layer requires a reviewed content policy and reliable citations.
 
-The issues are examples of licensing questions raised by developers; an unanswered issue is not a license grant.
+The detailed edition-level decision and sources are recorded in `docs/content-reviews/tafsir-translations.md`. A missing licence field or “copyright information unavailable” remains BLOCKED until the actual rights holder gives permission.
 
 ## 4. UI font — Cairo
 
