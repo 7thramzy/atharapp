@@ -330,11 +330,24 @@ class AthaarFeatureStore {
           [categoryId, categoryAr, categoryEn],
         );
         await db.customStatement(
-          'INSERT OR IGNORE INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 1, ?)',
+          '''INSERT INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at)
+             VALUES(?, ?, ?, ?, ?, 1, ?)
+             ON CONFLICT(id) DO UPDATE SET
+               category_id = excluded.category_id,
+               text_ar = excluded.text_ar,
+               target_count = excluded.target_count,
+               source_reference = excluded.source_reference,
+               source_verified = 1''',
           [id, categoryId, text, target, 'القرآن الكريم — سورة $surahName، الآيات $ayahStart-$ayahEnd', _now],
         );
         await db.customStatement(
-          "INSERT OR IGNORE INTO adhkar_item_metadata(item_id, source_dataset, source_version, sort_order, is_favorite, review_status) VALUES(?, 'Tanzil Quran text', 'Uthmani v1.1', ?, 0, 'reviewed')",
+          '''INSERT INTO adhkar_item_metadata(item_id, source_dataset, source_version, sort_order, is_favorite, review_status)
+             VALUES(?, 'Tanzil Quran text', 'Uthmani v1.1', ?, 0, 'reviewed')
+             ON CONFLICT(item_id) DO UPDATE SET
+               source_dataset = excluded.source_dataset,
+               source_version = excluded.source_version,
+               sort_order = excluded.sort_order,
+               review_status = excluded.review_status''',
           [id, order],
         );
       }
