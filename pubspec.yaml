@@ -36,6 +36,10 @@ dependencies:
   # Localization and formatting
   intl: ^0.20.3
   crypto: ^3.0.8
+  share_plus: ^13.3.1
+  flutter_local_notifications: ^23.0.4
+  flutter_timezone: ^5.1.1
+  timezone: ^0.11.1
 
 dev_dependencies:
   flutter_test:
@@ -51,3 +55,4 @@ flutter:
   generate: true
   assets:
     - assets/content/quran/tanzil-uthmani-v1.1.json
+    - assets/content/adhkar/seed-v1.json
