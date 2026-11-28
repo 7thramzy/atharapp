@@ -14,6 +14,54 @@ void main() {
       expect(SurahBasmalaHeader.shouldDisplay(9), isFalse);
     });
 
+    test('removes a basmala prefix from the displayed first ayah', () {
+      const firstAyah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ المر تِلْكَ آيَاتُ الْكِتَابِ';
+      expect(
+        SurahBasmalaHeader.displayAyahText(
+          surahNumber: 13,
+          ayahNumber: 1,
+          text: firstAyah,
+        ),
+        'المر تِلْكَ آيَاتُ الْكِتَابِ',
+      );
+    });
+
+    test('preserves canonical text for exceptions and non-prefixed ayahs', () {
+      const firstAyah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الْحَمْدُ لِلَّهِ';
+      expect(
+        SurahBasmalaHeader.displayAyahText(
+          surahNumber: 1,
+          ayahNumber: 1,
+          text: firstAyah,
+        ),
+        firstAyah,
+      );
+      expect(
+        SurahBasmalaHeader.displayAyahText(
+          surahNumber: 9,
+          ayahNumber: 1,
+          text: firstAyah,
+        ),
+        firstAyah,
+      );
+      expect(
+        SurahBasmalaHeader.displayAyahText(
+          surahNumber: 27,
+          ayahNumber: 1,
+          text: 'طس تِلْكَ آيَاتُ الْقُرْآنِ',
+        ),
+        'طس تِلْكَ آيَاتُ الْقُرْآنِ',
+      );
+      expect(
+        SurahBasmalaHeader.displayAyahText(
+          surahNumber: 13,
+          ayahNumber: 2,
+          text: firstAyah,
+        ),
+        firstAyah,
+      );
+    });
+
     test('rejects invalid surah numbers', () {
       expect(SurahBasmalaHeader.shouldDisplay(0), isFalse);
       expect(SurahBasmalaHeader.shouldDisplay(115), isFalse);
