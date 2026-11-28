@@ -12,7 +12,7 @@
 
 ## Result
 
-- Status: PARTIAL — screenshot symptom reproduced by visual inspection; code root cause and fix not yet established.
+- Status: IMPLEMENTED IN BRANCH — screenshot symptom reproduced; isolated QCF parsed-line ordering correction and 604-page order regression test added. CI and visual confirmation are still pending.
 - Confirmed screenshot evidence (user supplied, 1920×1020 preview):
   - The two-page spread placement itself is correct: page 1 (Al-Fatihah) is on the right and page 2 (Al-Baqarah) is on the left.
   - The reported defect is inside the first text line of page 2, not the left/right placement of the pages.
@@ -23,11 +23,11 @@
   - The current Athaar adapter sets no custom line ordering; it initializes QCF metadata and exposes page-boundary lookups.
   - Existing tests validate all 6,236 ayah-to-page lookups, 604 populated pages, and contiguous page start/end boundaries. They do not validate visual ayah ordering within a rendered line, line-to-line ordering, glyph placement, or basmala placement.
   - In inspected QCF upstream source, `GetPage._generateLines()` appends ayah segments in source-list order. `parseLine()` iterates `line.ayahs.toList().reversed` before `QuranLine` wraps each ayah in a `WidgetSpan` inside an RTL `RichText`.
-  - The parser reversal is a credible cause of the screenshot symptom, but exact correspondence between inspected upstream source and locked `qcf_quran_plus: 0.1.1` has not been verified. Flutter bidi layout and WidgetSpan ordering also need a deterministic test.
+  - The parser reversal matches the observed symptom: source lines are assembled in Quran order, `parseLine()` reverses their ayah list, and `QuranLine` embeds the result in an RTL `RichText`. The adapter now reverses only the cached parsed-ayah presentation list back to source order after repository loading. This does not alter source text, QCF glyphs, or page metadata. The test checks all cached lines against the source page data across 604 pages. The exact archive source was not downloaded independently; `pubspec.lock` pins version 0.1.1 with SHA-256 `335ec9188d8a35114d4c7d0f3a578d4b3fed478aaa6dc34b6bedeae05228f124`, while the inspected upstream source provides the internal API/implementation shape. CI must confirm API compatibility.
   - The page spread uses an RTL Row and intentionally puts odd page left / even page right. In this screenshot page 1 is on the right and page 2 on the left, which is correct.
-  - No canonical Tanzil text or QCF dependency was changed. No speculative RTL or array reversal was applied.
+  - No canonical Tanzil text or QCF dependency was changed. A narrowly scoped reversal of parsed presentation entries was added to counter the package parser's reversal before RTL rendering.
 
-- Exact paths changed: this handoff only.
+- Exact paths changed: `lib/features/quran/data/qcf_hafs_renderer_adapter.dart`, `test/quran/qcf_hafs_renderer_adapter_test.dart`, and this handoff.
 - Decisions made: classify the screenshot as a confirmed within-line ordering defect on page 2; preserve Quran source text and avoid speculative code edits until the exact package source and a regression test establish the minimal safe fix.
 
 ## Validation
@@ -38,8 +38,8 @@
 | Inspect Athaar QCF adapter and existing tests | PASS | Existing page-map coverage confirmed |
 | Inspect QCF upstream parser and page construction source | PARTIAL | Upstream main inspected; exact source revision for pub package 0.1.1 not yet established |
 | User screenshot visual inspection | PASS | Confirms page 2 first-line ayah segments are in wrong visual order; spread page placement itself is correct |
-| Flutter format/analyze/tests | IN PROGRESS | CI run 46144513417; source acquisition passed, Flutter quality job still running at last check |
-| Exact package-version reproduction | BLOCKED | Exact 0.1.1 source correspondence and local render reproduction still required |
+| Flutter format/analyze/tests | PENDING | New branch commits have not yet produced a CI run at last check |
+| Exact package-version reproduction | PARTIAL | Lockfile version and checksum confirmed; archive source not independently retrieved |
 | Physical-device visual QA | NOT RUN | Requires device build and human comparison |
 | QCF font/page-data rights review | BLOCKED | D-015 remains open; package MIT code license does not establish asset rights |
 | Release size/startup/cache benchmarks | NOT RUN | Existing spike records a 240.16 MiB Android debug APK; physical-device metrics remain outstanding |
@@ -56,17 +56,17 @@
 ## Known gaps and blockers
 
 - Exact QCF 0.1.1 source revision correspondence remains to be established.
-- Add deterministic tests for input ayah order, parsed output order, and rendered line order using representative multi-ayah lines, especially page 2 line 1.
+- The new test checks parsed ayah order against source order for every cached line across all 604 pages, including multi-ayah lines. A rendered screenshot and physical-device check are still required to prove visual layout.
 - Confirm whether the symptom originates in parser reversal, Flutter bidi treatment of WidgetSpan placeholders, or source line data.
 - Complete full 604-page visual/reference QA; structural page-map coverage alone is insufficient.
 - Resolve QCF font and page-data rights before public distribution.
 
 ## Next recommended action
 
-Verify the exact locked QCF 0.1.1 package source, then add a failing regression test reproducing page 2 line 1 order. Apply the smallest isolated renderer fix only after the test demonstrates the correct RTL visual sequence. Re-run the 604-page structural suite and visual checks.
+Run CI on the current branch. If the ordering test passes, build a preview and visually compare page 2 line 1 with an approved Mushaf reference. If the rendered order remains wrong, inspect Flutter WidgetSpan bidi behavior before changing any further ordering logic.
 
 ## Instructions for the next agent
 
 - Relevant files/contracts: `lib/features/quran/data/qcf_hafs_renderer_adapter.dart`, `lib/features/quran/presentation/hafs_mushaf_screen.dart`, `test/quran/qcf_hafs_renderer_adapter_test.dart`, QCF `parseLine`, `QuranLine`, and `QuranPageView`.
 - Do not change: canonical Tanzil text, QCF dependency, `pubspec.yaml`, router, Drift schema/migrations, source registry, or CI without integration-lead approval.
-- Required prerequisite: exact 0.1.1 source verification and a failing regression test based on the confirmed page 2 line 1 symptom.
+- Required next step: CI pass plus rendered screenshot comparison for page 2 line 1 and representative multi-ayah lines.
