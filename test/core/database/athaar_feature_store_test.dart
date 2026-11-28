@@ -93,6 +93,11 @@ void main() {
   });
 
   test('personal impact is derived from saved local activity', () async {
+    final source = await rootBundle.loadString(
+      'assets/content/quran/tanzil-uthmani-v1.1.json',
+    );
+    await store.importQuranJson(source);
+
     await store.recordMemorizationSession(
       surah: 2,
       startAyah: 1,
