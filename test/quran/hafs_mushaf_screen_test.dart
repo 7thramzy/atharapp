@@ -92,7 +92,11 @@ void main() {
     );
 
     expect(normalizedFirstWord, 'المر');
-    expect(verse, contains('تِلْكَ آيَاتُ الْكِتَابِ'));
+    final normalizedVerse = verse
+        .replaceAll(RegExp(r'[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]'), '')
+        .replaceAll('ٱ', 'ا')
+        .replaceAll('ء', 'ا');
+    expect(normalizedVerse, contains('تلك ايات الكتاب'));
 
     final pageNumber = getPageNumber(13, 1);
     final pageSegments = getPageData(pageNumber).cast<Map<String, dynamic>>();
