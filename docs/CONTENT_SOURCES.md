@@ -61,7 +61,37 @@ Do not combine the Tanzil offline dataset with Quran Foundation data unless a se
 
 The current runtime is online and user-initiated. For future offline translation support, complete a separate rights review for every selected edition.
 
-## 3. Tafsir and Quranic commentary
+## 3. Word-by-word meanings and morphology
+
+**Status: PARTIALLY RESEARCHED — no Arabic word-meaning edition approved for offline bundling yet.**
+
+### Quranic Arabic Corpus (QAC)
+
+- Source: https://corpus.quran.com/
+- Download page: https://corpus.quran.com/download/default.jsp
+- The corpus provides word-level morphology, syntax, grammatical features, and a contextual English interlinear gloss.
+- Its published data terms permit use in a website or application if the source is clearly attributed, a link to corpus.quran.com is provided, the copyright notice is preserved, and the data is not changed.
+- The corpus download page asks the downloader to accept its GNU licence terms. Preserve the exact source file and its complete notice; do not rewrite or silently normalize the corpus annotations.
+- The word-by-word gloss is English contextual meaning, not an Arabic explanation of every Quranic word. It must not be presented as a verified Arabic lexical dictionary.
+- QAC can be evaluated as an attributed English word-gloss/morphology layer after its exact downloaded version, file hash, full notice, parser mapping, and app distribution implications are recorded.
+- Do not use a generated Arabic gloss as a substitute for a reviewed lexical source.
+
+### Quran Foundation word-by-word resources
+
+- Quran Foundation Content Sync documents separate `word_by_word_translations` and `word_by_word_transliterations` groups.
+- These resources may be considered for live/synced display only after Athaar obtains the required API access and implements the Content Sync lifecycle, attribution, privacy obligations, rate limits, and at-least-every-seven-days refresh when online access is available.
+- Quran Foundation content must not be scraped, bulk-exported, put into a static app dataset, or used to train/evaluate AI models.
+- The exact language, edition, word coverage, rights holder, and Arabic-meaning availability must be confirmed from the production resource catalogue before selecting an edition.
+- Keep the existing verbatim Tanzil Quran text as the canonical Arabic display; word-level meanings are a separate explanatory layer and must never replace Quran text.
+
+### Release decision
+
+- Do not ship an invented or AI-generated word-meaning dataset.
+- First candidate for a clearly labelled English gloss and morphology view: QAC, after exact-file verification and attribution implementation.
+- Arabic word meanings require a separately licensed, edition-specific source and review by a qualified Arabic/Quran content reviewer.
+- Word selection must map to the canonical surah/ayah/word coordinate; if mapping confidence is uncertain, show no gloss rather than the wrong word's meaning.
+
+## 4. Tafsir and Quranic commentary
 
 **Status: RESEARCH REQUIRED — NO TAfsir DATASET APPROVED YET.**
 
