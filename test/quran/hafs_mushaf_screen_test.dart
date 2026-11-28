@@ -138,5 +138,4 @@ void main() {
         .replaceAll('ٱ', 'ا');
     expect(normalized, startsWith('بسم الله الرحمن الرحيم'));
   });
-
 }
