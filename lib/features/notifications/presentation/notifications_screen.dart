@@ -20,6 +20,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   bool _busy = false;
   String? _message;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
   Future<void> _loadPreferences() async {
     try {
       final raw = await ref.read(appDatabaseProvider)
