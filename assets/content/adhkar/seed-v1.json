@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "source": "Quran",
+  "sourceVersion": "Tanzil Uthmani v1.1 local dataset",
+  "entries": [
+    {"id":"morning-ayat-al-kursi","categoryId":"morning","categoryAr":"أذكار الصباح","categoryEn":"Morning adhkar","surah":2,"ayah":255,"target":1,"order":1,"reviewStatus":"reviewed"},
+    {"id":"morning-ikhlas","categoryId":"morning","categoryAr":"أذكار الصباح","categoryEn":"Morning adhkar","surah":112,"ayah":1,"target":3,"order":2,"reviewStatus":"reviewed"},
+    {"id":"morning-falaq","categoryId":"morning","categoryAr":"أذكار الصباح","categoryEn":"Morning adhkar","surah":113,"ayah":1,"target":3,"order":3,"reviewStatus":"reviewed"},
+    {"id":"morning-nas","categoryId":"morning","categoryAr":"أذكار الصباح","categoryEn":"Morning adhkar","surah":114,"ayah":1,"target":3,"order":4,"reviewStatus":"reviewed"},
+    {"id":"evening-ayat-al-kursi","categoryId":"evening","categoryAr":"أذكار المساء","categoryEn":"Evening adhkar","surah":2,"ayah":255,"target":1,"order":1,"reviewStatus":"reviewed"},
+    {"id":"evening-ikhlas","categoryId":"evening","categoryAr":"أذكار المساء","categoryEn":"Evening adhkar","surah":112,"ayah":1,"target":3,"order":2,"reviewStatus":"reviewed"},
+    {"id":"evening-falaq","categoryId":"evening","categoryAr":"أذكار المساء","categoryEn":"Evening adhkar","surah":113,"ayah":1,"target":3,"order":3,"reviewStatus":"reviewed"},
+    {"id":"evening-nas","categoryId":"evening","categoryAr":"أذكار المساء","categoryEn":"Evening adhkar","surah":114,"ayah":1,"target":3,"order":4,"reviewStatus":"reviewed"}
+  ],
+  "notice": "This initial offline seed contains Quranic recitations only. It does not claim to be a complete Sunnah adhkar collection. Add hadith-based adhkar only after exact source text and grading are checked against the cited primary source."
+}
