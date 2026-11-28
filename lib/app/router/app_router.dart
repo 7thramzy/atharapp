@@ -1,4 +1,5 @@
 import 'package:athaar/features/home/presentation/home_screen.dart';
+import 'package:athaar/features/adhkar/presentation/adhkar_library_screen.dart';
 import 'package:athaar/features/mvp/presentation/mvp_screens.dart';
 import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:athaar/features/quran/presentation/downloaded_quran_reader_screen.dart';
@@ -58,7 +59,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/adhkar',
         name: 'adhkar',
-        builder: (context, state) => const AdhkarScreen(),
+        builder: (context, state) => const AdhkarLibraryScreen(),
       ),
       GoRoute(
         path: '/memorization',
