@@ -1,43 +1,67 @@
-# Issue 38 handoff — admin notifications, adhkar, and sharing
+# Issue 38 — implementation status and release gates
 
 **Date:** 2026-11-28  
 **Branch:** `feat/admin-adhkar-sharing-points`  
-**Tracking issue:** https://github.com/7thramzy/atharapp/issues/38  
-**Status:** source review completed; application implementation not yet complete.
+**PR:** https://github.com/7thramzy/atharapp/pull/39  
+**Tracking issue:** https://github.com/7thramzy/atharapp/issues/38
 
-## Verified existing architecture
+## Implemented in this branch
 
-- Local-only Drift/SQLite persistence is already used; no Athaar backend, cloud auth, FCM/APNs sender, or admin RBAC service is configured.
-- Existing schema has `adhkar_categories`, `adhkar_items`, and `adhkar_progress`, but the item shape stores only one Arabic text field, target count, one source string, and a boolean source flag. It cannot faithfully represent source versions, variations, ordered recitation/instruction blocks, item references, and review records.
-- Existing adhkar screen supports manually adding a personal text and incrementing its local count. It does not provide a curated library, category navigation, search, favorites, or a reviewed daily wird.
-- The settings notification row is a placeholder dialog.
-- Memorization sessions and private impact summaries exist locally. They are not a validated recitation assessment engine and do not currently establish a score for recitation correctness.
-- No image export/share dependency or share-card rendering workflow was found in the current app dependency manifest.
-- Existing project content rules prohibit bundling content without exact source and rights records.
+### Offline adhkar foundation
+- Added an offline seed manifest built only from the project's already checksum-verified Tanzil Uthmani Quran text.
+- The initial seed contains Ayat al-Kursi and the complete three Quls (all verses) in morning and evening categories.
+- Morning/evening entries have target counts (1 for Ayat al-Kursi, 3 for each Qul), stable IDs, source references and local metadata.
+- The import is idempotent and updates seed text without resetting a user's progress or favorite state.
+- Added a new library screen with category chips, local repeat counters, progress indicators and favorites.
+- Added database metadata and migration support for review state, dataset version and sorting.
 
-## Work completed in this branch
+**Content boundary:** This is an initial Quranic recitation subset, not a complete Sunnah adhkar collection. No hadith wording has been fabricated or silently imported. Additional morning/evening, post-prayer, sleep and waking adhkar remain gated on exact primary-source text, source references, named grading where applicable, and qualified review. The earlier OpenDua v0.0.4 review remains a conditional research source, not blanket authorization for all underlying texts.
 
-- Added `docs/content-reviews/opendua-v0.0.4.md` with pinned-source, CC BY 4.0 boundary, attribution, scholarly-review limitations, and a safe import decision.
-- OpenDua v0.0.4 is a conditional candidate, not an approved religious-content corpus. Its public methodology and changelog make clear that source references and reported gradings are preserved, but the dataset must not be described as scholarly-certified by Athaar.
-- Audio is intentionally excluded from the first content import.
-- No unverified adhkar have been inserted into production tables.
+### Local reminders
+- Added a timezone-aware daily reminder service for Android and Apple platforms.
+- Added user controls for morning/evening reminder times, permission request, enable/disable, cancellation and persisted local preferences.
+- Android manifest includes boot rescheduling receivers and the required boot permission; Gradle enables core-library desugaring.
+- Reminder state is device-local and works without a cloud account.
 
-## Implementation plan and ownership boundaries
+**Not the same as admin broadcasts:** Sending an announcement from Athaar administration to all installed devices is not implemented. The repository has no configured backend, authenticated admin roles, push token registry, FCM/APNs sender or delivery audit. This must be built server-side; no sender credentials may be embedded in the mobile app.
 
-1. **Content lane:** obtain exact pinned catalogue bytes in the build environment, calculate SHA-256/byte count, preserve licence/attribution, build a parser preserving entries, variations and ordered blocks, then human-review the morning/evening and post-prayer subsets. Do not mark content verified before review.
-2. **Database lane:** dedicated schema migration for source/version metadata, categories, entry/dua IDs, variations, ordered blocks, references, review state, and favorites. Do not flatten multi-step content into the current single text field.
-3. **Adhkar UI lane:** category filters, search, morning/evening/post-prayer/sleep/waking collections, repeat counters, favorites, daily progress, and offline-first data loading.
-4. **Notifications lane:** implement local reminders only after selecting and testing a maintained Flutter notifications plugin, with permission UX, timezone-safe schedules, quiet hours and preferences. Administrative push announcements require a server-side service, authenticated admin RBAC, FCM/APNs credentials kept server-side, and auditable delivery logs. Do not fake remote admin delivery in a client-only app.
-5. **Ayah share lane:** add a renderer/export service with a preview screen, font/RTL/diacritic tests, licensed translation/tafsir source metadata, multi-card overflow for long passages, and explicit user action before file/share output.
-6. **Achievement/points lane:** derive points from idempotent local event records with a versioned transparent rule set. Reading completion and a user-recorded memorization session may count as activity, but never as proof of correct recitation. Provide share preview and default-hide personal identity.
-7. **QA lane:** database migration tests, parser fixtures, content reference review, offline tests, Android/iOS permission tests, timezone tests, duplicate-event tests, and image golden tests for short/long Arabic passages.
+### Ayah image sharing
+- Added an Arabic RTL share-card renderer with a dark green/gold Islamic visual style.
+- Added a share screen for an exact locally stored ayah, with optional user-supplied translation and tafsir text.
+- The screen requires a source label when translation/tafsir is included; the app does not invent or silently attach a translation.
+- Added share actions from both the downloaded Quran text reader and the selected ayah panel in the Hafs Mushaf.
+- Uses in-memory PNG/XFile export and the native share sheet; no persistent user data is uploaded.
 
-## Blocking dependencies / honest scope
+### Activity points and achievement sharing
+- Added a local idempotent activity event ledger.
+- Reading completion earns 1 activity point per exact ayah reference per local day.
+- A recorded memorization session earns 5 activity points per exact range per local day.
+- Added points summary and an achievement image share card.
+- Points are activity markers only. They are not an automated judgement of tajwid, recitation accuracy, memorization correctness or religious merit.
 
-- The repository has no configured server/backend; admin broadcast push cannot be completed securely as a client-only feature.
-- Exact OpenDua catalogue bytes have not yet been committed or checksummed in the repository; no claim is made that all 267 entries have been imported.
-- The current database schema requires a migration before faithful full-catalogue import.
-- No physical-device notification or image export test has been run.
-- No points have been assigned for recitation correctness.
+## Automated coverage added
 
-**Do not close issue #38 or call the features shipped until code, migrations, tests, source review, and backend/device gates are complete.**
+- Database schema test now expects schema v3.
+- Added tests for offline seed idempotency and morning/evening grouping.
+- Added tests for favorite persistence.
+- Added tests for idempotent daily reading points.
+- Existing memorization tests now exercise the activity ledger indirectly.
+
+## Validation status
+
+- No successful Flutter CI run has yet been recorded for this feature branch.
+- The current Flutter CI workflow previously did not target feature branches or PRs against the `agent/**` base branch. This branch updates its trigger filters so future feature PR pushes run the quality and platform build jobs.
+- No physical Android/iOS notification test, native share-sheet test, iPad share popover test, long-ayah image golden test, or screen-reader test has been run yet.
+- No production build or release has been created.
+
+## Remaining gates
+
+1. Run Flutter CI on this exact branch head and fix all format, analyzer, test and platform build failures.
+2. Physically test local reminders on Android and iOS, including reboot, permission denial, timezone changes and daylight-saving behavior where applicable.
+3. Test PNG export/share on Android, iPhone/iPad and web; inspect Arabic shaping, diacritics, clipping and long-text overflow.
+4. Have Arabic Quran content reviewed against the approved text source before release; keep the current seed's scope label explicit.
+5. Expand the adhkar corpus only from traceable primary sources and qualified review.
+6. Select and provision a trusted backend for administrative broadcasts, admin RBAC, device registration, FCM/APNs credentials, opt-outs, rate limits and delivery logs.
+7. Complete privacy-policy and production artifact review before release.
+
+**Do not merge or ship this PR until the CI and device gates are satisfied. Do not describe admin push broadcasts or a complete Sunnah adhkar library as shipped.**
