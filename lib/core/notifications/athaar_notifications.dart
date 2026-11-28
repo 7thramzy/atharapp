@@ -70,6 +70,34 @@ class AthaarNotifications {
     ) ?? false;
   }
 
+  static Future<void> showAdminBroadcast({
+    required String title,
+    required String body,
+  }) async {
+    await initialize();
+    if (kIsWeb || ![
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+      TargetPlatform.macOS,
+    ].contains(defaultTargetPlatform)) return;
+    await _plugin.show(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(2147483647),
+      title: title,
+      body: body,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'athaar_announcements',
+          'إعلانات أثَر',
+          channelDescription: 'الإعلانات والتنبيهات العامة من إدارة أثَر',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+        macOS: DarwinNotificationDetails(),
+      ),
+    );
+  }
+
   static Future<void> scheduleDaily({
     required int id,
     required String title,

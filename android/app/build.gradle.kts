@@ -4,6 +4,10 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val productionKeystorePath = System.getenv("ATHAAR_KEYSTORE_PATH")
 val productionKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
 val productionKeystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")

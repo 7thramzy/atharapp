@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:athaar/core/database/database_providers.dart';
 import 'package:athaar/core/notifications/athaar_notifications.dart';
+import 'package:athaar/core/notifications/athaar_push_notifications.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +19,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   TimeOfDay _evening = const TimeOfDay(hour: 18, minute: 0);
   bool _morningEnabled = false;
   bool _eveningEnabled = false;
+  bool _adminBroadcastsEnabled = false;
+  bool _pushReady = false;
   bool _busy = false;
   String? _message;
 
@@ -25,6 +28,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   void initState() {
     super.initState();
     unawaited(_loadPreferences());
+    unawaited(_initializePush());
+  }
+
+  Future<void> _initializePush() async {
+    final ready = await AthaarPushNotifications.initialize();
+    if (mounted) setState(() => _pushReady = ready);
   }
 
   Future<void> _loadPreferences() async {
@@ -38,6 +47,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       setState(() {
         _morningEnabled = value['morningEnabled'] == true;
         _eveningEnabled = value['eveningEnabled'] == true;
+        _adminBroadcastsEnabled = value['adminBroadcastsEnabled'] == true;
         _morning = TimeOfDay(
           hour: (value['morningHour'] as int?) ?? 7,
           minute: (value['morningMinute'] as int?) ?? 0,
@@ -103,6 +113,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       } else {
         await AthaarNotifications.cancel(4102);
       }
+      if (_adminBroadcastsEnabled) {
+        if (!_pushReady) throw StateError('خدمة Firebase غير مهيأة لهذا الإصدار بعد.');
+        final subscribed = await AthaarPushNotifications.setBroadcastEnabled(true);
+        if (!subscribed) throw StateError('لم يتم منح إذن استقبال الإعلانات على هذا الجهاز.');
+      } else if (_pushReady) {
+        await AthaarPushNotifications.setBroadcastEnabled(false);
+      }
       await ref.read(appDatabaseProvider).saveMetadata(
         key: 'notifications.preferences.v1',
         value: jsonEncode({
@@ -112,6 +129,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           'morningMinute': _morning.minute,
           'eveningHour': _evening.hour,
           'eveningMinute': _evening.minute,
+          'adminBroadcastsEnabled': _adminBroadcastsEnabled,
         }),
       );
       if (mounted) {
@@ -212,8 +230,22 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 6),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('استقبال إعلانات وتنبيهات الإدارة'),
+              subtitle: Text(
+                _pushReady
+                    ? 'اختياري ويمكن إيقافه في أي وقت. لا يشمل تذكيراتك المحلية.'
+                    : 'بانتظار ربط إعدادات مشروع Firebase بهذا التطبيق.',
+              ),
+              value: _adminBroadcastsEnabled,
+              onChanged: _busy || !_pushReady
+                  ? null
+                  : (value) => setState(() => _adminBroadcastsEnabled = value),
+            ),
             const Text(
-              'إرسال إعلان أو تنبيه لجميع المستخدمين يحتاج إلى خدمة خادمية موثوقة وصلاحيات مدير وسجل إرسال. هذه الوظيفة غير مفعلة في هذه النسخة، ولن نعرض زر إرسال وهمياً أو نضع مفاتيح الإرسال داخل التطبيق.',
+              'تُرسل الإدارة الإعلانات من لوحة Firebase الرسمية إلى موضوع athaar_all. لا توجد مفاتيح إرسال داخل التطبيق، ولا تُرسل بيانات شخصية إلى خادم خاص بأثر لهذا الغرض.',
+              style: TextStyle(fontSize: 12),
             ),
           ],
         ),
