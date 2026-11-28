@@ -47,7 +47,9 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
     try {
       final value = await ref.read(athaarFeatureStoreProvider)
           .getAyahForShare(widget.surahNumber, widget.ayahNumber);
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _ayah = value;
         _loading = false;
