@@ -220,16 +220,21 @@ class AthaarFeatureStore {
       'INSERT OR IGNORE INTO adhkar_categories(id, name_ar, name_en) VALUES(?, ?, ?)',
       [categoryId, 'أذكاري', 'My adhkar'],
     );
+    final itemId = _id();
     await db.customStatement(
       'INSERT INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 0, ?)',
       [
-        _id(),
+        itemId,
         categoryId,
         textArabic.trim(),
         targetCount,
         sourceReference.trim(),
         _now,
       ],
+    );
+    await db.customStatement(
+      "INSERT INTO adhkar_item_metadata(item_id, source_dataset, source_version, sort_order, is_favorite, review_status) VALUES(?, 'manual', 'local', 9999, 0, 'unreviewed')",
+      [itemId],
     );
   }
 
