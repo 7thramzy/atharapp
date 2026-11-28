@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:athaar/features/sharing/athaar_share_card_service.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AyahShareScreen extends ConsumerStatefulWidget {
@@ -30,7 +32,7 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   @override
@@ -49,7 +51,9 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
       setState(() {
         _ayah = value;
         _loading = false;
-        if (value == null) _error = 'لم يتم العثور على الآية في النص المحلي.';
+        if (value == null) {
+          _error = 'لم يتم العثور على الآية في النص المحلي.';
+        }
       });
     } catch (error) {
       if (mounted) setState(() {
@@ -68,7 +72,9 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
       return;
     }
     final ayah = _ayah;
-    if (ayah == null) return;
+    if (ayah == null) {
+      return;
+    }
     final parts = <String>[
       ayah['text'] as String,
       if (translation.isNotEmpty) '\n\nالترجمة:\n$translation',
@@ -86,9 +92,13 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
         footer: source.isEmpty ? 'النص القرآني · أثَر' : 'المصدر: $source · أثَر',
       );
     } catch (error) {
-      if (mounted) setState(() => _error = 'تعذرت مشاركة البطاقة: $error');
+      if (mounted) {
+        setState(() => _error = 'تعذرت مشاركة البطاقة: $error');
+      }
     } finally {
-      if (mounted) setState(() => _sharing = false);
+      if (mounted) {
+        setState(() => _sharing = false);
+      }
     }
   }
 
@@ -96,7 +106,9 @@ class _AyahShareScreenState extends ConsumerState<AyahShareScreen> {
     await ref.read(athaarFeatureStoreProvider).recordReadingCompletion(
       '${widget.surahNumber}:${widget.ayahNumber}',
     );
-    if (mounted) setState(() => _readMarked = true);
+    if (mounted) {
+      setState(() => _readMarked = true);
+    }
   }
 
   @override
