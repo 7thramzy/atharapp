@@ -70,6 +70,8 @@ class AthaarShareCardService {
         ),
         textDirection: TextDirection.rtl,
         textAlign: TextAlign.center,
+        maxLines: 10,
+        ellipsis: '…',
       )..layout(maxWidth: 820);
       if (bodyPainter.height <= 650 || bodySize <= 34) break;
       bodySize -= 3;
