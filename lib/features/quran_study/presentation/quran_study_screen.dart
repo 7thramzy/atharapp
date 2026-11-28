@@ -486,7 +486,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, updateDialog) => AlertDialog(
-          title: Text(_studyText(context, 'تحديد نطاق الآيات', 'Choose ayah range')),
+          title: Text(
+            _studyText(context, 'تحديد نطاق الآيات', 'Choose ayah range'),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -924,7 +926,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                     OutlinedButton.icon(
                       onPressed: _loadingAudio ? null : _showAyahRangeDialog,
                       icon: const Icon(Icons.queue_music_rounded),
-                      label: Text(_studyText(context, 'نطاق الآيات', 'Ayah range')),
+                      label: Text(
+                        _studyText(context, 'نطاق الآيات', 'Ayah range'),
+                      ),
                     ),
                     OutlinedButton.icon(
                       onPressed: _cycleLoopMode,
@@ -935,9 +939,17 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                       ),
                       label: Text(
                         _loopMode == LoopMode.one
-                            ? _studyText(context, 'تكرار المقطع', 'Repeat track')
+                            ? _studyText(
+                                context,
+                                'تكرار المقطع',
+                                'Repeat track',
+                              )
                             : _loopMode == LoopMode.all
-                            ? _studyText(context, 'تكرار النطاق', 'Repeat range')
+                            ? _studyText(
+                                context,
+                                'تكرار النطاق',
+                                'Repeat range',
+                              )
                             : _studyText(context, 'التكرار مغلق', 'Repeat off'),
                       ),
                     ),
