@@ -12,9 +12,9 @@ reminders continue to work without Firebase or an internet connection.
 5. Download `GoogleService-Info.plist` into `ios/Runner/GoogleService-Info.plist` and add it to the Runner target in Xcode.
 6. Enable Firebase Cloud Messaging in Project Settings.
 7. For iOS, upload an APNs authentication key in Firebase Project Settings → Cloud Messaging. Enable Push Notifications and Background Modes → Remote notifications for the Runner target.
-8. Rebuild. Android applies the Google Services Gradle plugin only when the local JSON file exists. Never commit either native Firebase configuration file.
+8. Rebuild. Android applies the Google Services Gradle plugin only when the JSON file exists. The Athaar Android and iOS client configuration files are already present in this feature branch. These client files identify the Firebase app; they are not Admin SDK credentials. Never commit a Firebase service-account private key, Admin SDK JSON, APNs private key, or other server-side secret.
 
-The Flutter client initializes Firebase from native configuration. A build without
+The Flutter client initializes Firebase from the native configuration bundled with each platform target. A build without
 the native files gracefully disables remote announcements without affecting local
 notifications.
 
