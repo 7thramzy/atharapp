@@ -74,3 +74,12 @@ Do not advertise features as shipped unless they are merged and tested. In parti
 - Audio QA: automated store tests cover mocked HTTP download, bitrate fallback, empty responses, path validation and deletion. They do not prove MP3 decoding or real playback, offline restart, background, lock-screen, Bluetooth, audio focus, or device-specific behavior. Physical QA remains NOT RUN. See `docs/qa/audio-device-test-plan.md`.
 - ASR/tasmee: no ASR engine is integrated. The candidate model card publishes metrics, but Athaar has not reproduced them. Dataset rights and a complete speaker-disjoint full-ayah benchmark remain unresolved; do not ship or label it as tasmee.
 - Privacy: source-code data-flow review confirms that opening the study screen automatically fetches tafsir, translation catalogue/default translation, and reciter catalogue. Play/download actions trigger further provider requests. Local notes/progress are not included in these requests. Android INTERNET is present; no microphone permission was found in the inspected Android manifest or iOS Info.plist. The in-app settings disclosure has been corrected on the candidate. Public policy/legal approval remains blocked by missing operator details and external review.
+
+
+## Official Mushaf source and rights follow-up — 2026-11-28
+
+- Verified the King Fahd Complex official Hafs digital vector edition and its published worldwide permission for use in computer programs: https://qurancomplex.gov.sa/mushaf-printing
+- Official source SHA-256 recorded in `docs/content-reviews/qcf-assets.md`: `C2FA8D93A7C4F689B58EB32756E1AE56CD1B7CE4826F63E09723BE8B092224FB`.
+- The official computer-publishing application/font catalogue are documented as source references, not treated as a ready-to-integrate Flutter asset bundle.
+- Existing `qcf_quran_plus` embedded files remain blocked until exact asset provenance is proven or they are replaced through a separately engineered official-source renderer.
+- A request for written clarification and scientific/technical review is prepared; no approval has been received yet.
