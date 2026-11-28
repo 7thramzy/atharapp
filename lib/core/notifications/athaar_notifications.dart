@@ -23,6 +23,7 @@ class AthaarNotifications {
   static const NotificationDetails _details = NotificationDetails(
     android: _androidDetails,
     iOS: DarwinNotificationDetails(),
+    macOS: DarwinNotificationDetails(),
   );
 
   static Future<void> initialize() async {
@@ -37,6 +38,7 @@ class AthaarNotifications {
     const settings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       iOS: DarwinInitializationSettings(),
+      macOS: DarwinInitializationSettings(),
     );
     await _plugin.initialize(settings: settings);
     _initialized = true;
@@ -97,11 +99,13 @@ class AthaarNotifications {
   }
 
   static Future<void> cancel(int id) async {
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return;
     await initialize();
     await _plugin.cancel(id: id);
   }
 
   static Future<List<PendingNotificationRequest>> pending() async {
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return const [];
     await initialize();
     return _plugin.pendingNotificationRequests();
   }
