@@ -58,6 +58,95 @@ class _AdhkarLibraryScreenState extends ConsumerState<AdhkarLibraryScreen> {
     await _load();
   }
 
+  Future<void> _addPersonalAdhkar() async {
+    final textController = TextEditingController();
+    final countController = TextEditingController(text: '1');
+    final sourceController = TextEditingController();
+    final values = await showDialog<(String, int, String)>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('إضافة ذكر شخصي'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: textController,
+                autofocus: true,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'نص الذكر',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: countController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'العدد المستهدف',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: sourceController,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'المرجع أو المصدر',
+                  hintText: 'اكتب المرجع كما هو؛ لن يعتبره التطبيق موثقاً تلقائياً',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final count = int.tryParse(countController.text.trim());
+              if (textController.text.trim().isEmpty ||
+                  sourceController.text.trim().isEmpty ||
+                  count == null ||
+                  count < 1 ||
+                  count > 10000) {
+                return;
+              }
+              Navigator.of(dialogContext).pop((
+                textController.text.trim(),
+                count,
+                sourceController.text.trim(),
+              ));
+            },
+            child: const Text('إضافة'),
+          ),
+        ],
+      ),
+    );
+    textController.dispose();
+    countController.dispose();
+    sourceController.dispose();
+    if (values == null) return;
+    try {
+      await ref.read(athaarFeatureStoreProvider).createAdhkarItem(
+        textArabic: values.$1,
+        targetCount: values.$2,
+        sourceReference: values.$3,
+      );
+      await _load();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أضيف الذكر إلى قسم أذكاري الشخصي')),
+      );
+    } catch (error) {
+      if (mounted) setState(() => _error = error.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final visible = _items.where((item) {
@@ -70,6 +159,11 @@ class _AdhkarLibraryScreenState extends ConsumerState<AdhkarLibraryScreen> {
       appBar: AppBar(
         title: const Text('الأذكار والأوراد'),
         actions: [
+          IconButton(
+            tooltip: 'إضافة ذكر شخصي',
+            onPressed: _addPersonalAdhkar,
+            icon: const Icon(Icons.add_circle_outline),
+          ),
           IconButton(
             tooltip: _favoritesOnly ? 'عرض الكل' : 'المفضلة',
             onPressed: () => setState(() => _favoritesOnly = !_favoritesOnly),
