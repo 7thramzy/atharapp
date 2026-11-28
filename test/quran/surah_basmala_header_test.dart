@@ -15,7 +15,8 @@ void main() {
     });
 
     test('removes a basmala prefix from the displayed first ayah', () {
-      const firstAyah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ المر تِلْكَ آيَاتُ الْكِتَابِ';
+      const firstAyah =
+          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ المر تِلْكَ آيَاتُ الْكِتَابِ';
       expect(
         SurahBasmalaHeader.displayAyahText(
           surahNumber: 13,
@@ -27,7 +28,8 @@ void main() {
     });
 
     test('preserves canonical text for exceptions and non-prefixed ayahs', () {
-      const firstAyah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الْحَمْدُ لِلَّهِ';
+      const firstAyah =
+          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الْحَمْدُ لِلَّهِ';
       expect(
         SurahBasmalaHeader.displayAyahText(
           surahNumber: 1,

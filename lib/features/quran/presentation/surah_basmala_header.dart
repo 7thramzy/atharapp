@@ -11,8 +11,10 @@ class SurahBasmalaHeader extends StatelessWidget {
   static const text = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 
   static bool shouldDisplay(int surahNumber) =>
-      surahNumber >= 1 && surahNumber <= 114 &&
-      surahNumber != 1 && surahNumber != 9;
+      surahNumber >= 1 &&
+      surahNumber <= 114 &&
+      surahNumber != 1 &&
+      surahNumber != 9;
 
   /// Removes a basmala prefix from the displayed first ayah only.
   ///
@@ -40,10 +42,8 @@ class SurahBasmalaHeader extends StatelessWidget {
           text,
           textDirection: TextDirection.rtl,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                height: 2,
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(height: 2, fontWeight: FontWeight.w600),
         ),
       ),
     );
