@@ -302,79 +302,83 @@ class _DownloadedQuranReaderScreenState
                           ),
                         ),
                       ..._verses.map((verse) {
-                      final number = verse['number'] as int;
-                      final isCurrent = number == _currentAyah;
-                      return Card(
-                        key: isCurrent ? _activeAyahKey : null,
-                        color: isCurrent
-                            ? Theme.of(context).colorScheme.secondaryContainer
-                            : null,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            unawaited(_setCurrentAyah(number));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  children: [
-                                    Chip(
-                                      label: Text('آية $number'),
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                    const Spacer(),
-                                    if (isCurrent)
-                                      const Text(
-                                        'موضع القراءة',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                        final number = verse['number'] as int;
+                        final isCurrent = number == _currentAyah;
+                        return Card(
+                          key: isCurrent ? _activeAyahKey : null,
+                          color: isCurrent
+                              ? Theme.of(context).colorScheme.secondaryContainer
+                              : null,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              unawaited(_setCurrentAyah(number));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Chip(
+                                        label: Text('آية $number'),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      const Spacer(),
+                                      if (isCurrent)
+                                        const Text(
+                                          'موضع القراءة',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _displayAyahText(verse),
+                                    textDirection: TextDirection.rtl,
+                                    textAlign: TextAlign.justify,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(height: 2),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        tooltip: 'دراسة الآية',
+                                        onPressed: () => _openAyahStudy(number),
+                                        icon: const Icon(
+                                          Icons.menu_book_outlined,
                                         ),
                                       ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _displayAyahText(verse),
-                                  textDirection: TextDirection.rtl,
-                                  textAlign: TextAlign.justify,
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(height: 2),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      tooltip: 'دراسة الآية',
-                                      onPressed: () => _openAyahStudy(number),
-                                      icon: const Icon(
-                                        Icons.menu_book_outlined,
+                                      IconButton(
+                                        tooltip: 'إضافة ملاحظة',
+                                        onPressed: () => _addNote(number),
+                                        icon: const Icon(
+                                          Icons.note_add_outlined,
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      tooltip: 'إضافة ملاحظة',
-                                      onPressed: () => _addNote(number),
-                                      icon: const Icon(Icons.note_add_outlined),
-                                    ),
-                                    IconButton(
-                                      tooltip: 'حفظ علامة',
-                                      onPressed: () => _bookmark(number),
-                                      icon: const Icon(
-                                        Icons.bookmark_add_outlined,
+                                      IconButton(
+                                        tooltip: 'حفظ علامة',
+                                        onPressed: () => _bookmark(number),
+                                        icon: const Icon(
+                                          Icons.bookmark_add_outlined,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
                     ],
                   ),
                 ),
