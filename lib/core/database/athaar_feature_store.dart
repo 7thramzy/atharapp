@@ -302,25 +302,36 @@ class AthaarFeatureStore {
         final categoryAr = entry['categoryAr'] as String;
         final categoryEn = entry['categoryEn'] as String;
         final surah = entry['surah'] as int;
-        final ayah = entry['ayah'] as int;
+        final ayahStart = entry['ayahStart'] as int;
+        final ayahEnd = entry['ayahEnd'] as int;
         final target = entry['target'] as int;
         final order = entry['order'] as int;
-        final sourceRows = await db.customSelect(
-          'SELECT a.text_uthmani, s.name_arabic FROM quran_ayahs a JOIN quran_surahs s USING(surah_number) WHERE a.surah_number = ? AND a.ayah_number = ?',
-          variables: [Variable.withInt(surah), Variable.withInt(ayah)],
-        ).get();
-        if (sourceRows.length != 1) {
-          throw FormatException('Missing Quran reference $surah:$ayah in adhkar seed.');
+        if (ayahStart < 1 || ayahEnd < ayahStart || target < 1) {
+          throw FormatException('Invalid Quran range in adhkar seed: $id');
         }
-        final text = sourceRows.single.read<String>('text_uthmani');
-        final surahName = sourceRows.single.read<String>('name_arabic');
+        final sourceRows = await db.customSelect(
+          '''SELECT a.ayah_number, a.text_uthmani, s.name_arabic
+             FROM quran_ayahs a JOIN quran_surahs s USING(surah_number)
+             WHERE a.surah_number = ? AND a.ayah_number BETWEEN ? AND ?
+             ORDER BY a.ayah_number''',
+          variables: [
+            Variable.withInt(surah),
+            Variable.withInt(ayahStart),
+            Variable.withInt(ayahEnd),
+          ],
+        ).get();
+        if (sourceRows.length != ayahEnd - ayahStart + 1) {
+          throw FormatException('Missing Quran range $surah:$ayahStart-$ayahEnd in adhkar seed.');
+        }
+        final text = sourceRows.map((row) => row.read<String>('text_uthmani')).join(' ');
+        final surahName = sourceRows.first.read<String>('name_arabic');
         await db.customStatement(
           'INSERT OR IGNORE INTO adhkar_categories(id, name_ar, name_en) VALUES(?, ?, ?)',
           [categoryId, categoryAr, categoryEn],
         );
         await db.customStatement(
           'INSERT OR IGNORE INTO adhkar_items(id, category_id, text_ar, target_count, source_reference, source_verified, created_at) VALUES(?, ?, ?, ?, ?, 1, ?)',
-          [id, categoryId, text, target, 'القرآن الكريم — سورة $surahName، الآية $ayah', _now],
+          [id, categoryId, text, target, 'القرآن الكريم — سورة $surahName، الآيات $ayahStart-$ayahEnd', _now],
         );
         await db.customStatement(
           "INSERT OR IGNORE INTO adhkar_item_metadata(item_id, source_dataset, source_version, sort_order, is_favorite, review_status) VALUES(?, 'Tanzil Quran text', 'Uthmani v1.1', ?, 0, 'reviewed')",
