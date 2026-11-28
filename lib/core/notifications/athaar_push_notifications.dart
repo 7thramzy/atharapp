@@ -27,7 +27,7 @@ class AthaarPushNotifications {
         badge: false,
         sound: false,
       );
-      _foregroundSubscription ??= FirebaseMessaging.onMessage.listen((message) {
+      FirebaseMessaging.onMessage.listen((message) {
         final notification = message.notification;
         if (notification == null) return;
         unawaited(AthaarNotifications.showAdminBroadcast(
