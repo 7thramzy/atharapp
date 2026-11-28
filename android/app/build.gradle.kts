@@ -16,7 +16,7 @@ if (requireProductionSigning && productionKeystorePath.isNullOrBlank()) {
 
 android {
     namespace = "com.athaar.athaar"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = "28.2.13676358"
 
     compileOptions {
