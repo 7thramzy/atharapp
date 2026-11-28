@@ -577,10 +577,17 @@ class _MemorizationScreenState extends ConsumerState<MemorizationScreen> {
       appBar: AppBar(title: Text(_t(context, 'الحفظ والمراجعة', 'Memorization'))),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _error != null && _surahs.isEmpty
+          : _surahs.isEmpty
           ? Center(child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Text(_error!, textAlign: TextAlign.center),
+              child: Text(
+                _error ?? _t(
+                  context,
+                  'استورد نص القرآن المعتمد أولاً لتفعيل جلسات الحفظ.',
+                  'Import the approved Quran dataset to enable memorization sessions.',
+                ),
+                textAlign: TextAlign.center,
+              ),
             ))
           : ListView(
               padding: const EdgeInsets.all(16),
