@@ -55,6 +55,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   QuranAudioEdition? _selectedReciter;
   String? _loadedReciterIdentifier;
   bool _loadedAudioIsOffline = false;
+  double _playbackSpeed = 1.0;
+  LoopMode _loopMode = LoopMode.off;
+  bool _isRangePlayback = false;
   QuranTranslationText? _translation;
   QuranTafsirText? _tafsir;
 
@@ -331,6 +334,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         throw StateError('This surah has not been downloaded.');
       }
       await _audioPlayer.setFilePath(path);
+      await _audioPlayer.setSpeed(_playbackSpeed);
+      await _audioPlayer.setLoopMode(_loopMode);
+      _isRangePlayback = false;
       _loadedReciterIdentifier = reciter.identifier;
       _loadedAudioIsOffline = true;
       if (!mounted) return;
@@ -407,6 +413,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
             edition: reciter.identifier,
           );
       await _audioPlayer.setUrl(uri.toString());
+      await _audioPlayer.setSpeed(_playbackSpeed);
+      await _audioPlayer.setLoopMode(_loopMode);
+      _isRangePlayback = false;
       _loadedReciterIdentifier = reciter.identifier;
       _loadedAudioIsOffline = false;
       if (!mounted) return;
@@ -419,6 +428,144 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         _loadingAudio = false;
       });
     }
+  }
+
+
+  Future<void> _playAyahRange(int startAyah, int endAyah) async {
+    final reciter = _selectedReciter;
+    if (reciter == null) return;
+    if (startAyah < 1 || endAyah < startAyah) {
+      throw RangeError('Invalid ayah range $startAyah-$endAyah.');
+    }
+    setState(() {
+      _loadingAudio = true;
+      _audioError = null;
+    });
+    try {
+      final repository = ref.read(quranStudyRepositoryProvider);
+      final sources = <AudioSource>[];
+      for (var ayah = startAyah; ayah <= endAyah; ayah++) {
+        final uri = await repository.getAyahAudioUri(
+          surah: widget.surahNumber,
+          ayah: ayah,
+          edition: reciter.identifier,
+        );
+        sources.add(AudioSource.uri(uri));
+      }
+      await _audioPlayer.setAudioSources(
+        sources,
+        initialIndex: 0,
+        initialPosition: Duration.zero,
+      );
+      await _audioPlayer.setSpeed(_playbackSpeed);
+      await _audioPlayer.setLoopMode(LoopMode.all);
+      _loopMode = LoopMode.all;
+      _isRangePlayback = true;
+      _loadedReciterIdentifier = reciter.identifier;
+      _loadedAudioIsOffline = false;
+      if (!mounted) return;
+      setState(() => _loadingAudio = false);
+      unawaited(_audioPlayer.play());
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _audioError = error.toString();
+        _loadingAudio = false;
+      });
+    }
+  }
+
+  Future<void> _showAyahRangeDialog() async {
+    final rows = await ref
+        .read(athaarFeatureStoreProvider)
+        .getSurahAyahs(widget.surahNumber);
+    if (!mounted || rows.isEmpty) return;
+    final count = rows.length;
+    var start = widget.ayahNumber.clamp(1, count);
+    var end = (start + 4).clamp(start, count);
+    final selected = await showDialog<(int, int)>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, updateDialog) => AlertDialog(
+          title: Text(_studyText(context, 'تحديد نطاق الآيات', 'Choose ayah range')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<int>(
+                initialValue: start,
+                decoration: InputDecoration(
+                  labelText: _studyText(context, 'من الآية', 'From ayah'),
+                ),
+                items: List.generate(
+                  count,
+                  (index) => DropdownMenuItem(
+                    value: index + 1,
+                    child: Text('${index + 1}'),
+                  ),
+                ),
+                onChanged: (value) => updateDialog(() {
+                  if (value == null) return;
+                  start = value;
+                  if (end < start) end = start;
+                }),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int>(
+                initialValue: end,
+                decoration: InputDecoration(
+                  labelText: _studyText(context, 'إلى الآية', 'To ayah'),
+                ),
+                items: List.generate(
+                  count - start + 1,
+                  (index) => DropdownMenuItem(
+                    value: start + index,
+                    child: Text('${start + index}'),
+                  ),
+                ),
+                onChanged: (value) => updateDialog(() {
+                  if (value != null) end = value;
+                }),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _studyText(
+                  context,
+                  'سيتم بث الآيات بالتتابع، مع الانتقال التلقائي بينها.',
+                  'Ayahs will stream in sequence and advance automatically.',
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(_studyText(context, 'إلغاء', 'Cancel')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, (start, end)),
+              child: Text(_studyText(context, 'تشغيل النطاق', 'Play range')),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null) await _playAyahRange(selected.$1, selected.$2);
+  }
+
+  Future<void> _setPlaybackSpeed(double speed) async {
+    setState(() => _playbackSpeed = speed);
+    await _audioPlayer.setSpeed(speed);
+  }
+
+  Future<void> _cycleLoopMode() async {
+    final next = switch (_loopMode) {
+      LoopMode.off => LoopMode.one,
+      LoopMode.one => LoopMode.all,
+      LoopMode.all => LoopMode.off,
+    };
+    setState(() => _loopMode = next);
+    await _audioPlayer.setLoopMode(next);
   }
 
   Future<void> _openSource(Uri uri) async {
@@ -752,6 +899,60 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                     );
                   },
                 ),
+
+                const SizedBox(height: 10),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    DropdownButton<double>(
+                      value: _playbackSpeed,
+                      underline: const SizedBox.shrink(),
+                      items: const [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+                          .map(
+                            (speed) => DropdownMenuItem(
+                              value: speed,
+                              child: Text('${speed}x'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (speed) {
+                        if (speed != null) unawaited(_setPlaybackSpeed(speed));
+                      },
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: _loadingAudio ? null : _showAyahRangeDialog,
+                      icon: const Icon(Icons.queue_music_rounded),
+                      label: Text(_studyText(context, 'نطاق الآيات', 'Ayah range')),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: _cycleLoopMode,
+                      icon: Icon(
+                        _loopMode == LoopMode.one
+                            ? Icons.repeat_one_rounded
+                            : Icons.repeat_rounded,
+                      ),
+                      label: Text(
+                        _loopMode == LoopMode.one
+                            ? _studyText(context, 'تكرار المقطع', 'Repeat track')
+                            : _loopMode == LoopMode.all
+                            ? _studyText(context, 'تكرار النطاق', 'Repeat range')
+                            : _studyText(context, 'التكرار مغلق', 'Repeat off'),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_isRangePlayback)
+                  Text(
+                    _studyText(
+                      context,
+                      'تشغيل متتابع لنطاق الآيات المحدد',
+                      'Sequential playback of the selected ayah range',
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 if (_audioError != null) ...[
                   const SizedBox(height: 8),
                   _InfoError(message: _audioError!),
