@@ -34,7 +34,7 @@ class AthaarNotifications {
     }
     tz_data.initializeTimeZones();
     final deviceZone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(deviceZone.name));
+    tz.setLocalLocation(tz.getLocation(deviceZone.identifier));
     const settings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       iOS: DarwinInitializationSettings(),
