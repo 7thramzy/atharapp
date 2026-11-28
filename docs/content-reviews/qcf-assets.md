@@ -69,3 +69,25 @@ The official vector archive is 423.3 MB and is an Illustrator vector edition. It
 ### Contact request
 
 A clarification request is being prepared for the Complex at `info@qurancomplex.gov.sa`, asking whether redistribution of extracted official font/data assets inside Android, iOS, and Windows installers is covered by the published terms, whether attribution is required, and whether Athaar can be submitted for a separate scientific/technical review. A sent email or official approval must not be claimed until a response is received.
+
+
+## Developer platform availability check — 2026-11-28
+
+The Complex's official announcement dated 18 January 2021 describes a Quran software-developer platform intended to provide vetted Quran text in SQL, JSON, HTML5, XML, Excel, and Word formats, an AI vector edition, and Unicode Quran fonts:
+https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
+
+The current site landing page also describes these developer resources:
+https://qurancomplex.gov.sa/
+
+However, a direct availability check of the announced developer URL `https://qurancomplex.gov.sa/techquran/dev` returned HTTP 404 at review time. Therefore this is a documented official programme announcement, not a currently verified downloadable API/package endpoint. Do not build against guessed endpoints or claim access to a current developer bundle. Ask the Complex in the pending email for the current developer portal URL, access procedure, exact Hafs dataset/font package, checksums, licence, and integration guide.
+
+The current official fonts catalogue is reachable and publishes individual TTF assets with SHA-256 checksums (for example, KFGQPC Uthman Taha Naskh regular and bold). These are candidate typography resources, but they are not assumed to be a drop-in replacement for the QCF page-specific Tajweed renderer; Quran text/font shaping, glyph coverage, waqf marks, page layout, and tajweed coloring must be independently validated before changing the reader.
+
+Official catalogue:
+https://qurancomplex.gov.sa/fonts
+
+Examples:
+- Naskh regular: https://qurancomplex.gov.sa/fonts/naskh-regular
+- Naskh bold: https://qurancomplex.gov.sa/fonts/naskh-bold
+
+Decision: keep the existing reader unchanged while a separate, isolated prototype evaluates official Unicode text + official font rendering. No canonical reader switch until the full Quran payload, exact glyph coverage, RTL shaping, page/ayah mapping, basmala rules, and all visual regression tests pass.
