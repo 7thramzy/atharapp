@@ -79,7 +79,9 @@ class AthaarNotifications {
       TargetPlatform.android,
       TargetPlatform.iOS,
       TargetPlatform.macOS,
-    ].contains(defaultTargetPlatform)) return;
+    ].contains(defaultTargetPlatform)) {
+      return;
+    }
     await _plugin.show(
       id: DateTime.now().millisecondsSinceEpoch.remainder(2147483647),
       title: title,
