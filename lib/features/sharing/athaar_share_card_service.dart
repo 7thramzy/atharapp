@@ -1,15 +1,13 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:cross_file/cross_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class AthaarShareCardService {
   const AthaarShareCardService();
 
-  Future<File> render({
+  Future<XFile> render({
     required String title,
     required String body,
     String? subtitle,
@@ -94,12 +92,11 @@ class AthaarShareCardService {
     image.dispose();
     if (bytes == null) throw StateError('Could not encode share card image.');
 
-    final directory = await getTemporaryDirectory();
-    final file = File(
-      '${directory.path}/athaar-share-${DateTime.now().microsecondsSinceEpoch}.png',
+    return XFile.fromData(
+      bytes.buffer.asUint8List(),
+      mimeType: 'image/png',
+      name: 'athaar-share-${DateTime.now().microsecondsSinceEpoch}.png',
     );
-    await file.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
-    return file;
   }
 
   void _drawText(
@@ -147,7 +144,8 @@ class AthaarShareCardService {
     await SharePlus.instance.share(
       ShareParams(
         title: title,
-        files: [XFile(file.path, mimeType: 'image/png')],
+        files: [file],
+        fileNameOverrides: [await file.name],
       ),
     );
   }
