@@ -320,6 +320,13 @@ class _DownloadedQuranReaderScreenState
                                       ),
                                     ),
                                     IconButton(
+                                      tooltip: 'مشاركة الآية',
+                                      onPressed: () => context.push<void>(
+                                        '/share-ayah/${widget.surahNumber}/$number',
+                                      ),
+                                      icon: const Icon(Icons.image_outlined),
+                                    ),
+                                    IconButton(
                                       tooltip: 'إضافة ملاحظة',
                                       onPressed: () => _addNote(number),
                                       icon: const Icon(Icons.note_add_outlined),
