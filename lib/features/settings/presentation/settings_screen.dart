@@ -201,7 +201,7 @@ class SettingsScreen extends ConsumerWidget {
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(title),
-      content: Text(message),
+      content: SingleChildScrollView(child: Text(message)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
