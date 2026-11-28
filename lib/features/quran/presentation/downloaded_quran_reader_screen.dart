@@ -298,7 +298,11 @@ class _DownloadedQuranReaderScreenState
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  verse['text'] as String,
+                                  SurahBasmalaHeader.displayAyahText(
+                                    surahNumber: widget.surahNumber,
+                                    ayahNumber: number,
+                                    text: verse['text'] as String,
+                                  ),
                                   textDirection: TextDirection.rtl,
                                   textAlign: TextAlign.justify,
                                   style: Theme.of(context).textTheme.titleLarge
