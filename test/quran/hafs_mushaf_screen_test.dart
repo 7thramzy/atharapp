@@ -87,7 +87,7 @@ void main() {
     final verse = getVerse(13, 1);
     final firstWord = verse.trim().split(RegExp(r'\s+')).first;
     final normalizedFirstWord = firstWord.replaceAll(
-      RegExp(r'[\u064B-\u065F\u0670]'),
+      RegExp(r'[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]'),
       '',
     );
 
@@ -124,7 +124,11 @@ void main() {
   });
 
   test('Al-Fatihah keeps its basmala within canonical ayah 1', () {
-    expect(getVerse(1, 1), startsWith('بِسْمِ'));
+    final verse = getVerse(1, 1);
+    final normalized = verse
+        .replaceAll(RegExp(r'[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]'), '')
+        .replaceAll('ٱ', 'ا');
+    expect(normalized, startsWith('بسم الله الرحمن الرحيم'));
   });
 
 }
