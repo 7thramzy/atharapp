@@ -16,7 +16,7 @@
 
 PR: https://github.com/7thramzy/atharapp/pull/37  
 Branch: `agent/release/integrated-quran-audio-candidate`  
-Current head: `0a0ed45e398508b47ce4ac7bdbc53086fee39691`
+Current head: `b45b6d08c172b472b2d2eb11a1965cbc8bda255b`
 
 The integration candidate consolidates:
 - QCF Hafs renderer ayah-order correction and regression coverage across cached parsed lines.
@@ -29,9 +29,10 @@ The integration candidate consolidates:
 
 - CI run `46154459793` passed on parent commit `fac079d07d21c467f54d7e21b7499f687671ecf8`: Tanzil acquisition, format/analyze/tests, Android debug and ARM64 test-release builds, Windows release/installer, and unsigned iOS simulator build.
 - The Android ARM64 test APK was signed with a CI Debug certificate, not a production key. It is not a public release.
-- The current PR head `0a0ed45e398508b47ce4ac7bdbc53086fee39691` changes only `retrieved_at_utc` metadata in the Tanzil source manifest; the Quran payload is unchanged.
-- Workflow run `46155196272` for the current head is `action_required` and returned no jobs. Exact-head CI is therefore NOT green. A repository owner must approve/allow the workflow in GitHub Actions or otherwise resolve the required approval; do not merge until the current head has a successful run.
-- PR #37 remains Draft and unmerged. Do not distribute its CI artifacts as a finished release.
+- The synchronized commit `d4b7d9030c6abd66e2c6730073b227d54d218da9` includes current `main` and the prior integration candidate. The canonical Quran payload was parsed and compared; only `manifest.retrievedAtUtc` differs.
+- Subsequent documentation and privacy-disclosure commits are on the current PR head `b45b6d08c172b472b2d2eb11a1965cbc8bda255b`.
+- Exact-head workflow run `46158200030` is running for the current PR head. Do not merge until every required job succeeds.
+- PR #37 remains Draft and unmerged. Do not distribute CI artifacts as a finished release.
 
 ## Release blockers — do not mark complete without evidence
 
