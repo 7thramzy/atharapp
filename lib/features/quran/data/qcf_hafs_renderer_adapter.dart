@@ -97,8 +97,8 @@ class QcfQuranPlusHafsRendererAdapter implements HafsRendererAdapter {
             'Missing pre-parsed QCF line: page $pageNumber, line $lineIndex',
           );
         }
-        correctedLines[parsedLineKey(pageNumber, lineIndex)] =
-            parsed.reversed.toList(growable: false);
+        correctedLines[parsedLineKey(pageNumber, lineIndex)] = parsed.reversed
+            .toList(growable: false);
       }
     }
     ParsedLineCache.instance.prefill(correctedLines);
