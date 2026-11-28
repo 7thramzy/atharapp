@@ -83,4 +83,46 @@ void main() {
     expect(find.text('صفحة 1 من 604'), findsOneWidget);
     expect(adapter.requestedPages, contains(1));
   });
+  test('Ar-Ra\'d opening letters remain inside canonical ayah 1', () {
+    final verse = getVerse(13, 1);
+    final firstWord = verse.trim().split(RegExp(r'\\s+')).first;
+    final normalizedFirstWord = firstWord.replaceAll(
+      RegExp(r'[\\u064B-\\u065F\\u0670]'),
+      '',
+    );
+
+    expect(normalizedFirstWord, 'المر');
+    expect(verse, contains('تِلْكَ آيَاتُ الْكِتَابِ'));
+
+    final pageNumber = getPageNumber(13, 1);
+    final surahSegment = getPageData(pageNumber).singleWhere(
+      (segment) => segment['surah'] == 13,
+    );
+    expect(surahSegment['start'], 1);
+    expect(
+      surahSegment['end'],
+      greaterThanOrEqualTo(1),
+      reason: 'Ar-Ra\'d 13:1 must remain a single canonical verse range.',
+    );
+  });
+
+  test('surah-opening pages retain their canonical first ayah boundaries', () {
+    for (final surah in [2, 3, 13, 18, 95, 97, 114, 9]) {
+      final pageNumber = getPageNumber(surah, 1);
+      final segment = getPageData(pageNumber).singleWhere(
+        (entry) => entry['surah'] == surah,
+      );
+
+      expect(
+        segment['start'],
+        1,
+        reason: 'Surah $surah must start at ayah 1 on its mapped page.',
+      );
+    }
+  });
+
+  test('Al-Fatihah keeps its basmala within canonical ayah 1', () {
+    expect(getVerse(1, 1), startsWith('بِسْمِ'));
+  });
+
 }
