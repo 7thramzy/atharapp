@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:athaar/features/quran_study/data/quran_study_repository.dart';
+import 'package:athaar/features/quran_study/data/offline_recitation_store.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:material_ui/material_ui.dart';
@@ -26,6 +27,11 @@ class QuranStudyScreen extends ConsumerStatefulWidget {
 
 class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   late final AudioPlayer _audioPlayer;
+  late final OfflineRecitationStore _offlineStore;
+  Set<int> _downloadedSurahs = <int>{};
+  bool _offlineBusy = false;
+  int _offlineProgress = 0;
+  String? _offlineError;
 
   bool _loadingAyah = true;
   bool _loadingTafsir = true;
@@ -48,6 +54,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   QuranTranslationEdition? _selectedTranslation;
   QuranAudioEdition? _selectedReciter;
   String? _loadedReciterIdentifier;
+  bool _loadedAudioIsOffline = false;
   QuranTranslationText? _translation;
   QuranTafsirText? _tafsir;
 
@@ -55,6 +62,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    _offlineStore = OfflineRecitationStore();
     unawaited(_loadLocalAyah());
     unawaited(_loadTafsir());
     unawaited(_loadTranslationCatalog());
@@ -63,6 +71,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
 
   @override
   void dispose() {
+    _offlineStore.close();
     unawaited(_audioPlayer.dispose());
     super.dispose();
   }
@@ -197,6 +206,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         _selectedReciter = selected;
         _loadingReciters = false;
       });
+      await _refreshOfflineSurahs();
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -204,6 +214,179 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
         _loadingReciters = false;
       });
     }
+  }
+
+  Future<void> _refreshOfflineSurahs() async {
+    final reciter = _selectedReciter;
+    if (reciter == null || !_offlineStore.isSupported) return;
+    try {
+      final downloaded = await _offlineStore.downloadedSurahs(
+        reciter.identifier,
+      );
+      if (!mounted) return;
+      setState(() => _downloadedSurahs = downloaded);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _offlineError = error.toString());
+    }
+  }
+
+  Future<void> _downloadCurrentSurah() async {
+    final reciter = _selectedReciter;
+    if (reciter == null || _offlineBusy) return;
+    setState(() {
+      _offlineBusy = true;
+      _offlineError = null;
+    });
+    try {
+      await _offlineStore.downloadSurah(
+        edition: reciter.identifier,
+        surah: widget.surahNumber,
+      );
+      await _refreshOfflineSurahs();
+    } catch (error) {
+      if (mounted) setState(() => _offlineError = error.toString());
+    } finally {
+      if (mounted) setState(() => _offlineBusy = false);
+    }
+  }
+
+  Future<void> _downloadWholeQuranAudio() async {
+    final reciter = _selectedReciter;
+    if (reciter == null || _offlineBusy) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          _studyText(
+            context,
+            'تنزيل المصحف الصوتي كاملاً؟',
+            'Download the full Quran audio?',
+          ),
+        ),
+        content: Text(
+          _studyText(
+            context,
+            'سيتم تنزيل 114 ملفاً صوتياً إلى مساحة التطبيق الخاصة لهذا القارئ. قد يحتاج ذلك مساحة تخزين كبيرة واتصالاً مستقراً. يمكن حذف التنزيلات من هنا لاحقاً.',
+            'This downloads 114 surah audio files into Athaar private storage for this reciter. It may use substantial storage and a stable connection. You can remove the downloads here later.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(_studyText(context, 'إلغاء', 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(_studyText(context, 'تنزيل', 'Download')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _offlineBusy = true;
+      _offlineProgress = 0;
+      _offlineError = null;
+    });
+    final failures = <int>[];
+    for (var surah = 1; surah <= 114; surah++) {
+      if (!_downloadedSurahs.contains(surah)) {
+        try {
+          await _offlineStore.downloadSurah(
+            edition: reciter.identifier,
+            surah: surah,
+          );
+          _downloadedSurahs.add(surah);
+        } catch (_) {
+          failures.add(surah);
+        }
+      }
+      if (!mounted) return;
+      setState(() => _offlineProgress = surah);
+    }
+    if (!mounted) return;
+    setState(() {
+      _offlineBusy = false;
+      _offlineError = failures.isEmpty
+          ? null
+          : _studyText(
+              context,
+              'تعذر تنزيل السور: ${failures.join(', ')}. يمكن إعادة المحاولة.',
+              'Could not download surahs: ${failures.join(', ')}. You can retry.',
+            );
+    });
+  }
+
+  Future<void> _playOfflineSurah() async {
+    final reciter = _selectedReciter;
+    if (reciter == null) return;
+    try {
+      final path = await _offlineStore.localSurahPath(
+        edition: reciter.identifier,
+        surah: widget.surahNumber,
+      );
+      if (path == null) {
+        throw StateError('This surah has not been downloaded.');
+      }
+      await _audioPlayer.setFilePath(path);
+      _loadedReciterIdentifier = reciter.identifier;
+      _loadedAudioIsOffline = true;
+      if (!mounted) return;
+      setState(() => _audioError = null);
+      unawaited(_audioPlayer.play());
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _audioError = error.toString());
+    }
+  }
+
+  Future<void> _deleteCurrentSurahDownload() async {
+    final reciter = _selectedReciter;
+    if (reciter == null) return;
+    await _audioPlayer.stop();
+    await _offlineStore.deleteSurah(
+      edition: reciter.identifier,
+      surah: widget.surahNumber,
+    );
+    if (!mounted) return;
+    setState(() => _downloadedSurahs.remove(widget.surahNumber));
+  }
+
+  Future<void> _deleteAllAudioDownloads() async {
+    final reciter = _selectedReciter;
+    if (reciter == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          _studyText(context, 'حذف كل التنزيلات؟', 'Delete all downloads?'),
+        ),
+        content: Text(
+          _studyText(
+            context,
+            'سيتم حذف ملفات هذا القارئ المحفوظة على هذا الجهاز فقط.',
+            'This removes this reciter’s downloaded files from this device only.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(_studyText(context, 'إلغاء', 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(_studyText(context, 'حذف', 'Delete')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await _audioPlayer.stop();
+    await _offlineStore.deleteAllForEdition(reciter.identifier);
+    if (!mounted) return;
+    setState(() => _downloadedSurahs = <int>{});
   }
 
   Future<void> _playAyah() async {
@@ -225,6 +408,7 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
           );
       await _audioPlayer.setUrl(uri.toString());
       _loadedReciterIdentifier = reciter.identifier;
+      _loadedAudioIsOffline = false;
       if (!mounted) return;
       setState(() => _loadingAudio = false);
       unawaited(_audioPlayer.play());
@@ -446,9 +630,13 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               setState(() {
                 _selectedReciter = item;
                 _loadedReciterIdentifier = null;
+                _loadedAudioIsOffline = false;
                 _audioError = null;
+                _offlineError = null;
+                _downloadedSurahs = <int>{};
               });
               unawaited(_audioPlayer.stop());
+              unawaited(_refreshOfflineSurahs());
             },
           ),
         const SizedBox(height: 14),
@@ -467,8 +655,12 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                 Text(
                   _studyText(
                     context,
-                    'بث مباشر للآية المحددة',
-                    'Stream the selected ayah',
+                    _loadedAudioIsOffline
+                        ? 'تشغيل السورة المحمّلة دون اتصال'
+                        : 'بث مباشر للآية المحددة',
+                    _loadedAudioIsOffline
+                        ? 'Play the downloaded surah offline'
+                        : 'Stream the selected ayah',
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -493,7 +685,9 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
                               : completed ||
                                     _loadedReciterIdentifier !=
                                         selected.identifier
-                              ? _playAyah
+                              ? (_loadedAudioIsOffline
+                                    ? _playOfflineSurah
+                                    : _playAyah)
                               : _audioPlayer.play,
                           icon: Icon(
                             playing
@@ -567,6 +761,137 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
           ),
         ),
         const SizedBox(height: 8),
+        if (_offlineStore.isSupported)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    _studyText(
+                      context,
+                      'التشغيل دون اتصال',
+                      'Offline listening',
+                    ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _studyText(
+                      context,
+                      'تنزيل السورة الحالية أو المصحف الصوتي كاملاً للقارئ المختار. الملفات تحفظ داخل التطبيق ولا تُرفع أو تُصدّر.',
+                      'Download the current surah or all 114 surahs for the selected reciter. Files stay in app-private storage and are not uploaded or exported.',
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(height: 1.5),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    _studyText(
+                      context,
+                      'السور المحمّلة: ${_downloadedSurahs.length} / 114',
+                      'Downloaded surahs: ${_downloadedSurahs.length} / 114',
+                    ),
+                  ),
+                  if (_offlineBusy) ...[
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(value: _offlineProgress / 114),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$_offlineProgress / 114',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.icon(
+                        onPressed:
+                            _offlineBusy ||
+                                selected == null ||
+                                _downloadedSurahs.contains(widget.surahNumber)
+                            ? null
+                            : _downloadCurrentSurah,
+                        icon: const Icon(Icons.download_rounded),
+                        label: Text(
+                          _studyText(
+                            context,
+                            'تنزيل هذه السورة',
+                            'Download this surah',
+                          ),
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed:
+                            _offlineBusy ||
+                                selected == null ||
+                                !_downloadedSurahs.contains(widget.surahNumber)
+                            ? null
+                            : _playOfflineSurah,
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        label: Text(
+                          _studyText(
+                            context,
+                            'تشغيل السورة دون اتصال',
+                            'Play offline surah',
+                          ),
+                        ),
+                      ),
+                      if (_downloadedSurahs.contains(widget.surahNumber))
+                        TextButton.icon(
+                          onPressed: _offlineBusy
+                              ? null
+                              : _deleteCurrentSurahDownload,
+                          icon: const Icon(Icons.delete_outline_rounded),
+                          label: Text(
+                            _studyText(context, 'حذف السورة', 'Delete surah'),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  OutlinedButton.icon(
+                    onPressed:
+                        _offlineBusy ||
+                            selected == null ||
+                            _downloadedSurahs.length == 114
+                        ? null
+                        : _downloadWholeQuranAudio,
+                    icon: const Icon(Icons.library_music_outlined),
+                    label: Text(
+                      _studyText(
+                        context,
+                        'تنزيل المصحف الصوتي كاملاً',
+                        'Download all 114 surahs',
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _offlineBusy || _downloadedSurahs.isEmpty
+                        ? null
+                        : _deleteAllAudioDownloads,
+                    icon: const Icon(Icons.delete_sweep_outlined),
+                    label: Text(
+                      _studyText(
+                        context,
+                        'حذف تنزيلات هذا القارئ',
+                        'Remove this reciter’s downloads',
+                      ),
+                    ),
+                  ),
+                  if (_offlineError != null) ...[
+                    const SizedBox(height: 6),
+                    _InfoError(message: _offlineError!),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        const SizedBox(height: 8),
         _SourceAttribution(
           title: 'AlQuran Cloud / Islamic Network',
           description: _studyText(context, 'تلاوة قرآنية', 'Quran recitation'),
@@ -575,8 +900,8 @@ class _QuranStudyScreenState extends ConsumerState<QuranStudyScreen> {
               _openSource(Uri.https('alquran.cloud', '/terms-and-conditions')),
           extraNote: _studyText(
             context,
-            'تشغيل مباشر بطلب المستخدم فقط. لا تنزيل، ولا تخزين دائم أو إعادة استضافة أو إدراج ملفات الصوت داخل التطبيق. حقوق كل تسجيل تعود للقارئ أو صاحب التسجيل، ويجب تعطيل المورد إذا سُحبت إتاحته.',
-            'User-initiated streaming only. No download, permanent cache, re-hosting, or bundled audio. Each recording remains the property of its reciter or rights holder and must be disabled if withdrawn.',
+            'تسمح شروط AlQuran Cloud بالتنزيل الذي يطلبه المستخدم للاستماع الشخصي والتعليمي. تحفظ أثَر الملفات داخل مساحة التطبيق الخاصة فقط، ولا تصدّرها أو تعيد استضافتها أو تستخدمها للتدريب. حقوق التسجيل تبقى للقارئ أو صاحب الحق، ويجب حذف الملف إذا سُحبت إتاحته. راجع الشروط قبل أي استخدام تجاري.',
+            'AlQuran Cloud permits user-requested downloads for personal and educational listening. Athaar stores files only in private app storage, does not export or re-host them, and does not use them for model training. Reciters retain recording rights; remove a file if withdrawn. Recheck terms before any commercial use.',
           ),
         ),
       ],

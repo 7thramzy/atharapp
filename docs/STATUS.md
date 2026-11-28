@@ -1,6 +1,6 @@
 # Athaar project status
 
-**Last verified:** 2026-11-24  
+**Last verified:** 2026-11-27  
 **Default branch:** main  
 **Current phase:** M2/M3 local-first workflows implemented. QCF Hafs Mushaf technical integration is complete on PR #16; physical-device QA and release-size review remain open.
 
@@ -55,6 +55,18 @@ Merged to main through PR #5. CI run 45259877678 passed all four jobs.
 - CI run [45471585911](https://github.com/7thramzy/atharapp/actions/runs/45471585911) passed source acquisition, static analysis, all tests, Android debug build, unsigned iOS simulator build, Windows release/installer, and generated-source persistence.
 - Android debug APK measured **251,830,435 bytes (240.16 MiB)**. This is a large debug build; release packaging and size optimization review is still required.
 - Physical-device visual QA and full 604-page mapping verification are not yet complete. The integration is on PR #16 and has not been merged to main.
+
+## Public release preparation branch — release/public-readiness
+
+- Added the About screen with exact Tanzil Uthmani v1.1 provenance/hash and QCF package/version/code licence versus unresolved embedded-asset rights distinction.
+- Added private offline surah audio downloads for native platforms, full 114-surah download with progress/retry and deletion, and automated store unit tests. Online ayah streaming remains available. The web build intentionally has no offline audio download store.
+- Added a 6,236-ayah / 114-surah / 604-page structural test. It verifies every ayah maps to a page, all 604 pages are populated, page start/end coordinates round-trip, adjacent page boundaries are contiguous, and the full Mushaf begins at 1:1 and ends at 114:6. This is not a substitute for visual, device, or independent manuscript review.
+- Added production INTERNET permission and a release-manifest CI assertion.
+- Added Android, Windows and iOS production-signing workflows. They require owner-provided platform secrets; no production key/certificate is present in Git.
+- Disabled Vercel preview deployments at project level and set `git.deploymentEnabled=false` in the candidate vercel.json. Project-wide deployment policies are unavailable on the current Vercel Hobby plan.
+- This branch is not merged to main. No signed production artifact or physical-device QA has been completed.
+- **Public-distribution gate:** exact QCF font/page-data redistribution permission remains unverified. The qcf_quran_plus MIT code licence does not by itself grant rights to the bundled font/data assets.
+- The detailed privacy policy remains deferred at the owner's request and is still required before store submission.
 
 ## Active GitHub work
 

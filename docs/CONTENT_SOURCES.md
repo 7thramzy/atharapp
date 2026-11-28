@@ -1,6 +1,6 @@
 # Athaar content sources and licensing register
 
-**Last reviewed:** 2026-11-23  
+**Last reviewed:** 2026-11-27  
 **Purpose:** Record which religious text, tafsir, translation, font, layout, audio, and other content sources may be used in Athaar.
 
 This document is a conservative engineering decision register, not legal advice. A source is not cleared merely because it is publicly downloadable, appears in a permissively licensed repository, or is used by another Quran app.
@@ -50,16 +50,16 @@ Do not combine the Tanzil offline dataset with Quran Foundation data unless a se
 
 ## 2. Translations of meanings
 
-**Status: RESEARCH REQUIRED — NO TRANSLATION DATASET APPROVED YET.**
+**Status: APPROVED FOR LIVE DISPLAY THROUGH QURANENC API, PER-EDITION ATTRIBUTION REQUIRED.**
 
-- Every translation is a separate copyrighted edition with its own translator, publisher, rights holder, and license.
-- QUL can be used to discover translations, but its general repository MIT license does not automatically license translation contents.
-- QUL says commercial use is possible only after reviewing the specific resource license; some resources have restrictions or require attribution.
-- Quran Foundation translations inherit Quran Foundation's content and storage restrictions.
-- Do not assume that a translation is public domain because the original translator died long ago; modern editing, translation, typesetting, digitization, and publisher rights may differ.
-- The UI must label translated content as a translation of meaning and display it in a separate layer from Arabic Quran text.
+- QuranEnc provides a live translation catalogue and individual ayah/footnote endpoints.
+- The app displays translation title, language, version, edition description, direction and publisher-provided footnotes.
+- Each translation remains a separate work with its own translator/publisher and use conditions. The catalogue endpoint is not a blanket redistribution licence.
+- No translation corpus is bundled for offline use in the current release candidate.
+- Keep the exact publisher text and footnotes unchanged and show QuranEnc plus the edition metadata beside the text.
+- Do not cache/download a translation corpus for offline redistribution until its exact edition licence and terms authorize that use.
 
-A translation may be added only after the exact QUL/Quran Foundation/provider record, edition, license, attribution, and offline/commercial distribution terms are recorded.
+The current runtime is online and user-initiated. For future offline translation support, complete a separate rights review for every selected edition.
 
 ## 3. Tafsir and Quranic commentary
 
@@ -99,7 +99,7 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 ### King Fahd Glorious Quran Printing Complex (KFGQPC)
 
-**Status: CONDITIONALLY APPROVED FOR DIGITAL APPLICATION/SOFTWARE USE.**
+**Status: EXACT ASSET/REDISTRIBUTION REVIEW REQUIRED FOR THE QCF BUNDLE CURRENTLY USED BY ATHAAR.**
 
 - Official source: https://qurancomplex.gov.sa/mushaf-printing
 - Official developer platform announcement: https://qurancomplex.gov.sa/مجمع-الملك-فهد-لطباعة-المصحف-الشريف-يتيح-منصة-لخدمة-مطوري-برمجيات-القرآن-الكريم-وعلومه/
@@ -108,6 +108,14 @@ The issues are examples of licensing questions raised by developers; an unanswer
 - Preserve original files unchanged unless the specific official terms permit a particular transformation.
 - Record exact file, version, hash, source URL, and the downloaded rights statement before bundling.
 - The official page distinguishes digital software uses from certain physical Mushaf printing/sale restrictions. Athaar is a digital app, not a printed Mushaf publishing business.
+
+### Athaar's pinned renderer package — qcf_quran_plus 0.1.1
+
+- Package software licence: MIT, as published by the package.
+- Package repository: https://github.com/hussein12347/qcf_quran_plus
+- The package includes 604 QCF Tajweed page fonts plus other fonts and page/glyph resources. Its pub.dev publisher is unverified.
+- The MIT software licence does not prove rights to redistribute every font or page-data asset. Exact resource-level source and permission remain to be captured.
+- **Do not treat this package as cleared for public/store distribution until its exact embedded font/data permissions are documented.** The About tab must state the package name/version and the difference between code licensing and asset licensing.
 
 ### QUL QPC V2/V4, SurahNameV2, glyph and page-font assets
 
@@ -122,19 +130,22 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 ### AlQuran Cloud / Islamic Network CDN
 
-**Status: CONDITIONALLY APPROVED FOR USER-INITIATED STREAMING/EDUCATIONAL USE; NO PREPACKAGED AUDIO IN MVP.**
+**Status: USER-REQUESTED STREAMING AND PRIVATE OFFLINE DOWNLOADS APPROVED FOR PERSONAL/EDUCATIONAL LISTENING ONLY, SUBJECT TO CURRENT TERMS.**
 
-- Terms: https://alquran.cloud/terms-and-conditions
-- The provider's terms say recitations are licensed to it by reciters or their estates for free, non-commercial redistribution at the published bitrates.
-- Streaming, embedding, and downloads are permitted for personal and educational use under the published terms.
-- The terms also say audio may be bundled into a commercial product, but copyright remains with the reciters and they may request removal.
-- Athaar may later include donations or other monetized features. Do not assume this automatically fits the provider's “personal and educational” language.
-- The first audio integration should be a provider adapter only; no MP3 files are shipped in the APK/AAB/IPA or stored in the Athaar repository.
-- Before production use, record the exact reciter/edition/bitrate and obtain clarification/permission where the app's donation or monetization model may affect the rights.
-- Show the reciter's name and provider credit wherever playback is available.
-- No re-hosting, mirroring, editing, remixing, or training on the recording.
-- Add a takedown/switch-off mechanism so a specific reciter edition can be disabled without an app-wide release.
-- Offline download/caching is disabled in the MVP until the reciter-level scope, app use, cache duration, and withdrawal rules are recorded.
+- Current terms: https://alquran.cloud/terms-and-conditions (last updated 2026-11-13).
+- The provider allows streaming, embedding and downloading recitations for personal and educational use and asks clients to cache audio on their side.
+- Every recording remains copyrighted by its reciter/rightsholder. In a commercial product, a reciter may ask for removal.
+- Athaar can stream a selected ayah online and download a complete surah when the user explicitly requests it.
+- Offline files are stored only in Athaar's private app support directory on the device; no export/share action, cloud upload, mirroring, re-hosting, repository storage or app-bundle audio is allowed.
+- The user may download one surah or all 114 surahs for a selected reciter, retry failures and delete an individual surah or all files for that reciter.
+- The UI identifies the reciter, edition ID and AlQuran Cloud / Islamic Network. Withdrawn/unavailable recordings are removed or disabled.
+- Do not use audio for model training or evaluation.
+- Re-review rights before subscriptions, ads, paid features, commercial distribution or any other use beyond personal/educational listening.
+
+API endpoints:
+- Edition catalogue: `GET https://api.alquran.cloud/v1/edition?format=audio&language=ar&type=versebyverse`
+- Ayah audio metadata: `GET https://api.alquran.cloud/v1/ayah/{surah}:{ayah}/{edition}`
+- Complete surah audio: `https://cdn.islamic.network/quran/audio-surah/{bitrate}/{edition}/{surah}.mp3`
 
 ### EveryAyah
 
@@ -142,16 +153,15 @@ The issues are examples of licensing questions raised by developers; an unanswer
 
 - Website: https://everyayah.com/
 - A public MP3 URL or availability for download is not proof of a distribution license.
-- The site does not provide a clear site-wide recording license in the sources reviewed for this audit.
-- Do not mirror, bundle, cache for redistribution, or make this the production audio provider until each recording's rights holder and permission are established.
+- Do not bundle, cache for redistribution, mirror, or use as an alternative production source until rights for each recording are established.
 
 ### QUL recitation resources
 
 **Status: RESEARCH REQUIRED.**
 
-- Review every exact recitation record and its rights holder, license, allowed uses, attribution, caching, offline download, and commercial-use conditions.
-- The QUL software license does not automatically license the audio assets.
-- Do not use a recitation as AI training material merely because it is downloadable.
+- Review each exact resource/reciter and its rights holder, licence, allowed uses, attribution, caching, offline download, commercial-use conditions and withdrawal rules.
+- The QUL software licence does not automatically license audio assets.
+- Do not use a recitation as model-training material merely because it is downloadable.
 
 ## 7. AI datasets and recitation assessment
 

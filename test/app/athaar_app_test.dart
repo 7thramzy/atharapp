@@ -15,8 +15,9 @@ void main() {
     expect(find.text('مسارك'), findsOneWidget);
     expect(find.text('القرآن الكريم'), findsOneWidget);
   });
+
   testWidgets(
-    'shows only published platform installers in the download center',
+    'does not expose stale test downloads before production signing',
     (tester) async {
       await tester.pumpWidget(
         const ProviderScope(child: MaterialApp(home: SettingsScreen())),
@@ -24,12 +25,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('تنزيل التطبيق'), findsOneWidget);
-      expect(find.text('Android — نسخة اختبار'), findsOneWidget);
-      expect(find.text('Windows — مثبت تجريبي'), findsOneWidget);
-      expect(find.text('iPhone و iPad'), findsOneWidget);
-      expect(find.text('النسخة الخفيفة'), findsOneWidget);
-      expect(find.textContaining('غير منشور بعد'), findsOneWidget);
-      expect(find.textContaining('لم تُبنَ نسخة خفيفة مستقلة'), findsOneWidget);
+      expect(
+        find.textContaining('روابط النسخ التجريبية أزيلت من واجهة المستخدم'),
+        findsOneWidget,
+      );
+
+      // No temporary test release, expiring Actions run, or unpublished
+      // platform package is presented as a distributable download.
+      expect(find.text('Android — نسخة اختبار'), findsNothing);
+      expect(find.text('Windows — مثبت تجريبي'), findsNothing);
+      expect(find.text('iPhone و iPad'), findsNothing);
+      expect(find.text('النسخة الخفيفة'), findsNothing);
+      expect(find.textContaining('v0.2.1-test'), findsNothing);
+      expect(find.textContaining('45697658826'), findsNothing);
     },
   );
 }

@@ -4,6 +4,7 @@ import 'package:athaar/features/quran/presentation/hafs_mushaf_screen.dart';
 import 'package:athaar/features/quran/presentation/downloaded_quran_reader_screen.dart';
 import 'package:athaar/features/quran_study/presentation/quran_study_screen.dart';
 import 'package:athaar/features/settings/presentation/settings_screen.dart';
+import 'package:athaar/features/settings/presentation/about_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -68,6 +69,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/impact',
         name: 'impact',
         builder: (context, state) => const PersonalImpactScreen(),
+      ),
+      GoRoute(
+        path: '/about',
+        name: 'about',
+        builder: (context, state) => const AboutScreen(),
       ),
       GoRoute(
         path: '/settings',

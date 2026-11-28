@@ -4,6 +4,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val productionKeystorePath = System.getenv("ATHAAR_KEYSTORE_PATH")
+val productionKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+val productionKeystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+val productionKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+val requireProductionSigning = System.getenv("ATHAAR_REQUIRE_PRODUCTION_SIGNING") == "true"
+
+if (requireProductionSigning && productionKeystorePath.isNullOrBlank()) {
+    throw GradleException("Production signing is required but ATHAAR_KEYSTORE_PATH is missing.")
+}
+
 android {
     namespace = "com.athaar.athaar"
     compileSdk = flutter.compileSdkVersion
@@ -15,25 +25,37 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // Confirm ownership/availability of this application ID before first Play submission.
         applicationId = "com.athaar.athaar"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
-        // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (!productionKeystorePath.isNullOrBlank()) {
+            create("productionRelease") {
+                storeFile = file(productionKeystorePath)
+                keyAlias = productionKeyAlias
+                    ?: throw GradleException("ANDROID_KEY_ALIAS is missing.")
+                storePassword = productionKeystorePassword
+                    ?: throw GradleException("ANDROID_KEYSTORE_PASSWORD is missing.")
+                keyPassword = productionKeyPassword
+                    ?: throw GradleException("ANDROID_KEY_PASSWORD is missing.")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // CI's ordinary test-release is debug-signed. The production workflow sets
+            // ATHAAR_REQUIRE_PRODUCTION_SIGNING=true and injects a privately stored key.
+            signingConfig = if (!productionKeystorePath.isNullOrBlank()) {
+                signingConfigs.getByName("productionRelease")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
