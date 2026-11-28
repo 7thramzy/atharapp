@@ -12,6 +12,14 @@
 | SRC-B | [#3 Tafsir and translations](https://github.com/7thramzy/atharapp/issues/3) | Exact-resource licenses for tafsir and translations | READY | Unclaimed | docs/content-reviews/tafsir-translations.md | None |
 | SRC-C | [#4 Recitations and audio](https://github.com/7thramzy/atharapp/issues/4) | Provider and per-reciter rights for streaming/download/offline use | READY | Unclaimed | docs/content-reviews/recitations.md | None |
 
+## Newly approved execution priority (2026-11-28)
+
+| ID | GitHub issue | Workstream | Status | Owner | Branch / reserved paths | Dependencies |
+|---|---|---|---|---|---|---|
+| P0-QURAN | [#26 Mushaf ordering and 604-page integrity](https://github.com/7thramzy/atharapp/issues/26) | Reproduce and diagnose reported ordering/rendering symptom; full page-map, golden, rights, and device/performance QA | READY | Unclaimed | agent/quran/26-mushaf-integrity; initially lib/features/quran/** and test/features/quran/**; shared QCF dependency/adapter contract changes require coordinator approval | Latest main; approved execution plan; D-015 |
+
+The owner-approved phased product requirements are in [APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md](../engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md). P0-QURAN is the next execution priority. P1–P4 must be split into bounded issues after P0 findings and dependencies are known; they are not considered implemented or active. Do not start overlapping agents until each issue has an explicit claim and path reservation.
+
 ## Planned after M1
 
 | ID | Workstream | Status | Proposed owner | Reserved paths | Dependency |
