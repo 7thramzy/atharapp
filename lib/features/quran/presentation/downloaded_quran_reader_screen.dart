@@ -83,6 +83,31 @@ class _DownloadedQuranReaderScreenState
     }
   }
 
+  static const _basmalaText = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+
+  String? get _standaloneBasmala {
+    // Al-Fatihah contains the basmala as its first numbered ayah, while
+    // At-Tawbah has no opening basmala. Other surahs may have it prefixed
+    // in the imported Tanzil row; expose it as a separate presentation line.
+    if (widget.surahNumber == 1 || widget.surahNumber == 9 || _verses.isEmpty) {
+      return null;
+    }
+    final first = _verses.first;
+    if (first['number'] != 1) return null;
+    final text = first['text'] as String? ?? '';
+    if (!text.startsWith(_basmalaText)) return null;
+    return _basmalaText;
+  }
+
+  String _displayAyahText(Map<String, Object?> verse) {
+    final text = verse['text'] as String? ?? '';
+    if (verse['number'] == 1 && _standaloneBasmala != null) {
+      final remainder = text.substring(_basmalaText.length).trimLeft();
+      return remainder;
+    }
+    return text;
+  }
+
   void _scrollToCurrentAyah() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final targetContext = _activeAyahKey.currentContext;
@@ -258,7 +283,25 @@ class _DownloadedQuranReaderScreenState
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
-                    children: _verses.map((verse) {
+                    children: [
+                      if (_standaloneBasmala != null)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 18,
+                            ),
+                            child: Text(
+                              _standaloneBasmala!,
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(height: 2),
+                            ),
+                          ),
+                        ),
+                      ..._verses.map((verse) {
                       final number = verse['number'] as int;
                       final isCurrent = number == _currentAyah;
                       return Card(
@@ -295,7 +338,7 @@ class _DownloadedQuranReaderScreenState
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  verse['text'] as String,
+                                  _displayAyahText(verse),
                                   textDirection: TextDirection.rtl,
                                   textAlign: TextAlign.justify,
                                   style: Theme.of(context).textTheme.titleLarge
@@ -331,7 +374,8 @@ class _DownloadedQuranReaderScreenState
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
+                    ],
                   ),
                 ),
               ],
