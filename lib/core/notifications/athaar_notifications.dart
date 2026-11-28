@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
@@ -26,6 +27,10 @@ class AthaarNotifications {
 
   static Future<void> initialize() async {
     if (_initialized) return;
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+      _initialized = true;
+      return;
+    }
     tz_data.initializeTimeZones();
     final deviceZone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(deviceZone.name));
@@ -38,18 +43,25 @@ class AthaarNotifications {
   }
 
   static Future<bool> requestPermission() async {
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) return false;
     await initialize();
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     final androidGranted = await android?.requestNotificationsPermission();
     final ios = _plugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
+    final macos = _plugin.resolvePlatformSpecificImplementation<
+        MacOSFlutterLocalNotificationsPlugin>();
     final iosGranted = await ios?.requestPermissions(
       alert: true,
       badge: true,
       sound: true,
     );
-    return androidGranted ?? iosGranted ?? false;
+    return androidGranted ?? iosGranted ?? await macos?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    ) ?? false;
   }
 
   static Future<void> scheduleDaily({
@@ -59,6 +71,9 @@ class AthaarNotifications {
     required int hour,
     required int minute,
   }) async {
+    if (kIsWeb || ![TargetPlatform.android, TargetPlatform.iOS, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+      throw UnsupportedError('Local reminders are currently supported on Android and Apple devices.');
+    }
     await initialize();
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
       throw RangeError('Invalid local reminder time.');
