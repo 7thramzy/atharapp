@@ -114,9 +114,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         await AthaarNotifications.cancel(4102);
       }
       if (_adminBroadcastsEnabled) {
-        if (!_pushReady) {\n          throw StateError('خدمة Firebase غير مهيأة لهذا الإصدار بعد.');\n        }
+        if (!_pushReady) {
+          throw StateError('خدمة Firebase غير مهيأة لهذا الإصدار بعد.');
+        }
         final subscribed = await AthaarPushNotifications.setBroadcastEnabled(true);
-        if (!subscribed) {\n          throw StateError('لم يتم منح إذن استقبال الإعلانات على هذا الجهاز.');\n        }
+        if (!subscribed) {
+          throw StateError('لم يتم منح إذن استقبال الإعلانات على هذا الجهاز.');
+        }
       } else if (_pushReady) {
         await AthaarPushNotifications.setBroadcastEnabled(false);
       }
