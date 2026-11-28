@@ -1,20 +1,47 @@
+import 'dart:convert';
+
+import 'package:athaar/core/database/database_providers.dart';
 import 'package:athaar/core/notifications/athaar_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   TimeOfDay _morning = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay _evening = const TimeOfDay(hour: 18, minute: 0);
   bool _morningEnabled = false;
   bool _eveningEnabled = false;
   bool _busy = false;
   String? _message;
+
+  Future<void> _loadPreferences() async {
+    try {
+      final raw = await ref.read(appDatabaseProvider)
+          .readMetadata('notifications.preferences.v1');
+      if (raw == null || !mounted) return;
+      final value = jsonDecode(raw) as Map<String, dynamic>;
+      setState(() {
+        _morningEnabled = value['morningEnabled'] == true;
+        _eveningEnabled = value['eveningEnabled'] == true;
+        _morning = TimeOfDay(
+          hour: (value['morningHour'] as int?) ?? 7,
+          minute: (value['morningMinute'] as int?) ?? 0,
+        );
+        _evening = TimeOfDay(
+          hour: (value['eveningHour'] as int?) ?? 18,
+          minute: (value['eveningMinute'] as int?) ?? 0,
+        );
+      });
+    } catch (_) {
+      // Invalid local preference data is ignored; defaults remain safe.
+    }
+  }
 
   Future<void> _chooseTime(bool morning) async {
     final selected = await showTimePicker(
@@ -37,7 +64,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       _message = null;
     });
     try {
-      final granted = await AthaarNotifications.requestPermission();
+      final anyEnabled = _morningEnabled || _eveningEnabled;
+      final granted = anyEnabled ? await AthaarNotifications.requestPermission() : true;
       if (!granted) {
         setState(() => _message = 'لم يتم منح إذن الإشعارات. يمكنك تفعيله من إعدادات الجهاز.');
         return;
@@ -64,6 +92,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       } else {
         await AthaarNotifications.cancel(4102);
       }
+      await ref.read(appDatabaseProvider).saveMetadata(
+        key: 'notifications.preferences.v1',
+        value: jsonEncode({
+          'morningEnabled': _morningEnabled,
+          'eveningEnabled': _eveningEnabled,
+          'morningHour': _morning.hour,
+          'morningMinute': _morning.minute,
+          'eveningHour': _evening.hour,
+          'eveningMinute': _evening.minute,
+        }),
+      );
       if (mounted) setState(() => _message = 'تم تحديث تذكيرات هذا الجهاز.');
     } catch (error) {
       if (mounted) setState(() => _message = 'تعذر إعداد التذكيرات: $error');
