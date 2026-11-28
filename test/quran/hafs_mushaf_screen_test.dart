@@ -85,9 +85,9 @@ void main() {
   });
   test('Ar-Ra\'d opening letters remain inside canonical ayah 1', () {
     final verse = getVerse(13, 1);
-    final firstWord = verse.trim().split(RegExp(r'\\s+')).first;
+    final firstWord = verse.trim().split(RegExp(r'\s+')).first;
     final normalizedFirstWord = firstWord.replaceAll(
-      RegExp(r'[\\u064B-\\u065F\\u0670]'),
+      RegExp(r'[\u064B-\u065F\u0670]'),
       '',
     );
 
