@@ -88,3 +88,8 @@ A change is done only when:
 - The pull request has been reviewed and merged by the integration lead.
 
 Clearly distinguish **implemented**, **tested**, **merged**, **deployed**, and **verified on a real device**. Never claim one because another happened.
+
+
+## Approved product execution plan
+
+Before selecting or implementing Quran, study, audio, memorization, navigation, privacy, or accessibility work, read [docs/engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md](docs/engineering/APPROVED_PRODUCT_AUDIT_AND_EXECUTION_PLAN.md). It records the approved product direction and phase gates. Start with P0 Quran integrity; do not treat planned items as implemented. The plan does not override source-rights, security, or shared-file ownership rules.
