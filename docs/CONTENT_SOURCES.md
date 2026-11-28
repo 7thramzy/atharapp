@@ -61,28 +61,63 @@ Do not combine the Tanzil offline dataset with Quran Foundation data unless a se
 
 The current runtime is online and user-initiated. For future offline translation support, complete a separate rights review for every selected edition.
 
-## 3. Tafsir and Quranic commentary
+## 3. Word-by-word meanings and morphology
 
-**Status: RESEARCH REQUIRED — NO TAfsir DATASET APPROVED YET.**
+**Status: PARTIALLY RESEARCHED — no Arabic word-meaning edition approved for offline bundling yet.**
 
-Potential discovery catalogue: https://qul.tarteel.ai/resources/tafsir
+### Quranic Arabic Corpus (QAC)
 
-Rules:
+- Source: https://corpus.quran.com/
+- Download page: https://corpus.quran.com/download/default.jsp
+- The corpus provides word-level morphology, syntax, grammatical features, and a contextual English interlinear gloss.
+- Its published data terms permit use in a website or application if the source is clearly attributed, a link to corpus.quran.com is provided, the copyright notice is preserved, and the data is not changed.
+- The corpus download page asks the downloader to accept its GNU licence terms. Preserve the exact source file and its complete notice; do not rewrite or silently normalize the corpus annotations.
+- The word-by-word gloss is English contextual meaning, not an Arabic explanation of every Quranic word. It must not be presented as a verified Arabic lexical dictionary.
+- QAC can be evaluated as an attributed English word-gloss/morphology layer after its exact downloaded version, file hash, full notice, parser mapping, and app distribution implications are recorded.
+- Do not use a generated Arabic gloss as a substitute for a reviewed lexical source.
 
-- QUL is a resource management/download platform, not a blanket license for all tafsir.
-- Review each exact record and edition separately, including language, editor/translator, rights holder, resource license, attribution, commercial use, and offline distribution.
-- Do not copy tafsir databases from Quran Offline Mobile until their exact QUL resource records and terms are checked.
-- The MIT license in the QUL software repository covers the software under that repository's license; it does not automatically cover third-party tafsir data.
-- Do not convert a commentary into AI-generated religious guidance without a reviewed content policy and reliable citations.
-- A missing license field or “copyright information unavailable” means BLOCKED for bundling until the rights holder gives permission.
+### Quran Foundation word-by-word resources
 
-Relevant QUL guidance:
-- https://qul.tarteel.ai/faq
-- https://qul.tarteel.ai/docs/getting-started
-- https://github.com/TarteelAI/quranic-universal-library/issues/891
-- https://github.com/TarteelAI/quranic-universal-library/issues/957
+- Quran Foundation Content Sync documents separate `word_by_word_translations` and `word_by_word_transliterations` groups.
+- These resources may be considered for live/synced display only after Athaar obtains the required API access and implements the Content Sync lifecycle, attribution, privacy obligations, rate limits, and at-least-every-seven-days refresh when online access is available.
+- Quran Foundation content must not be scraped, bulk-exported, put into a static app dataset, or used to train/evaluate AI models.
+- The exact language, edition, word coverage, rights holder, and Arabic-meaning availability must be confirmed from the production resource catalogue before selecting an edition.
+- Keep the existing verbatim Tanzil Quran text as the canonical Arabic display; word-level meanings are a separate explanatory layer and must never replace Quran text.
 
-The issues are examples of licensing questions raised by developers; an unanswered issue is not a license grant.
+### Release decision
+
+- Do not ship an invented or AI-generated word-meaning dataset.
+- First candidate for a clearly labelled English gloss and morphology view: QAC, after exact-file verification and attribution implementation.
+- Arabic word meanings require a separately licensed, edition-specific source and review by a qualified Arabic/Quran content reviewer.
+- Word selection must map to the canonical surah/ayah/word coordinate; if mapping confidence is uncertain, show no gloss rather than the wrong word's meaning.
+
+## 4. Tafsir and Quranic commentary
+
+**Status: ONE EXACT EDITION APPROVED FOR LIVE, VERBATIM IN-APP DISPLAY; NO TAFSIR DATASET APPROVED FOR OFFLINE BUNDLING.**
+
+### Selected live edition — Al-Jami' Al-Wajiz
+
+- Work: Al-Jami' Al-Wajiz fi Tafsir Ay al-Kitab al-Aziz.
+- Author: Sheikh Dr. Ayman Fathih Al-Amer.
+- Author's source repository and explicit text licence: https://github.com/yamanamr/quran-tafsir-jami-wajiz
+- Licence: CC BY-ND 4.0, as published by the author.
+- Pinned data distribution: `spa5k/tafsir_api@v1.2.3`, edition `ar-tafsir-al-jami-al-wajiz`.
+- Runtime endpoint: `https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@v1.2.3/tafsir/ar-tafsir-al-jami-al-wajiz/{surah}/{ayah}.json`.
+- Athaar requests one selected ayah at a time; it does not bundle or persist a tafsir corpus offline.
+- The app verifies the returned surah/ayah coordinates and displays the text verbatim.
+- The study screen identifies the work, author, pinned version and CC BY-ND 4.0, and links to the author's licence.
+- Do not modify, paraphrase, normalize, or redistribute a modified version of this text. Preserve attribution and licence information.
+
+### Other editions and offline use
+
+- QUL is a resource discovery catalogue, not a blanket license for every tafsir.
+- QUL Tafsir Muyassar Arabic (resource 38), Tafseer Al-Saadi Arabic (resource 24), and Arabic Al-Mukhtasar (resource 251) remain BLOCKED for embedding because their resource-specific pages do not provide adequate copyright information.
+- Do not copy tafsir databases from Quran Offline Mobile until the exact QUL resource records and terms are checked.
+- The MIT licence in the QUL software repository covers its software, not third-party tafsir text.
+- No tafsir corpus is approved for offline app bundling in the current release.
+- Do not turn commentary into AI-generated religious guidance. Any future explanatory layer requires a reviewed content policy and reliable citations.
+
+The detailed edition-level decision and sources are recorded in `docs/content-reviews/tafsir-translations.md`. A missing licence field or “copyright information unavailable” remains BLOCKED until the actual rights holder gives permission.
 
 ## 4. UI font — Cairo
 

@@ -258,16 +258,44 @@ class AthaarFeatureStore {
     });
   }
 
-  Future<void> setMemorizationStatus(int surah, int ayah, String status) async {
-    const allowed = ['not_started', 'learning', 'needs_revision', 'stable'];
-    if (!allowed.contains(status)) {
-      throw ArgumentError.value(status, 'status');
+  Future<int> _ayahCountForSurah(int surah) async {
+    if (surah < 1 || surah > 114) {
+      throw RangeError.range(surah, 1, 114, 'surah');
     }
+    final rows = await db
+        .customSelect(
+          'SELECT ayah_count FROM quran_surahs WHERE surah_number = ?',
+          variables: [Variable.withInt(surah)],
+        )
+        .get();
+    if (rows.isEmpty) {
+      throw StateError('The Quran dataset is not imported for surah $surah.');
+    }
+    return rows.single.read<int>('ayah_count');
+  }
+
+  Future<void> _writeMemorizationStatus(
+    int surah,
+    int ayah,
+    String status,
+  ) async {
     await db.customStatement(
       '''INSERT INTO memorization_progress(surah_number, ayah_number, status, updated_at) VALUES(?, ?, ?, ?)
          ON CONFLICT(surah_number, ayah_number) DO UPDATE SET status = excluded.status, updated_at = excluded.updated_at''',
       [surah, ayah, status, _now],
     );
+  }
+
+  Future<void> setMemorizationStatus(int surah, int ayah, String status) async {
+    const allowed = ['not_started', 'learning', 'needs_revision', 'stable'];
+    if (!allowed.contains(status)) {
+      throw ArgumentError.value(status, 'status');
+    }
+    final ayahCount = await _ayahCountForSurah(surah);
+    if (ayah < 1 || ayah > ayahCount) {
+      throw RangeError('Invalid Quran reference $surah:$ayah.');
+    }
+    await _writeMemorizationStatus(surah, ayah, status);
   }
 
   Future<void> recordMemorizationSession({
@@ -283,9 +311,13 @@ class AthaarFeatureStore {
     if (!['learning', 'needs_revision', 'stable'].contains(outcome)) {
       throw ArgumentError.value(outcome, 'outcome');
     }
+    final ayahCount = await _ayahCountForSurah(surah);
+    if (endAyah > ayahCount) {
+      throw RangeError('Invalid Quran range $surah:$startAyah-$endAyah.');
+    }
     await db.transaction(() async {
       for (var ayah = startAyah; ayah <= endAyah; ayah++) {
-        await setMemorizationStatus(surah, ayah, outcome);
+        await _writeMemorizationStatus(surah, ayah, outcome);
       }
       await db.customStatement(
         'INSERT INTO memorization_sessions(id, surah_number, start_ayah, end_ayah, outcome, notes, started_at, completed_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',

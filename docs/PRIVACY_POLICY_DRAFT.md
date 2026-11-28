@@ -93,3 +93,21 @@ This notice must be updated whenever the application adds a backend, account, sy
 - [ ] Obtain jurisdiction-specific legal review.
 - [ ] Publish a stable public HTTPS URL and link it from the app/store listings.
 - [ ] Re-review after every material data-flow change.
+
+## 12. Source-code data-flow verification addendum — 2026-11-28
+
+The current Quran study screen starts the following requests when the study screen is opened; they are not all delayed until the user taps a separate content button:
+
+- Tafsir: a pinned Al-Jami' Al-Wajiz JSON resource is fetched from jsDelivr.
+- Translation: the QuranEnc catalogue is fetched, then the default selected translation for the current ayah is fetched.
+- Recitation: the AlQuran Cloud reciter catalogue is fetched.
+- When the user presses Play, AlQuran Cloud ayah-audio metadata is fetched; the returned HTTPS audio URL is then streamed.
+- When the user explicitly downloads a surah, the full-surah MP3 is requested from `cdn.islamic.network` and stored in the app support directory.
+
+The content requests include resource identifiers and may include the current surah/ayah or selected edition in the URL. Providers may receive the device IP address, request headers and connection metadata. The current source code does not intentionally include private notes, bookmarks, memorization progress, or adhkar counters in these requests.
+
+The inspected Android manifest contains the INTERNET permission and no microphone permission. The inspected iOS Info.plist contains no microphone usage description. This matches the fact that the current main/PR #37 candidate does not integrate microphone recording or speech recognition. This is a source-file observation, not a substitute for a final merged-artifact and transitive-SDK audit on all platforms.
+
+The settings disclosure was corrected on the PR #37 candidate to state that opening the study screen automatically initiates the catalogue/content requests above. It must not imply that every external request happens only after a separate tap.
+
+**Still required before publication:** final network/SDK audit on release artifacts, platform backup-behavior verification, a complete in-app deletion/reset verification, operator identity and contact details, public HTTPS publication, and jurisdiction-specific legal review. This addendum does not turn the draft into a published or legally approved privacy policy.

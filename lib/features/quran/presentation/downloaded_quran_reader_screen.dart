@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:athaar/core/database/athaar_feature_store.dart';
 import 'package:athaar/features/quran/data/quran_reader_routes.dart';
+import 'package:athaar/features/quran/presentation/surah_basmala_header.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
@@ -255,6 +256,8 @@ class _DownloadedQuranReaderScreenState
                     ),
                   ),
                 ),
+                if (SurahBasmalaHeader.shouldDisplay(widget.surahNumber))
+                  const SurahBasmalaHeader(),
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
@@ -295,7 +298,11 @@ class _DownloadedQuranReaderScreenState
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  verse['text'] as String,
+                                  SurahBasmalaHeader.displayAyahText(
+                                    surahNumber: widget.surahNumber,
+                                    ayahNumber: number,
+                                    text: verse['text'] as String,
+                                  ),
                                   textDirection: TextDirection.rtl,
                                   textAlign: TextAlign.justify,
                                   style: Theme.of(context).textTheme.titleLarge

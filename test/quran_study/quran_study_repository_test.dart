@@ -180,6 +180,51 @@ void main() {
       expect(uri.host, 'cdn.islamic.network');
     });
 
+    test('accepts the Hafs final ayahs for surahs 76 to 78', () async {
+      final requested = <String>[];
+      final repository = QuranStudyRepository(
+        client: MockClient((request) async {
+          requested.add(request.url.path);
+          return http.Response(
+            jsonEncode({
+              'data': {
+                'audio': 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
+              },
+            }),
+            200,
+          );
+        }),
+      );
+      addTearDown(repository.close);
+
+      for (final reference in [
+        (surah: 76, ayah: 31),
+        (surah: 77, ayah: 50),
+        (surah: 78, ayah: 40),
+      ]) {
+        await repository.getAyahAudioUri(
+          surah: reference.surah,
+          ayah: reference.ayah,
+          edition: 'ar.husary',
+        );
+      }
+
+      expect(requested, hasLength(3));
+      await expectLater(
+        repository.getAyahAudioUri(surah: 76, ayah: 32, edition: 'ar.husary'),
+        throwsRangeError,
+      );
+      await expectLater(
+        repository.getAyahAudioUri(surah: 77, ayah: 51, edition: 'ar.husary'),
+        throwsRangeError,
+      );
+      await expectLater(
+        repository.getAyahAudioUri(surah: 78, ayah: 41, edition: 'ar.husary'),
+        throwsRangeError,
+      );
+      expect(requested, hasLength(3));
+    });
+
     test('rejects invalid Quran references before sending a request', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
@@ -188,19 +233,32 @@ void main() {
       );
       addTearDown(repository.close);
 
-      expect(
-        () =>
-            repository.getTranslation(key: 'english_rwwad', surah: 0, ayah: 1),
-        throwsRangeError,
-      );
+      for (final reference in [
+        (surah: 0, ayah: 1),
+        (surah: 115, ayah: 1),
+        (surah: 1, ayah: 8),
+        (surah: 2, ayah: 287),
+        (surah: 13, ayah: 44),
+        (surah: 114, ayah: 7),
+      ]) {
+        await expectLater(
+          repository.getTranslation(
+            key: 'english_rwwad',
+            surah: reference.surah,
+            ayah: reference.ayah,
+          ),
+          throwsRangeError,
+          reason: 'Surah ${reference.surah} has no ayah ${reference.ayah}.',
+        );
+      }
     });
 
-    test('rejects a non-HTTPS audio source', () async {
+    test('rejects an untrusted audio host', () async {
       final repository = QuranStudyRepository(
         client: MockClient((request) async {
           return http.Response(
             jsonEncode({
-              'data': {'audio': 'http://example.com/audio.mp3'},
+              'data': {'audio': 'https://example.com/audio.mp3'},
             }),
             200,
           );
@@ -208,11 +266,33 @@ void main() {
       );
       addTearDown(repository.close);
 
-      expect(
-        () =>
-            repository.getAyahAudioUri(surah: 1, ayah: 1, edition: 'ar.husary'),
+      await expectLater(
+        repository.getAyahAudioUri(surah: 1, ayah: 1, edition: 'ar.husary'),
         throwsFormatException,
       );
     });
+
+    test(
+      'rejects unsafe reciter identifiers before sending a request',
+      () async {
+        final repository = QuranStudyRepository(
+          client: MockClient((request) async {
+            fail(
+              'No request should be sent for an invalid edition identifier.',
+            );
+          }),
+        );
+        addTearDown(repository.close);
+
+        await expectLater(
+          repository.getAyahAudioUri(
+            surah: 1,
+            ayah: 1,
+            edition: '../unexpected',
+          ),
+          throwsArgumentError,
+        );
+      },
+    );
   });
 }

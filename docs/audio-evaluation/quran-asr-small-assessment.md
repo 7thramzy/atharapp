@@ -62,3 +62,15 @@ AQQD is a viable rights-cleared **candidate for a controlled audio stress-test a
 - AQQD 2026 dataset paper and CC0 data availability statement: https://doi.org/10.1016/j.dib.2026.112972
 - AQQD Harvard Dataverse record: https://doi.org/10.7910/DVN/A8GM5Y
 - Benchmark terms: https://huggingface.co/datasets/quran-lab/quran-lab/blob/main/LICENSE
+
+## 2026-11-28 model-card recheck
+
+The current Hugging Face model card describes `Abdou/quran-asr-small` as a 33M-parameter Conformer-CTC recognizer with an approximately 36 MB int8 ONNX model and MIT licensing for the model repository. It reports 4.49% WER / 2.17% CER on a 600-clip Quran-Lab test and 0.46% WER / 0.30% CER on a 1,000-clip unseen-reciter test. These are author-published results, not results reproduced by Athaar.
+
+The model card lists training material from 36 EveryAyah Hafs reciters, 3 Warsh reciters, Tarteel TLOG phone recordings, and Iqra'Eval Quranic sentences. The model card itself says training data retains its own terms. The MIT model license must not be interpreted as a license to redistribute, train on, or benchmark against the underlying audio datasets. Exact recording-level permissions and a fully auditable training-reciter roster remain required.
+
+The model's transcript is not a Tajweed assessment and is not guaranteed to preserve diacritics. Ayah retrieval is a separate approximate matching stage and may be ambiguous when phrases repeat. A recognition hypothesis must never be treated as a definitive religious correctness judgment.
+
+**Updated decision: NOT APPROVED FOR PRODUCTION INTEGRATION.** No model weights have been executed or benchmarked by Athaar, no speaker-disjoint full-ayah dataset with verified rights and references is ready, and no Android device performance or error review has been completed. Keep the candidate isolated in `tooling/audio_evaluation`; do not advertise automated tasmee as available.
+
+Source checked: https://huggingface.co/Abdou/quran-asr-small

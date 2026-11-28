@@ -81,3 +81,34 @@ These items cannot be fabricated or safely supplied by an automation agent:
 A private test build may be prepared only after the exact final commit passes CI and its build artifacts are verified. Physical-device findings must be recorded separately.
 
 A public/store release remains blocked until all applicable rights, privacy, physical-device, signing, support-contact, and store-policy gates are closed. A successful CI run alone is not public-release approval.
+
+## 10. Additional evidence-based gates (2026-11-28)
+
+### QCF asset provenance
+- [ ] Obtain exact file-by-file provenance and permission for the 604 QCF Tajweed fonts, three additional TTF files, and surah banner embedded by qcf_quran_plus 0.1.1; the package's root MIT code license is insufficient.
+- [ ] If provenance cannot be demonstrated, replace embedded assets with direct official KFGQPC distribution files and retain original rights notices/checksums.
+- [ ] Do not distribute public builds while this gate is open.
+
+### Audio provider and physical playback
+- [x] Review current AlQuran Cloud terms: personal/educational streaming, embedding and downloading are permitted; reciters retain copyright; commercial use may be withdrawn at a reciter's request.
+- [ ] Confirm the app remains within non-commercial personal/educational use and supports takedown/disablement for an unavailable recording.
+- [ ] Run the device test matrix in `docs/qa/audio-device-test-plan.md` on at least one current Android phone and one additional Android device with a different OS/API level.
+- [ ] Verify actual MP3 decode and playback after a clean app restart with network disabled.
+- [ ] Verify lock-screen/background controls, Bluetooth route changes, audio focus/interruption recovery, download interruption, storage exhaustion, and deletion on physical hardware.
+- [ ] Attach device model, OS build, app commit, test date, results, and screen/log evidence. Simulator and mocked HTTP tests do not satisfy this section.
+
+### Automated tasmee
+- [ ] Obtain rights-cleared, full-ayah, Hafs audio and verified human references.
+- [ ] Obtain the candidate model's auditable training-reciter roster and construct a speaker-disjoint test set.
+- [ ] Reproduce WER/CER, exact-ayah identification, omission/repetition/substitution errors, uncertainty rate, and device performance on physical Android hardware.
+- [ ] Complete qualified human review of false positives and error cases.
+- [ ] Keep ASR out of production until all above gates pass. No Tajweed scoring or religious correctness claims are approved.
+
+### Privacy
+- [x] Correct the in-app settings disclosure to state that opening the study screen automatically contacts jsDelivr, QuranEnc, and AlQuran Cloud for study content/catalogues.
+- [x] Inspect current Android manifest and iOS Info.plist: INTERNET permission exists on Android; no microphone permission/usage description was found in these files.
+- [ ] Audit final merged release artifacts and all transitive SDKs for network endpoints, permissions, analytics, crash reporting, advertising and backup behavior.
+- [ ] Verify local-data deletion/reset and OS backup behavior on each supported platform.
+- [ ] Complete legal operator identity, country, privacy contact and support URL; obtain jurisdiction-specific review; publish a stable HTTPS policy and link it in-app and in store listings.
+
+A checked documentation/code review item is not evidence that an external legal approval or a physical-device test has occurred.

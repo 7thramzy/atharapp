@@ -1,5 +1,10 @@
 import 'package:athaar/features/quran/data/qcf_hafs_renderer_adapter.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qcf_quran_plus/src/widgets/quran_page/parsed_quran_data.dart'
+    show ParsedLineCache;
+// ignore: implementation_imports
+import 'package:qcf_quran_plus/src/widgets/quran_page/quran_repository.dart'
+    show QuranRepository;
 
 void main() {
   group('QCF font platform routing', () {
@@ -46,6 +51,69 @@ void main() {
       await adapter.ensurePageFonts(604);
 
       expect(requestedPages, [604]);
+    });
+  });
+
+  group('QCF visual ayah ordering', () {
+    test('keeps every parsed line in canonical Mushaf source order', () async {
+      final adapter = QcfQuranPlusHafsRendererAdapter();
+      await adapter.initialize();
+
+      final pages = QuranRepository.instance.pages;
+      expect(pages, hasLength(604));
+
+      var checkedLines = 0;
+      var checkedMultiAyahLines = 0;
+      for (var pageNumber = 1; pageNumber <= pages.length; pageNumber++) {
+        final page = pages[pageNumber - 1];
+        for (var lineIndex = 0; lineIndex < page.lines.length; lineIndex++) {
+          final sourceAyahs = page.lines[lineIndex].ayahs;
+          final parsedAyahs = ParsedLineCache.instance.tryGet(
+            pageNumber,
+            lineIndex,
+          );
+
+          expect(
+            parsedAyahs,
+            isNotNull,
+            reason: 'Missing parsed line at page $pageNumber, line $lineIndex',
+          );
+          final expectedOrder = sourceAyahs
+              .map((ayah) => '${ayah.surahNumber}:${ayah.ayahNumber}')
+              .toList();
+          final actualOrder = parsedAyahs!
+              .map((ayah) => '${ayah.surahNumber}:${ayah.ayahNumber}')
+              .toList();
+
+          expect(
+            actualOrder,
+            expectedOrder,
+            reason: 'Ayah order differs at page $pageNumber, line $lineIndex',
+          );
+          checkedLines++;
+          if (sourceAyahs.length > 1) checkedMultiAyahLines++;
+        }
+      }
+
+      expect(checkedLines, greaterThan(0));
+      expect(
+        checkedMultiAyahLines,
+        greaterThan(0),
+        reason:
+            'The regression suite must cover lines containing multiple ayahs.',
+      );
+
+      final firstLineOnPageTwo = ParsedLineCache.instance.tryGet(2, 0);
+      expect(
+        firstLineOnPageTwo?.first.surahNumber,
+        2,
+        reason: 'Al-Baqarah page 2 must begin with Surah 2.',
+      );
+      expect(
+        firstLineOnPageTwo?.first.ayahNumber,
+        1,
+        reason: 'Al-Baqarah page 2 must begin with ayah 2:1 at the right edge.',
+      );
     });
   });
 

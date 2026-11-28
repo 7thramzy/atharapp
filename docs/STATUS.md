@@ -16,7 +16,7 @@
 
 PR: https://github.com/7thramzy/atharapp/pull/37  
 Branch: `agent/release/integrated-quran-audio-candidate`  
-Current head: `0a0ed45e398508b47ce4ac7bdbc53086fee39691`
+Current head: `b45b6d08c172b472b2d2eb11a1965cbc8bda255b`
 
 The integration candidate consolidates:
 - QCF Hafs renderer ayah-order correction and regression coverage across cached parsed lines.
@@ -29,9 +29,10 @@ The integration candidate consolidates:
 
 - CI run `46154459793` passed on parent commit `fac079d07d21c467f54d7e21b7499f687671ecf8`: Tanzil acquisition, format/analyze/tests, Android debug and ARM64 test-release builds, Windows release/installer, and unsigned iOS simulator build.
 - The Android ARM64 test APK was signed with a CI Debug certificate, not a production key. It is not a public release.
-- The current PR head `0a0ed45e398508b47ce4ac7bdbc53086fee39691` changes only `retrieved_at_utc` metadata in the Tanzil source manifest; the Quran payload is unchanged.
-- Workflow run `46155196272` for the current head is `action_required` and returned no jobs. Exact-head CI is therefore NOT green. A repository owner must approve/allow the workflow in GitHub Actions or otherwise resolve the required approval; do not merge until the current head has a successful run.
-- PR #37 remains Draft and unmerged. Do not distribute its CI artifacts as a finished release.
+- The synchronized commit `d4b7d9030c6abd66e2c6730073b227d54d218da9` includes current `main` and the prior integration candidate. The canonical Quran payload was parsed and compared; only `manifest.retrievedAtUtc` differs.
+- Subsequent documentation and privacy-disclosure commits are on the current PR head `b45b6d08c172b472b2d2eb11a1965cbc8bda255b`.
+- Exact-head workflow run `46158200030` is running for the current PR head. Do not merge until every required job succeeds.
+- PR #37 remains Draft and unmerged. Do not distribute CI artifacts as a finished release.
 
 ## Release blockers — do not mark complete without evidence
 
@@ -62,3 +63,23 @@ Do not advertise features as shipped unless they are merged and tested. In parti
 - PR #13 / issue #6 — local recording foundation only; not an ASR/tasmee engine.
 
 **Release rule:** no APK/EXE/IPA handoff or public release until the integration is merged after exact-head CI, rights and privacy gates are closed, physical-device QA passes, and production signing is verified.
+
+## 2026-11-28 follow-up — evidence-based gate status
+
+- PR #37 branch synchronization: completed with merge commit `d4b7d9030c6abd66e2c6730073b227d54d218da9`; the branch was 33 commits ahead and zero behind current main. Subsequent documentation/privacy commits are on the same candidate branch. It remains Draft.
+- Exact-head CI for synchronized commit `d4b7d9030c6abd66e2c6730073b227d54d218da9`: run `46157672886`. Tanzil acquisition and Flutter format/analyze/tests passed; platform build jobs were still running at the last inspection. Later commits require their own exact-head CI.
+- Quran JSON integrity: complete 1,772,310-character blobs from main and the candidate branch were parsed and compared. The only JSON field difference was `manifest.retrievedAtUtc`; canonical Quran payload and embedded metadata hash were identical.
+- QCF asset review: repository tree inspection found 604 QCF Tajweed font files, three other TTF files and one banner, but only a root MIT code license and no per-asset provenance/rights mapping. Public redistribution remains BLOCKED until exact official asset provenance is demonstrated or the assets are replaced with direct official downloads. See `docs/content-reviews/qcf-assets.md`.
+- Audio rights: AlQuran Cloud terms (checked 2026-11-28) permit streaming, embedding and downloading for personal/educational use; reciters retain copyright and may request removal in commercial products. Athaar may use only within this non-commercial personal/educational scope for now; no installer bundling, re-hosting, commercial use or model training. See `docs/content-reviews/recitations.md`.
+- Audio QA: automated store tests cover mocked HTTP download, bitrate fallback, empty responses, path validation and deletion. They do not prove MP3 decoding or real playback, offline restart, background, lock-screen, Bluetooth, audio focus, or device-specific behavior. Physical QA remains NOT RUN. See `docs/qa/audio-device-test-plan.md`.
+- ASR/tasmee: no ASR engine is integrated. The candidate model card publishes metrics, but Athaar has not reproduced them. Dataset rights and a complete speaker-disjoint full-ayah benchmark remain unresolved; do not ship or label it as tasmee.
+- Privacy: source-code data-flow review confirms that opening the study screen automatically fetches tafsir, translation catalogue/default translation, and reciter catalogue. Play/download actions trigger further provider requests. Local notes/progress are not included in these requests. Android INTERNET is present; no microphone permission was found in the inspected Android manifest or iOS Info.plist. The in-app settings disclosure has been corrected on the candidate. Public policy/legal approval remains blocked by missing operator details and external review.
+
+
+## Official Mushaf source and rights follow-up — 2026-11-28
+
+- Verified the King Fahd Complex official Hafs digital vector edition and its published worldwide permission for use in computer programs: https://qurancomplex.gov.sa/mushaf-printing
+- Official source SHA-256 recorded in `docs/content-reviews/qcf-assets.md`: `C2FA8D93A7C4F689B58EB32756E1AE56CD1B7CE4826F63E09723BE8B092224FB`.
+- The official computer-publishing application/font catalogue are documented as source references, not treated as a ready-to-integrate Flutter asset bundle.
+- Existing `qcf_quran_plus` embedded files remain blocked until exact asset provenance is proven or they are replaced through a separately engineered official-source renderer.
+- A request for written clarification and scientific/technical review is prepared; no approval has been received yet.
